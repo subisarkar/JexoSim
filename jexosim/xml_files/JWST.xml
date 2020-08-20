@@ -1,0 +1,100 @@
+<root>
+  <title> JexoSim common configuration file </title>
+  <type name="common configuration"> </type>
+  <common>
+      <logbinres val="1000" units="" comment="Resoving power for common spectral binnin. A linear binning wavelength integral is estimated as wl_min/R"/>
+      <wl_min val="0.43" units="um" comment="Shortest wavelength in simulation used for binning input spectra"/>
+      <wl_max val="16" units="um" comment="Shortest wavelength in simulation used for binning input spectra"/>
+      <output_directory val="~/JexoSim_Output" comment="output directory to store sim images in FITs format or data processed results in pickle format" />
+      <config_path val = "__path__" />
+      <database_nasa_exoplanet_archive val="__path__" comment=""/>
+      <database_phoenix  val="__path__" comment=""/>
+  </common>
+  
+  <simulation>
+      <simulation_diagnostics  val="0" comment=""/>
+      <simulation_mode  val="1" comment=""/>
+      <simulation_realisations  val="1" comment=""/>
+      <output_mode val = "1" units="" comment="1 = process through pipeline and store as pickle file, 2 = do not process through pipeline and store image stack as a FITS file"/>
+  </simulation>
+
+  
+  <pointing_model>
+      <PointingModel val="__path__/data/JWST/Pointing/JWST_pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
+      <adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
+      <pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter if adjust_rms is True " />
+  </pointing_model>
+
+ <exosystem_params>
+    <primary_transit val = "1" units="" comment="1= primary transit, 2= secondary eclipse"/>
+    <star_spectrum val = "model" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
+    <planet val = 'K2-18 b' />
+    <use_planet_spectrum_file val = '1' units="" comment="1= uses an input spectrum from file, 0=uses an estimate based on the radius or flux ratio" />
+    <planet_spectrum_file val="__path__/data/planet_spectra/planet_spectrum_model_1.txt" comment="planet/star contrast ratio"/>
+    
+    <planet_file_renew val="1" comment=""/>
+    
+    <use_norm val="0" units="" comment="0 or 1: use a star spectrum normalized to given magnitude"/>
+    <norm_band val="J" comment="band of normalized magnitude"/>
+    <norm_mag val="6.591" units="" comment="normalized magnitude"/>
+    
+ </exosystem_params>
+ 
+
+  <noise>
+      <EnableSpatialJitter val="0" units=""/>
+      <EnableSpectralJitter val="0" units=""/>
+      <EnableShotNoise val="1" units=""/>
+      <EnableReadoutNoise val="0" units=""/>
+      <EnableAll val="0" units="" comment="enables all noise sources and applies PRNU: if ApplyRandomPRNU is 1 it will apply random grid else it applies the standard grid"/>
+      <DisableAll val="0" units="" comment="disables all noise sources and does not apply PRNU, overides enable all"/>
+      <ApplyPRNU val="1" units="" comment="If 1 uses a matrix of QE variations"/>
+      <ApplyRandomPRNU val="1" units="" comment="If 1 generates a random grid of QE variations"/>
+      <QErms val="0.03" units="" comment="if ApplyRandomPRNU is true, this is the rms variation applied"/>
+      <QErms_uncert val="0.005" units="" comment="if ApplyRandomPRNU is true, this is the uncertainty applied"/>
+      
+      <simulation_noise_source     val="0" units=""/>
+  </noise>
+  
+  <background>
+      <EnableSource val="1" units=""/>
+      <EnableZodi val="0" units=""/>
+      <EnableEmission val="0" units=""/>
+      <EnableDC val="0" units=""/>
+      <EnableAll val="0" units="" comment="enables all target and background sources and DC"/>
+      <DisableAll val="0" units="" comment="disables all target and background sources and DC, overides enable all"/>
+  </background>
+  
+  <timeline>
+      <apply_lc val="1" units="" comment="apply a transit light curve; if false will do an OOT observation" />
+      <useLDC val="2" units="" comment="activate use of limb darkening code" />
+      <apply_lo_dens_LC  val="1" units="" comment="if 0 uses instantaneous light curve, if 1 uses intergrated light curve" />
+      <use_T14 val="0" units="" comment="if true uses T14 as the basis for the total observation time; if false uses obs_time or n_exp" />
+      <before_transit val="0.5" units="" comment="fraction of T14 for pre-transit observation" />
+      <after_transit val="0.5"  units="" comment="fraction of T14 for post-transit observation" />
+      <obs_time val="0" units="" comment="in hrs; total observing time if OOT chosen, and if > 0 overides n_exp; set to 0 to use n_exp" />
+      <n_exp val="1000" units="" comment="number of exposures that sets the total observation time if use_T14 is false" />
+  </timeline>
+
+<common_optics>
+  <transmissions>
+    <optical_surface type="mirror" transmission="__path__/data/JWST/OTE/Transmissions/OTE_trans.csv" val="50" units="K" comment=""/>
+  </transmissions>
+
+  <emissions>
+    <optical_surface no_surfaces = "4" emissivity = "0.03" val = "50" units="K" comment="number of OTE surfaces and temp"/>
+  </emissions>
+
+  <telescope_effective_diameter val="5.686952642" units="m" comment="from Pandeia data json file giving collecting area of 25.4009m2"/>
+</common_optics>
+
+<channel_list>
+   <!--<ch val="NIRCAM_F444W" />-->
+   <!-- <ch val="NIRISS_SOSS" /> -->
+   <ch val="NIRSpec_G395M_F290LP" />
+   <!--<ch val="MIRI_LRS" />-->
+</channel_list>
+
+
+
+</root>

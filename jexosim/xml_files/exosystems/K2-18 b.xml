@@ -1,0 +1,27 @@
+<root>
+    <title> JexoSim exosystem file </title>
+    <type name="exosystem parameters"> </type>
+
+    <fake_exosystem>
+        <planet_name val="K2-18 b" comment=""/>
+        <R_p val="0.21100000000000002" units="Rjup" comment=""/>
+        <M_p val="0.028069999999999998" units="Mjup" comment=""/>
+        <T_p val="284.0" units="K" comment=""/>
+        <i val="89.579" units="deg" comment=""/>
+        <e val="0.2" units="" comment=""/>
+        <a val="0.1429" units="au" comment=""/>
+        <P val="32.939623" units="day" comment=""/>
+        <albedo val="0.3" units="" comment=""/>
+        <R_s val="0.41" units="Rsun" comment=""/>
+        <M_s val="0.36" units="Msun" comment=""/>
+        <T_s val="3457.0" units="K" comment=""/>
+        <d val="38.0266" units="pc" comment=""/>
+        <logg val="4.76880241463095" units="" comment=""/>
+        <Z val="0.12" units="" comment=""/>
+        <star_name val="K2-18" comment=""/>
+        <ecliptic_lat val="4.020079" units="deg" comment=""/>
+     
+    </fake_exosystem>
+    
+    
+</root>

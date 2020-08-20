@@ -1,0 +1,39 @@
+<root>
+  <title> JexoSim exosystem file </title>
+  <type name="exosystem parameters"> </type>
+  <exosystem_params>
+    <primary_transit val="1" units="" comment="1= primary transit, 0= secondary eclipse"/>
+    <use_planck_spectrum val="0" units="" comment="If True, use a Planck function for the stellar sed, otherwise use Phoenix"/>
+    <planet val="HD 15337 b"/>
+    <use_planet_spectrum_file val="0" units="" comment="1= uses an input spectrum from file, 0=uses an estimate based on the radius or flux ratio"/>
+    <planet_spectrum_file val="__path__/data/planet_spectra/planet_spectrum_model_1.txt" comment="planet/star contrast ratio"/>
+    <interp_stellar_spectrum val="0" units="" comment="if 1 interpolates Phoenix spectra to the input values of the star, otherwise if 0 chooses the closest spectrum from the available grid"/>
+    <ecliptic_lat val="-39.56819" units="" comment="select an ecliptic latitude for the star (for zodi model)"/>
+ </exosystem_params>
+  
+  <fake_exosystem>
+      <fake_switch val="1" units="" comment="1 overides planet input above (astroscene, planet) and uses the fake system inputs"/>
+      <R_p val="0.152" units="R_j" comment=""/>
+      <M_p val="0.02265" units="M_j" comment=""/>
+      <T_p val="1006.0" units="K" comment=""/>
+      <i val="88.36" units="deg" comment=""/>
+      <e val="0.17" units="" comment=""/>
+      <a val="0.05245" units="au" comment=""/>
+      <P val="4.756419999999999" units="day" comment=""/>
+      <albedo val="0.3" units="" comment=""/>
+      <planet_name val="HD 15337 b" comment=""/>
+      <R_s val="0.84" units="R_s" comment=""/>
+      <M_s val="0.85" units="M_s" comment=""/>
+      <T_s val="5131.0" units="K" comment=""/>
+      <d val="44.8155" units="pc" comment=""/>
+      <logg val="4.5145437160023025" units="" comment=""/>
+      <Z val="0.03" units="" comment=""/>
+      <star_name val="HD 15337" comment=""/>
+      
+      <use_norm val="0" units="" comment="0 or 1: use a star spectrum normalized to given magnitude"/>
+      <norm_band val="K" comment="band of normalized magnitude"/>
+      <norm_mag val="7.044" units="" comment="normalized magnitude"/>
+  </fake_exosystem>
+  
+ 
+</root>

@@ -1,0 +1,94 @@
+<root>
+    <title> MIRI_LRS </title>
+    <type name="channel configuration"> </type>
+
+<channel name="MIRI_LRS" comment="MIRI_LRS">
+    <instrument val = "MIRI"/>
+    
+  <transmissions>
+    <optical_surface type="prism" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_prism_trans.csv"  val="60" units="K" comment="prism"/>
+    <optical_surface type="combined optics" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_internal_trans.csv"  val="60" units="K" comment="internal optics, assumed 7 optical surfaces of 0.982 = 0.982^7"/>
+    <optical_surface type="contamination" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_contamination.csv"  val="60" units="K" comment="contamination factor 0.8"/>
+  </transmissions>
+  
+  <emissions>
+    <optical_surface no_surfaces = "7" emissivity = "0.03" val = "7.0" units="K" comment="number of channel surfaces and temp http://ircamera.as.arizona.edu/MIRI/instrument.htm and internal transmission exponent"/>
+  </emissions>
+
+  <camera>
+    <slit_width val="832" units="" comment="Size of slit image in units of detector pixels"/>
+    <dispersion path="__path__/data/JWST/MIRI/Wavelengths/MIRI_prism_dispersion.csv" val="960" units="micron" comment="Dispersion law. Val is the reference pixel, i.e. the centre of the array, based on Kendrew 2015"/>
+    <wfno_x val="8.28" units="" comment="based on  https://jwst-docs.stsci.edu/display/JTI/MIRI+Observing+Modes says LRS has 2.6 pix @ 7.7 μm giving f = 8.28" />
+    <wfno_y val="8.28" units="" comment="as above" />
+  </camera>
+
+  <simulation_factors>
+      <osf val="3" units="" comment="Oversample each detector pixel by this amount. Need to be changed" />
+      <pix_offs val="1" units = "" comment="Detector pixel center offset" />
+  </simulation_factors>
+      
+  <detector_array>
+    <subarray_list val="SLITLESSPRISM" comment=""/>
+    <array_geometry val="72, 416" comment="SLITLESSPRISM subarray https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Subarrays"/>
+    <qe val="__path__/data/JWST/MIRI/Transmissions/MIRI_QE.csv" comment="" />
+    <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
+    <PRNU val="3.0" comment="flat field variation % rms" />
+    <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
+  </detector_array>
+
+  <detector_pixel>
+    <pixel_size val="25" units="micron" />
+    <plate_scale_x val="3.05556E-05" units="deg" comment="based on published 0.11 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Overview"  />
+    <plate_scale_y val="3.05556E-05" units="deg" comment="based on published 0.11 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Overview"  />
+    <Idc val="0.2" units="electron/s" comment="baseline array Rieke et al 2015 PASP https://iopscience.iop.org/article/10.1086/682257/pdf and https://jwst-docs.stsci.edu/mid-infrared-instrument/miri-instrumentation/miri-detector-overview"/>
+    <sigma_ro val="28" units="" comment="Detector readout noise in 14 e-rms based on Rieke 2015 converted Fowler-8 sampling Var_fowler = Var_ro 2/N"/>
+    <pixel_diffusion_length val="1e-30" units="micron" />
+    <full_well val="250000" units="" comment=" 250000 from Rieke et al 2015 PASP https://iopscience.iop.org/article/10.1086/682257/pdf and  https://jwst-docs.stsci.edu/mid-infrared-instrument/miri-instrumentation/miri-detector-overview 193655 from pandexo online"/>
+    <pedestal_drift val="0" units="" />
+    <kTC_noise val="0" units="" comment=""/>
+  </detector_pixel>
+  
+  <detector_readout>
+    <frame_time val="0.159" units= "s" comment="time resolution of simulation"/>
+    <t_f val="0.159" units= "s" comment=""/>
+    <t_g val="0.159" units= "s" comment="change name to group time integration time of a single group https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Subarrays"/>
+    <t_sim val="0.159" units= "s" comment=""/>
+    <auto val="1" units= "" comment="will automatically set the dead time based on the group time"/>
+    <multiaccum val="6" units= "" comment="number of groups in a ramp; aka MULTIACCUM"/>
+    <doCDS val="1" units= "" comment="0 = up-the-ramp, 1= CDS.  If pick CDS then final integration time will be (n-_groups-1)*array_readtime and only first and last NDR are simulated"/>
+    <use_sat val="1" units="" comment="if true calculates minimum saturation time of a pixel and sets that as the exposure time" />
+    <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
+    <exposure_time val="0" units="s" comment="time for one exposure containg set of NDRs and includes dead time if use_sat is false - however this is not implemented as it will conflict with frame_time and multiaccum.  Instead the expsoure time is calculated by multiaccum*frame_time +dead time" />
+    <nGND val='0' units="" comment="duration of reset event in units of frame time" />
+    <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
+    <nRST val = '0' units="" comment="Time lapse between last NDR and reset in units of frame time" />
+    
+  </detector_readout>
+  
+  <data_pipeline>
+    <start_wav val="4.9" units="" />
+    <end_wav val="12.1" units="" />
+    <extra_pix val="0" units="" />
+    <wavrange_lo val="5.0" units="" />
+    <wavrange_hi val="12.0" units="" />
+    <binning val="R-bin" comment="either fixed-bin  or R-bin"/>
+    <R val="58.0" units="" comment="R power if R-bin selected"/>
+    <bin_size val="5" units="" comment="size of fixed-bins in pixel columns if fixed-bin selected"/>
+    <apply_mask val="1" units="" comment="apply an aperture mask or not"/>
+    <ApFactor val="1.22" units="" comment="if mask applied, width in units of Flambda"/>
+    <ApShape val="rect"  comment="rect = rectangular mask where width = ApFactor*F*lambda(max), wav = wavelength dependent mask where width = ApFactor * F *lambda. rect is default"/>
+    <result_type val="0" units="" comment="0= SNR results, 1= planet spectrum with error bars"/>
+    <useAllen val="0" units="" comment="if result_type is 0, this selects use of Allen analysis"/>
+    <useReduced val="0" units="" comment="selects reduced number of bins in data pipline for speed "/>
+    <jitterMethod val="pointing-interp" comment=""/>
+    <fit_gamma val="0" units="" comment=""/>
+    <useSignal val="1" units="" comment=""/>
+    <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
+    <auto_ap val="1" units="" comment=""/>
+    
+  </data_pipeline>
+</channel>
+
+
+
+</root>

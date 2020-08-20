@@ -1,0 +1,96 @@
+<root>
+    <title> NIRISS_SOSS_ORDER_1 </title>
+    <type name="channel configuration"> </type>
+  
+<channel name="NIRISS_SOSS_ORDER_1" comment="NIRISS_SOSS_ORDER_1">
+    <instrument val = "NIRISS"/>
+
+ <transmissions>
+     <optical_surface type="internal optics" transmission="__path__/data/JWST/NIRISS/Transmissions/NIRISS_internal_trans.csv"  val="60" units="K" comment=""/>
+     <optical_surface type="grism" transmission="__path__/data/JWST/NIRISS/Transmissions/NIRISS_grism_trans.csv"  val="60" units="K" comment=""/>
+     <optical_surface type="?" transmission="__path__/data/JWST/NIRISS/Transmissions/NIRISS_mechanical_loss.csv"  val="60" units="K" comment="33% loss http://jwst.astro.umontreal.ca/?page_id=51"/>
+ </transmissions>
+ 
+<emissions>
+    <optical_surface no_surfaces = "9" emissivity = "0.03" val = "40.0" units="K" comment="number of channel surfaces and temp https://jwst-docs.stsci.edu/display/JTI/NIRISS+Optics+and+Focal+Plane"/>
+</emissions>
+
+  <camera>
+      <slit_width val="4096" units="" comment="Size of slit image in units of detector pixels - if set to 0 then assumes no slit used"/>
+      <dispersion path="__path__/data/JWST/NIRISS/Wavelengths/NIRISS_SOSS_GRISM_dispersion.csv" val="4680" units="micron" comment="Dispersion law. Val is the reference pixel, i.e. the centre of the array"/>
+      <wfno_x val="9.07" units="" comment="Image space f/# based on average of FWHM/lambda/1.02 for PSF for lambda from 1.114 to 2.744 https://jwst-docs.stsci.edu/display/JTI/NIRISS+Point+Spread+Functions#NIRISSPointSpreadFunctions-tab1" />
+      <wfno_y val="294.1" units="" comment="Image space f/# based on 25 pix FWHM assuming lambda of 1.5 microns https://blogs.stsci.edu/newsletter/files/2015/02/SOSS.pdf vol 32 iss 1. Note this is used only for generating a PSF if WebbPSF PSF not used" />
+  </camera>
+
+  <simulation_factors>
+    <osf val="3" units="" comment="Oversample each detector pixel by this amount. Need to be changed" />
+    <pix_offs val="1" units = "" comment="Detector pixel center offset" />
+  </simulation_factors>
+
+  <detector_array>
+      <subarray_list val="SUBSTRIP96 SUBSTRIP256" units= "" comment=""/>
+      <subarray_geometry_list val="96,2048 256,2048" units= "" comment=""/>
+      <subarray_t_f_list val="2.214 5.494" units= "s" comment=""/>
+      <array_geometry val="256,2048" units= "dimensionless" comment="defulat gr700xd substrip256 subarray mode"/>
+      <qe val="__path__/data/JWST/NIRISS/Transmissions/NIRISS_QE.csv" comment="this is the wavelength dependent QE per pixel; note this is null file for this mode, since it is subsumed in the PCE file" />
+      <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
+      <PRNU val="3.0" comment="flat field variation % rms" />
+      <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
+  </detector_array>
+  
+  <detector_pixel>
+    <pixel_size val="18" units="micron" />
+    <plate_scale_x val="1.81667E-05" units="deg" comment="based on published 0.0654 arcsec/pix from website https://jwst-docs.stsci.edu/display/JTI/NIRISS+Detector" />
+    <plate_scale_y val="1.82778E-05" units="deg" comment="based on published 0.0658 arcsec/pix from website https://jwst-docs.stsci.edu/display/JTI/NIRISS+Detector" />
+    <Idc val="0.0414" units="electron/s" comment="Detector dark current in e/s based on NIRISS detector website https://jwst-docs.stsci.edu/near-infrared-imager-and-slitless-spectrograph/niriss-instrumentation/niriss-detector-overview/niriss-detector-performance#NIRISSDetectorPerformance-Darkcurrent"/>
+    <sigma_ro val="12.9542" units="" comment="Detector readout frame noise in e-rms based on NIRISS detector website https://jwst-docs.stsci.edu/display/JTI/NIRISS+Detector+Performance"/>
+    <pixel_diffusion_length val="1e-30" units="micron" />
+    <full_well val="100000" units="" comment="https://jwst-docs.stsci.edu/near-infrared-imager-and-slitless-spectrograph/niriss-instrumentation/niriss-detector-overview"/>
+    <pedestal_drift val="22" units="" />
+    <kTC_noise val="65" units="" />
+  </detector_pixel>
+  
+  <detector_readout>
+      <t_f val="5.494" units= "s" comment="use 2400.0 for paper reuslts - same for tf, tg, tsim"/>
+      <t_g val="5.494" units= "s" comment=""/>
+      <t_sim val="5.494" units= "s" comment=""/>
+      <auto val="1" units= "" comment="will automatically set the dead time based on the group time"/>
+      <multiaccum val="2" units= "" comment="number of groups in a ramp; aka MULTIACCUM"/>
+      <doCDS val="1" units="" comment="CDS or UTR.  If pick CDS then final integration time will be (n-_groups-1)*array_readtime and only first and last NDR are simulated"/>
+      <use_sat val="0" units="" comment="if true calculates minimum saturation time of a pixel and sets that as the exposure time" />
+      <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
+      <exposure_time val="2400.0" units="s" comment="time for one exposure containg set of NDRs and includes dead time if use_sat is false - however this is not implemented as it will conflict with frame_time and multiaccum.  Instead the expsoure time is calculated by multiaccum*frame_time +dead time" />
+      <nGND val='0' units="" comment="duration of reset event in units of frame time" />
+      <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
+      <nRST val = '1' units="" comment="Time lapse between last NDR and reset in units of frame time" />
+  </detector_readout>
+  
+  <data_pipeline>
+      <start_wav val="0.8" units="" />
+      <end_wav val="2.9" units="" />
+      <extra_pix val="0" units="" />
+      <wavrange_lo val="0.9" units="" />
+      <wavrange_hi val="2.8" units="" />
+      <binning val="R-bin" units="" comment="either fixed-bin  or R-bin"/>
+      <R val="100.0" units="" comment="based on average R in Pandexo paper"/>
+      <bin_size val="5" units="" comment="size of fixed-bins in pixel columns if fixed-bin selected"/>
+      <apply_mask val="0" units="" comment="apply an aperture mask or not"/>
+      <ApFactor val="1.22" units="" comment="if mask applied, width in units of Flambda"/>
+      <ApShape val="rect" units="" comment="rect = rectangular mask where width = ApFactor*F*lambda(max), wav = wavelength dependent mask where width = ApFactor * F *lambda. rect is default"/>
+      <result_type val="0" units="" comment="0= SNR results, 1= planet spectrum with error bars"/>
+      <useAllen val="0" units="" comment="if result_type is 0, this selects use of Allen analysis"/>
+      <useReduced val="0" units="" comment="selects reduced number of bins in data pipline for speed "/>
+      <jitterMethod val="pointing-interp" units="" comment=""/>
+      <fit_gamma val="0" units="" comment=""/>
+      <useSignal val="1" units="" comment=""/>
+      <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
+      <auto_ap val="1" units="" comment=""/>
+      
+  </data_pipeline>
+
+
+</channel>
+
+
+
+</root>

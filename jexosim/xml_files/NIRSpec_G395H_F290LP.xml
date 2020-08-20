@@ -1,0 +1,94 @@
+<root>
+    <title> NIRSpec_G395H_F290LP</title>
+    <type name="channel configuration"> </type>
+  
+  <channel name="NIRSpec_G395H_F290LP" comment="NIRSpec_G395H_F290LP">
+      <instrument val = "NIRSpec"/>
+
+
+<transmissions>
+    <optical_surface type="internal optics" transmission="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_MOS_internal_optics_trans.csv"  val="60" units="K" comment="combined optical path"/>
+    <optical_surface type="filter" transmission="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_F290LP_trans.csv"  val="60" units="K" comment="F290LP"/>
+    <optical_surface type="grism" transmission="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_G395H_trans.csv"  val="60" units="K" comment="G39HM"/>
+</transmissions>
+ 
+
+<emissions>
+    <optical_surface no_surfaces = "15" emissivity = "0.03" val = "40.0" units="K" comment="number of channel surfaces and temp https://www.cosmos.esa.int/web/jwst-nirspec/nirspec-s-design"/>
+</emissions>
+
+<camera>
+    <slit_width val="16" units="" comment="BOTS = 1.6x1.6 arcsec slit https://jwst-docs.stsci.edu/display/JTI/NIRSpec+Bright+Object+Time-Series+Spectroscopy"/>
+    <dispersion path="__path__/data/JWST/NIRSpec/Wavelengths/NIRSpec_G395H_dispersion.csv" val="4680" units="micron" comment="Dispersion law. Val is the reference pixel, i.e. the centre of the array"/>
+    <wfno_x val="5.6" units="" comment="Image space f/# based on online source https://www.cosmos.esa.int/web/jwst-nirspec/nirspec-s-design  assume diffraction limited in this wavelength range" />
+    <wfno_y val="5.6" units="" comment="Image space f/# based on online source" />
+</camera>
+
+<simulation_factors>
+    <osf val="3" units="" comment="Oversample each detector pixel by this amount. Need to be changed" />
+    <pix_offs val="1" units = "" comment="Detector pixel center offset" />
+</simulation_factors>
+
+<detector_array>
+    <subarray_list val="SUB2048" units= "" comment=""/>
+    <array_geometry val="32, 2048" units= "" comment="2048x32 subarray mode"/>
+    <qe val="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_QE.csv" comment="" />
+    <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
+    <PRNU val="3.0" comment="flat field variation % rms" />
+    <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
+</detector_array>
+
+<detector_pixel>
+    <pixel_size val="18" units="micron" />
+    <plate_scale_x val="2.77778e-5" units="deg" comment="based on published 0.1 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/NIRSpec+Overview" />
+    <plate_scale_y val="2.77778e-5" units="deg" comment="based on published 0.1 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/NIRSpec+Overview" />
+    <Idc val="0.0075" units="electron/s" comment="Detector dark current based on average of 0.0092 and 0.0057 for the 2 detectors https://jwst-docs.stsci.edu/display/JTI/NIRSpec+Detector+Performance"/>
+    <sigma_ro val="12" units="" comment="Detector readout noise based Giardino 2012 SPIE  https://dms.cosmos.esa.int/COSMOS/doc_fetch.php?id=3371528 "/>
+    <pixel_diffusion_length val="1e-30" units="micron" />
+    <full_well val="57750" units="" comment="57750= average of 55100 and 60400 https://jwst-docs.stsci.edu/display/JTI/NIRSpec+Detector+Performance 65000 from pandexo online"/>
+    <pedestal_drift val="" units="" />
+    <kTC_noise val="" units="" comment=""/>
+</detector_pixel>
+
+<detector_readout>
+    <frame_time val="0.902" units= "s"  comment="time resolution of simulation"/>
+    <t_f val="0.902" units= "s" comment="2048x32 subarray mode"/>
+    <t_g val="0.902" units= "s" comment="2048x32 subarray mode"/>
+    <t_sim val="0.902" units= "s" comment=""/>
+    <multiaccum val="2" units= "" comment="number of groups in a ramp; aka MULTIACCUM"/>
+    <doCDS val="1" units= "" comment="0 = up-the-ramp, 1= CDS.  If pick CDS then final integration time will be (n-_groups-1)*array_readtime and only first and last NDR are simulated"/>
+    <use_sat val="1" units="" comment="if true calculates minimum saturation time of a pixel and sets that as the exposure time" />
+    <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
+    <exposure_time val="0" units="s" comment="time for one exposure containg set of NDRs and includes dead time if use_sat is false - however this is not implemented as it will conflict with frame_time and multiaccum.  Instead the expsoure time is calculated by multiaccum*frame_time +dead time" />
+    <nGND val='1' units="" comment="duration of reset event in units of frame time" />
+    <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
+    <nRST val = '0' units="" comment="Time lapse between last NDR and reset in units of frame time" />
+</detector_readout>
+
+<data_pipeline>
+    <start_wav val="2.7" units="" />
+    <end_wav val="5.2" units="" />
+    <extra_pix val="0" units="" />
+    <wavrange_lo val="2.87" units="" />
+    <wavrange_hi val="5.1" units="" />
+    <binning val="R-bin" units="" comment="either fixed-bin  or R-bin"/>
+    <R val="58.0" units="" comment="based on average R in Pandexo paper"/>
+    <bin_size val="30" units="" comment="size of fixed-bins in pixel columns if fixed-bin selected"/>
+    <apply_mask val="1" units="" comment="apply an aperture mask or not"/>
+    <ApFactor val="1.22" units="" comment="if mask applied, width in units of Flambda"/>
+    <ApShape val="rect" units="" comment="rect = rectangular mask where width = ApFactor*F*lambda(max), wav = wavelength dependent mask where width = ApFactor * F *lambda. rect is default"/>
+    <result_type val="0" units="" comment="0= SNR results, 1= planet spectrum with error bars"/>
+    <useAllen val="1" units="" comment="if result_type is 0, this selects use of Allen analysis"/>
+    <useReduced val="0" units="" comment="selects reduced number of bins in data pipline for speed "/>
+    <jitterMethod val="pointing-interp" units="" comment=""/>
+    <fit_gamma val="0" units="" comment=""/>
+    <useSignal val="0" units="" comment=""/>
+    <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
+    <auto_ap val="1" units="" comment=""/>
+</data_pipeline>
+
+  </channel>
+  
+  
+  
+</root>
