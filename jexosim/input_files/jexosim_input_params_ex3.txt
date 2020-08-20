@@ -1,0 +1,139 @@
+simulation_diagnostics                    1
+# 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0  
+                                           
+simulation_mode                    3
+# 1 = OOT , 2= Full transit, 3= noise budget     
+
+output_mode                    1
+# 1 = deliver processed results, 2 = deliver image stack only    
+
+planet				GJ 1214 b
+# Enter planet name in form used in NASA exoplanet archive. 
+
+planet_use_database		0
+# 1 to obtain all exosystem parameters from the database automatically.  0 to enter ecosystem parameters manually (see below)
+
+use_planet_spectrum_file		0	
+# Enter 'simple' for flat transmission spectrum or blackbody based emission spectrum. Enter 'model' to use a model planet spectrum. 
+
+planet_spectrum_file	/Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_spectra/planet_spectrum_model_1.txt 
+# If using model planet spectrum give complete path to the file.  
+
+planet_file_renew	1
+# 1 to make a new planet xml file even if an old one exists (recommend if updating planet information). 0 to make new files only if none currently exist.  Recommend setting to 0 (unless major database changes)
+ 
+ch			MIRI_LRS_slitless
+# Enter instrument mode from following choices:
+# NIRSpec_G395M_F290LP
+# NIRSpec_G235M_F170LP
+# NIRSpec_G140M_F100LP
+# NIRSpec_PRISM
+# NIRISS_SOSS_ORDER_1
+# MIRI_LRS_slitless
+# NIRCam_F444W
+# NIRCam_F322W2
+# Code will auto-select a subarray mode
+
+simulation_realisations		1
+# Number of realisations used in simulation. Set > 1 for Monte Carlo.  Recommend set to 1 for OOT sims. Recommend set to 50 for Monte Carlo using full transit sims.
+
+binning	R-bin	
+# 'R-bin' for R-binning, 'fixed-bin' for bins of given pixel width. 
+
+R			58	
+# If R-binning, enter binned R power
+
+bin_size		5	
+# If fixed bin sizes, enter width of bin in pixels
+
+ApShape		wav	
+# Enter 'rect' for rectangular mask or 'wav' for wavelength-dependent mask. Recommend rect
+
+apply_mask		1	
+# Enter 1 to apply mask in data reduction. 0 to omit mask. Recommend 1.
+
+auto_ap		0	
+# Enter 1 to allow code to find optimal mask width. 0 to set mask width by user.  Recommend 1 
+
+ApFactor		1.22	
+# If JDP_auto_ap set to 0, choose mask width in units of F lambda.
+
+
+# Manual ecosystem entry (only needed if you select not to use planet database)
+exosystem_planet_name		fake_planet
+# Enter name for planet
+exosystem_R_p		0.254
+# Enter planet radius in R_j units
+exosystem_M_p		0.0195
+# Enter planet mass in M_j units
+exosystem_P		1.58040456
+# Enter period in days
+exosystem_T_p		604
+# Enter planet temperature in K
+exosystem_a	        0.01411
+# Enter semi-major axis in AU
+exosystem_i		88.47
+# Enter inclination angle in deg
+exosystem_e		0
+# Enter eccentricity  
+exosystem_albedo	0.3
+# Enter albedo  
+exosystem_R_s		0.2213
+# Enter star radius in R_sun units
+exosystem_M_s		0.176
+# Enter star radius in M_sun units
+exosystem_T_s		3026
+# Enter star radius K
+exosystem_d 		14.55
+# Enter distance in pc
+exosystem_logg		4.9
+# Enter logg
+exosystem_Z		0.1
+# Enter star metallicity Z index
+exosystem_star_name 	fake_star
+# Enter star name
+exosystem_ecliptic_lat  27.9 
+# Enter ecliptic latitude in deg  
+      
+use_norm     0
+#1 to normalize star spectrum to a fixed magnitude; 0 to not normalize to fixed magnitude.  This will overide (R_s/d)^2.  Recommend 0
+norm_band    J
+# Choose J or K  
+norm_mag     8
+# Enter magnitude (only matters if exosystem_use_norm is set to 1)
+
+star_spectrum 		model
+# Enter'model' to use Phoenix stellar model.  Enter 'simple' to use Planck function.  Recommend model.
+
+primary_transit		1
+# Enter 1 for primary transit. Enter 2 for secondary eclipse.
+
+# Noise choices
+simulation_noise_source		0
+# Recommend 0 (All noise) for most simulations
+# 0 All noise
+# 2 Photon noise (star) only
+# 3 Dark current  
+# 4 Zodi
+# 5 Emission
+# 6 Read noise
+# 7 Spatial jitter
+# 8 Spectral jitter
+# 9 Combined jitter
+# 10 Noiseless no backgrounds
+# 11 Noiseless with backgrounds
+# 12 Noise budget
+
+use_sat 	1
+# Enter 1 to let code set n (number of groups) based on saturation time of pixel.  Enter 0 to set n by user.  We assume m = 0. Groups = frames. Recommend 1
+
+multiaccum  10
+# If obs_use_sat is set to 0, enter the value of n directly.
+
+nRST   default
+# Enter 'default' for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
+
+
+
+
+

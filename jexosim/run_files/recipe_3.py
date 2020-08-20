@@ -38,8 +38,6 @@ class recipe_3(object):
         opt.channel.data_pipeline.useAllen.val =1
          
         noise_list = [0,2,3,4,5,6,7,8,9]
-        noise_list = [0,2,7,8,9]
-        # noise_list = [2,7]
         start = 0 
         end = int(start + opt.no_real)       
                 
