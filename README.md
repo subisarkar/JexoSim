@@ -17,7 +17,7 @@ Then activate this environment.
 
 Clone the repository from github:
 
-    git clone https://https://github.com/subisarkar/JexoSim.git
+    git clone https://github.com/subisarkar/JexoSim.git
     cd JexoSim
     python setup.py install
     
