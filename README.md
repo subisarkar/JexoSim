@@ -53,7 +53,10 @@ Results will be packaged as a .pickle file in the designated output folder.  The
 
 Results
 ------
-The results from any given simulation are placed in the output folder.  To identify the simulation, the file name includes the type of simulation, the planet, instrument channel and end time of the simulation.  A file with the suffix 'TEMP' is a temporary file for an ongoining multi-realisation simulation, but can be accessed in the same way as a completed simulation file.  The data is in the form of a dictionary. 
+The results from any given simulation are placed in the output folder.  To identify the simulation, the file name includes the type of simulation, the planet, instrument channel and end time of the simulation.  A file with the suffix 'TEMP' is a temporary file for an ongoining multi-realisation simulation, but can be accessed in the same way as a completed simulation file.  The data is in the form of a dictionary.   To display results from a results file (e.g. `Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle`):
+
+    cd JexoSim
+    python results.py Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle
 
 
 Examples
@@ -63,6 +66,6 @@ In the folder `input_files` there are example input parameter text files, which 
 Citing
 ------
 
-If you use JexoSim in your reserach, please cite:
+If you use JexoSim in your research, please cite:
 
 Sarkar, S., Madhusudhan, N. Papageorgiou, A.  M (2020). JexoSim: A time domain simulator of exoplanet transit spectroscopy with JWST. Monthly Notices of the Royal Astronomical Society 491(1), pp. 378-397. (10.1093/mnras/stz2958)
