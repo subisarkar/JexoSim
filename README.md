@@ -4,9 +4,9 @@ JexoSim (JWST Exoplanet Observation Simulator) is a time-domain simulator for th
 
 Installation
 ------
-We recommend installing Anaconda, and then setting up a virtual environment for JexoSim to avoid package conflicts:
+We recommend installing Anaconda, and then setting up a virtual environment for JexoSim to avoid package conflicts.  This is will also install numpy, numba and spyder.
 
-    conda create -n jexosim python=3 numpy numba
+    conda create -n jexosim python=3.8 numpy numba spyder
 
 Then activate this environment.
 
