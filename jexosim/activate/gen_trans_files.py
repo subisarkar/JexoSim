@@ -14,7 +14,7 @@ def run(params):
     
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
 
-    dfp = '%s/jexosim/data2/JWST'%(jexosim_path)
+    dfp = '%s/jexosim/data/JWST'%(jexosim_path)
     if not os.path.exists(dfp):
             os.makedirs(dfp) 
             

@@ -12,7 +12,7 @@ def run(rms= 0.03, rms_uncert=0.005):
     
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
 
-    dfp = '%s/jexosim/data2/JWST/PRNU'%(jexosim_path)
+    dfp = '%s/jexosim/data/JWST/PRNU'%(jexosim_path)
     
     if not os.path.exists(dfp):
         os.makedirs(dfp) 

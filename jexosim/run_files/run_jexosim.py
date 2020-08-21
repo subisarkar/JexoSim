@@ -21,9 +21,7 @@ from datetime import datetime
 #====Load defauls from XML files and load input text file with user-defined adjustments==========================================================================
 # 
 def run(params_file):
-# for a in [0]:
-    params_file = 'jexosim_input_params_ex1.txt'
-    
+
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
@@ -126,8 +124,7 @@ def run(params_file):
     if opt.simulation.output_mode.val == 1:
         results_file = recipe.filename
         results.run(results_file)
-        
-         
+
     #==============================================================================
     #      Store results
     #==============================================================================
@@ -135,4 +132,4 @@ def run(params_file):
    
 if __name__ == "__main__":     
     
-    run('jexosim_input_params_ex4.txt')      
+    run('jexosim_input_params_ex1.txt')      

@@ -155,9 +155,7 @@ def run(results_file):
             plt.plot(wav, y, '-', color='r', linewidth=2) 
             plt.grid(True)
                    
-                     
-        
- 
+    plt.show()
     # # plt.errordicar(res_dict['wl'],res_dict['p_mean'],res_dict['p_std'])
     # plt.errordicar(res_dict['wl'],res_dict['signal_mean'])
 
