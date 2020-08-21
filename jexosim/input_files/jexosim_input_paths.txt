@@ -1,8 +1,0 @@
-database_pandeia   			put_path_here
-database_phoenix   			put_path_here
-database_nasa_exoplanet_archive     	put_path_here
-#Write full paths to each downloaded database  
-
-output_directory     			put_path_here                 
-#Write full path to folder in which results will be placed 
-
