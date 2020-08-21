@@ -6,7 +6,7 @@ Installation
 ------
 We recommend installing Anaconda, and then setting up a virtual environment for JexoSim to avoid package conflicts:
 
-    conda create -n jexosim python=3
+    conda create -n jexosim python=3 numpy numba
 
 Then activate this environment.
 

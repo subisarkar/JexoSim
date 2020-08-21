@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 name = 'jexosim'
 description = 'Time-domain simulator for JWST transit spectroscopy'
 url = 'https://github.com/subisarkar/JexoSim/'
-install_requires = ['pytransit>=2.0', 'numba', 'scipy', 'astropy', 'pandas', 'emcee', 'seaborn', 'uncertainties', 'tqdm', 'lxml', 'matplotlib', 'anaconda']
+install_requires = ['pytransit>=2.0', 'scipy', 'astropy', 'pandas', 'emcee', 'seaborn', 'uncertainties', 'tqdm', 'lxml', 'matplotlib', 'anaconda']
 entry_point = '__run__:console'
 version = {'2.0'}
 

@@ -9,6 +9,7 @@ from jexosim.classes.options import Options
 from jexosim.classes.params import Params
 from jexosim.run_files.recipe_1 import recipe_1
 from jexosim.run_files.recipe_2 import recipe_2
+from jexosim.run_files.recipe_2a import recipe_2a
 from jexosim.run_files.recipe_3 import recipe_3
 from jexosim.run_files import results
 from jexosim.activate.gen_planet_xml_file import make_planet_xml_file
@@ -21,6 +22,8 @@ from datetime import datetime
 #====Load defauls from XML files and load input text file with user-defined adjustments==========================================================================
 # 
 def run(params_file):
+    
+    params_file = 'jexosim_input_params_ex2.txt'
 
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
@@ -112,12 +115,16 @@ def run(params_file):
     opt.no_real = opt.simulation.simulation_realisations.val
     opt.diagnostics = opt.simulation.simulation_diagnostics.val
     opt.input_params = input_params
-
-    jexosim_msg(('Simulation mode %s'%(int(opt.simulation.simulation_mode.val))), 1)      
+    
+    jexosim_msg(('Simulation mode %s'%(int(opt.simulation.simulation_mode.val))), 1)
+          
     if opt.simulation.simulation_mode.val == 1:
           recipe  = recipe_1(opt)
     if opt.simulation.simulation_mode.val == 2:
-          recipe  = recipe_2(opt)      
+       if opt.simulation.output_mode.val == 1:   
+           recipe  = recipe_2(opt)   
+       elif opt.simulation.output_mode.val == 2: # fits only
+           recipe  = recipe_2a(opt)   
     if opt.simulation.simulation_mode.val == 3:
           recipe  = recipe_3(opt)
           

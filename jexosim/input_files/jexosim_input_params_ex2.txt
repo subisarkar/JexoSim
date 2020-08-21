@@ -7,7 +7,7 @@ simulation_mode                    2
 output_mode                    1
 # 1 = deliver processed results, 2 = deliver image stack only         
 
-planet				K2-18 b
+planet				GJ 1214 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database		1
@@ -22,7 +22,7 @@ planet_spectrum_file	/Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_
 planet_file_renew	0
 # 1 to make a new planet xml file even if an old one exists (recommend if updating planet information). 0 to make new files only if none currently exist.  Recommend setting to 0 (unless major database changes)
  
-ch			NIRSpec_G395M_F290LP
+ch			MIRI_LRS_slitless
 # Enter instrument mode from following choices:
 # NIRSpec_G395M_F290LP
 # NIRSpec_G235M_F170LP
@@ -34,7 +34,7 @@ ch			NIRSpec_G395M_F290LP
 # NIRCam_F322W2
 # Code will auto-select a subarray mode
 
-simulation_realisations		50
+simulation_realisations		1
 # Number of realisations used in simulation. Set > 1 for Monte Carlo.  Recommend set to 1 for OOT sims. Recommend set to 50 for Monte Carlo using full transit sims.
 
 binning	R-bin	

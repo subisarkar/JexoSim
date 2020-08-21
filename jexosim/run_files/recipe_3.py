@@ -159,7 +159,7 @@ class recipe_3(object):
                         pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
      
                         jexosim_msg('Results in %s'%(filename), 1)
-                        recipe.filename = filename
+                        self.filename = 'Noise_budget_%s_%s.pickle'%(opt.lab, time_tag)
 
     
     def run_JexoSimA(self, opt):

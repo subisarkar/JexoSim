@@ -67,8 +67,7 @@ def run(opt):
       number_of_exposures = int(opt.timeline.n_exp.val)       
       if opt.timeline.obs_time.val >0:
             number_of_exposures = int(opt.timeline.obs_time.val*3600 / opt.exposure_time.value)         
-  opt.n_exp = number_of_exposures
-  print (opt.n_exp)
+  opt.n_exp = number_of_exposures.value
   
   opt.total_observing_time = opt.exposure_time*opt.n_exp
   

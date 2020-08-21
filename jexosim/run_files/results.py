@@ -101,7 +101,6 @@ def run(results_file):
             plt.legend()
             plt.grid(True)
             
- 
         
     if res_dict['simulation_mode'] == 2:
         
@@ -113,11 +112,10 @@ def run(results_file):
             cr_wl = res_dict['input_spec_wl']
        
             plt.figure('spectrum %s'%(res_dict['time_tag']))
-            for i in range(p_stack.shape[0]):
-                plt.plot(wl,p_stack[i], '.', color='0.5', alpha =0.2)
-
-                
-                
+            if res_dict['simulation_realisations'] > 1:    
+                for i in range(p_stack.shape[0]):
+                    plt.plot(wl,p_stack[i], '.', color='0.5', alpha =0.2)
+        
             plt.plot(wl,p_mean, 'o-', color='b', label = 'mean recovered spectrum')
             plt.errorbar(wl,p_mean,p_std, ecolor='b')
             plt.plot(cr_wl,cr, ':', color='r', label='input spectrum')
@@ -176,4 +174,4 @@ if __name__ == "__main__":
     
     # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1936_47.pickle')
     
-    run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle')
+    run('Full_transit_MIRI_LRS_slitless_K2-18 b_2020_08_21_1007_25.pickle')
