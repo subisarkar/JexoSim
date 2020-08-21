@@ -23,8 +23,6 @@ from datetime import datetime
 # 
 def run(params_file):
     
-    params_file = 'jexosim_input_params_ex2.txt'
-
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
