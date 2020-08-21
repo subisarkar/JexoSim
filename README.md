@@ -23,7 +23,7 @@ or
 
 ### GitHub
 
-Clone the repository from github:
+Clone the repository from github, and run `setup.py`.  This will setup the remaining package dependencies for JexoSim.
 
     git clone https://github.com/subisarkar/JexoSim.git
     cd JexoSim
@@ -33,7 +33,7 @@ Clone the repository from github:
 
 Download the following databases:  [Pandeia](https://stsci.app.box.com/v/pandeia-refdata-v1p5p1/) (Pontoppidan, K.M. et al. (2016). Proc. SPIE, 9910, 991016) and [Phoenix BT-Settl database](https://phoenix.ens-lyon.fr/Grids/BT-Settl/CIFIST2011_2015/FITS/BT-Settl_M-0.0a+0.0.tar) (Allard F., Homeier D., Freytag B., 2012, Philos. Trans. Royal Soc. A, 370, 2765).  Unzip and extract the folders.
 
-From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table in .csv format.  Under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.
+From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table as follows: under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.
 
 In the folder `input_files`, edit the text file `jexosim_input_paths.txt` to include the complete paths to the three databases above, e.g.   `/Users/UserA/Downloads/pandeia_data-1.5.1`   `/Users/UserA/Downloads/BT-Settl_M-0.0a+0.0 `   `/ Users/UserA/Downloads/PS_2020.08.15_04.42.11.csv`
 
