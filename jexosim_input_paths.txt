@@ -1,0 +1,8 @@
+database_pandeia   			/Users/user1/Downloads/pandeia_data-1.5.1
+database_phoenix   			/Users/user1/Downloads/BT-Settl_M-0.0a+0.0 
+database_nasa_exoplanet_archive         /Users/user1/Downloads/PS_2020.08.15_04.42.11.csv
+#Write full paths to each downloaded database  
+
+output_directory     			/Volumes/My Passport for Mac/JexoSim_output                 
+#Write full path to folder in which results will be placed 
+
