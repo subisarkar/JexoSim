@@ -20,7 +20,7 @@
 
   
   <pointing_model>
-      <PointingModel val="__path__/data/JWST/Pointing/JWST_pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
+      <PointingModel val="__path__/data/Pointing/JWST_pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
       <adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
       <pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter if adjust_rms is True " />
   </pointing_model>
