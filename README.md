@@ -53,7 +53,7 @@ Before JexoSim can be run for the first time, you need to activate it.  Navigate
 
 Running a simulation
 ------
-Navigate to inside the `JexoSim` folder, and run the `run_jexosim.py` file with an input parameter file (e.g. `jexosim_input_params_ex1`) as the argument.
+Navigate to inside the `JexoSim` folder, and run the `run_jexosim.py` file with an input parameter file (e.g. `jexosim_input_params_ex1.txt`) as the argument.  Some example input parameter files are provided (see below).
 
       cd JexoSim
       python run_jexosim.py jexosim_input_params_ex1.txt
@@ -70,7 +70,7 @@ The results from any given simulation are placed in the output folder.  To ident
 
 Examples
 ------
-In the folder `input_files` there are example input parameter text files, which can be run.  
+In the folder `input_files` there are example input parameter text files, which can be run using the 'Running a simulation' routine above.    
 
 Citing
 ------
