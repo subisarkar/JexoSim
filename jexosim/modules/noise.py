@@ -376,7 +376,7 @@ def noise_simulator(opt):
           noise = simulate_jitter(opt)
            
   else:
-     jexosim_msg ("using jitterless array %s", opt.diagnostics)
+     jexosim_msg ("using jitterless array", opt.diagnostics)
      jitterless = np.ones((fp.shape[0], fp.shape[1], len(opt.frames_per_ndr)))
      jitterless =  np.rollaxis(jitterless,2,0)
      jitterless = jitterless*fp

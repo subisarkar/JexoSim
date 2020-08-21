@@ -36,8 +36,9 @@ class Entry(object):
          
  
       except (ValueError, LookupError):
-        print ('unable to convert units in entry [tag, units, value]: ', \
-                                 xml.tag, self.units, self.val)
+          pass
+        # print ('unable to convert units in entry [tag, units, value]: ', \
+        #                          xml.tag, self.units, self.val)
 
 class Options(object):    
 

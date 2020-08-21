@@ -38,9 +38,11 @@ class recipe_2a(object):
         opt = self.run_JexoSimA(opt)
         
         if opt.observation_feasibility ==0:      
-            jexosim_msg ("Observation not feasible...", opt.diagnostics)      
+           jexosim_msg ("Observation not feasible...", opt.diagnostics)
+           self.feasibility = 0    
                                 
         else:
+           self.feasibility = 1    
            n_ndr0 = opt.n_ndr*1
            lc0 = opt.lc_original*1
            ndr_end_frame_number0 = opt.ndr_end_frame_number*1

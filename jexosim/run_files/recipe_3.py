@@ -6,9 +6,10 @@ Recipe 3 - OOT simulation returning a noise budget
 '''
 import numpy as np
 from jexosim.modules import exosystem, telescope, channel, backgrounds
-from jexosim.modules import detector, timeline, light_curve, systematics, noise
+from jexosim.modules import detector, timeline, light_curve, systematics, noise, output
 from jexosim.JDP.runJDP import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
+from astropy import units as u
 from datetime import datetime
 import os, pickle
 
@@ -26,7 +27,6 @@ class recipe_3(object):
         self.noise_dict ={}
         
         opt.channel.data_pipeline.useSignal.val=1
-        opt.timeline.obs_time.val = 3.0
         opt.channel.data_pipeline.use_fast.val =1
         opt.channel.data_pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
@@ -36,6 +36,8 @@ class recipe_3(object):
         opt.timeline.apply_lc.val = 0
         opt.timeline.useLDC.val = 0
         opt.channel.data_pipeline.useAllen.val =1
+         
+        opt.timeline.obs_time.val = 3.0*u.hr
          
         noise_list = [0,2,3,4,5,6,7,8,9]
         start = 0 
@@ -88,9 +90,10 @@ class recipe_3(object):
                 opt = self.run_JexoSimA(opt) 
                 
                 if opt.observation_feasibility ==0:      
-                    jexosim_msg ("Observation not feasible...", opt.diagnostics) 
+                    jexosim_msg ("Observation not feasible...", opt.diagnostics)
+                    self.feasibility = 0    
                 else:
-                    
+                    self.feasibility = 1    
                     opt = self.run_JexoSimB(opt)
                     
                     if opt.simulation.output_mode.val == 1:  
@@ -141,52 +144,66 @@ class recipe_3(object):
                         
                         output.run(opt)
 
-            # dump pickle file at end of each cycle of noise sims
-            if opt.simulation.output_mode.val == 1:         
-                time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
-                self.results_dict['time_tag'] =  time_tag
-         
-                if j != start:
-                    os.remove(filename)  # delete previous temp file
-                filename = '%s/Noise_budget_%s_TEMP.pickle'%(output_directory, opt.lab)
-                with open(filename, 'wb') as handle:
-                    pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
-                   
-                if j == end-1:
-                    os.remove(filename)  # delete previous temp file
-                    filename = '%s/Noise_budget_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
+            if self.feasibility ==1:      
+
+                # dump pickle file at end of each cycle of noise sims
+                if opt.simulation.output_mode.val == 1:         
+                    time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
+                    self.results_dict['time_tag'] =  time_tag
+             
+                    if j != start:
+                        os.remove(filename)  # delete previous temp file
+                    filename = '%s/Noise_budget_%s_TEMP.pickle'%(output_directory, opt.lab)
                     with open(filename, 'wb') as handle:
                         pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
-     
-                        jexosim_msg('Results in %s'%(filename), 1)
-                        self.filename = 'Noise_budget_%s_%s.pickle'%(opt.lab, time_tag)
+                       
+                    if j == end-1:
+                        os.remove(filename)  # delete previous temp file
+                        filename = '%s/Noise_budget_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
+                        with open(filename, 'wb') as handle:
+                            pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
+         
+                            jexosim_msg('Results in %s'%(filename), 1)
+                            self.filename = 'Noise_budget_%s_%s.pickle'%(opt.lab, time_tag)
 
     
     def run_JexoSimA(self, opt):
-      exosystem.run(opt) 
-      telescope.run(opt) 
-      channel.run(opt)  
-      backgrounds.run(opt)     
+      jexosim_msg('Exosystem', 1)
+      exosystem.run(opt)
+      jexosim_msg('Telescope', 1)
+      telescope.run(opt)
+      jexosim_msg('Channel', 1)
+      channel.run(opt)
+      jexosim_msg('Backgrounds', 1)
+      backgrounds.run(opt) 
+      jexosim_msg('Detector', 1)
       detector.run(opt)
       if opt.observation_feasibility ==1: # if detector does not saturate continue
-          timeline.run(opt)    
+          jexosim_msg('Timeline', 1)
+          timeline.run(opt)
+          jexosim_msg('Light curve', 1)
           light_curve.run(opt)     
           return opt       
       else: # if detector saturates end sim      
           return opt 
       
     def run_JexoSimB(self, opt):
-      systematics.run(opt)   
-      noise.run(opt)              
+      jexosim_msg('Systematics', 1)
+      systematics.run(opt) 
+      jexosim_msg('Noise', 1)
+      noise.run(opt)                 
       return opt
       
     def run_pipeline_stage_1(self, opt):
+      jexosim_msg('Pipeline stage 1', 1)
       opt.pipeline_stage_1 = pipeline_stage_1(opt)   
       return opt             
                
-    def run_pipeline_stage_2(self, opt):        
+    def run_pipeline_stage_2(self, opt):    
+      jexosim_msg('Pipeline stage 2', 1)
       opt.pipeline_stage_2 = pipeline_stage_2(opt)             
       return opt 
+  
 
-
+  
 

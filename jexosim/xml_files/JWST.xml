@@ -72,7 +72,7 @@
       <use_T14 val="0" units="" comment="if true uses T14 as the basis for the total observation time; if false uses obs_time or n_exp" />
       <before_transit val="0.5" units="" comment="fraction of T14 for pre-transit observation" />
       <after_transit val="0.5"  units="" comment="fraction of T14 for post-transit observation" />
-      <obs_time val="0" units="" comment="in hrs; total observing time if OOT chosen, and if > 0 overides n_exp; set to 0 to use n_exp" />
+      <obs_time val="0" units="hr" comment="in hrs; total observing time if OOT chosen, and if > 0 overides n_exp; set to 0 to use n_exp" />
       <n_exp val="1000" units="" comment="number of exposures that sets the total observation time if use_T14 is false" />
   </timeline>
 

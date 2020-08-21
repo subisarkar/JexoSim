@@ -46,9 +46,11 @@ class recipe_2(object):
         opt = self.run_JexoSimA(opt)
         
         if opt.observation_feasibility ==0:      
-            jexosim_msg ("Observation not feasible...", opt.diagnostics)      
+           jexosim_msg ("Observation not feasible...", opt.diagnostics) 
+           self.feasibility = 0
                                 
         else:
+           self.feasibility = 1
            n_ndr0 = opt.n_ndr*1
            lc0 = opt.lc_original*1
            ndr_end_frame_number0 = opt.ndr_end_frame_number*1
@@ -204,28 +206,39 @@ class recipe_2(object):
                 
             
     def run_JexoSimA(self, opt):
-      exosystem.run(opt) 
-      telescope.run(opt) 
-      channel.run(opt)  
-      backgrounds.run(opt)     
+      jexosim_msg('Exosystem', 1)
+      exosystem.run(opt)
+      jexosim_msg('Telescope', 1)
+      telescope.run(opt)
+      jexosim_msg('Channel', 1)
+      channel.run(opt)
+      jexosim_msg('Backgrounds', 1)
+      backgrounds.run(opt) 
+      jexosim_msg('Detector', 1)
       detector.run(opt)
       if opt.observation_feasibility ==1: # if detector does not saturate continue
-          timeline.run(opt)    
+          jexosim_msg('Timeline', 1)
+          timeline.run(opt)
+          jexosim_msg('Light curve', 1)
           light_curve.run(opt)     
           return opt       
       else: # if detector saturates end sim      
           return opt 
       
     def run_JexoSimB(self, opt):
-      systematics.run(opt)   
+      jexosim_msg('Systematics', 1)
+      systematics.run(opt) 
+      jexosim_msg('Noise', 1)
       noise.run(opt)                 
       return opt
            
     def run_pipeline_stage_1(self, opt):
+      jexosim_msg('Pipeline stage 1', 1)
       opt.pipeline_stage_1 = pipeline_stage_1(opt)   
       return opt  
              
-    def run_pipeline_stage_2(self, opt):        
+    def run_pipeline_stage_2(self, opt):    
+      jexosim_msg('Pipeline stage 2', 1)
       opt.pipeline_stage_2 = pipeline_stage_2(opt)             
       return opt 
     

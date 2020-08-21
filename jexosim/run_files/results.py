@@ -43,13 +43,13 @@ def run(results_file):
     if ch == 'NIRISS_SOSS_ORDER_1': wavlim=[0.9, 2.8]
                                             
  
-    for key in res_dict.keys():
-        print (key)
+    # for key in res_dict.keys():
+    #     print (key)
         
     if res_dict['simulation_mode'] == 1 or res_dict['simulation_mode'] == 3:
         no_dict =  res_dict['noise_dic']  
-        for key in no_dict.keys():
-            print (key)
+        # for key in no_dict.keys():
+        #     print (key)
         
         for key in no_dict.keys():
             
@@ -82,6 +82,8 @@ def run(results_file):
                 for i in range(sig_stack.shape[0]):
                     plt.plot(wl,sig_stack[i], ':', color = col, alpha=0.5)           
             plt.legend()
+            plt.ylabel('Signal (e$^-$)')
+            plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
      
             plt.figure('noise %s'%(res_dict['time_tag']))
@@ -90,6 +92,8 @@ def run(results_file):
                 for i in range(no_stack.shape[0]):
                     plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
             plt.legend()
+            plt.ylabel('Noise (e$^-$)')
+            plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
             
             
@@ -99,6 +103,8 @@ def run(results_file):
                 for i in range(fracNoT14_stack.shape[0]):
                     plt.plot(wl,fracNoT14_stack[i], '.', color = col, alpha=0.5)           
             plt.legend()
+            plt.ylabel('Fractional noise at T14 (ppm)')
+            plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
             
         
@@ -120,6 +126,8 @@ def run(results_file):
             plt.errorbar(wl,p_mean,p_std, ecolor='b')
             plt.plot(cr_wl,cr, ':', color='r', label='input spectrum')
             plt.legend()
+            plt.ylabel('Contrast ratio (ppm)')
+            plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
                    
 
@@ -137,6 +145,8 @@ def run(results_file):
             z = np.polyfit(wav, p_std, r)
                                          
             plt.figure('precision %s'%(res_dict['time_tag']))
+            plt.ylabel('1 sigma error on transit depth (ppm)')
+            plt.xlabel('Wavelength ($\mu m$)')
             plt.plot(wav, p_std, 'bo', alpha=0.5)
     
             p= np.poly1d(z)

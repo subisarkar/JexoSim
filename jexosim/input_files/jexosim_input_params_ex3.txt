@@ -1,4 +1,4 @@
-simulation_diagnostics                    1
+simulation_diagnostics                    0
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0  
                                            
 simulation_mode                    3
@@ -7,10 +7,10 @@ simulation_mode                    3
 output_mode                    1
 # 1 = deliver processed results, 2 = deliver image stack only    
 
-planet				GJ 1214 b
+planet				K2-18 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
-planet_use_database		0
+planet_use_database		1
 # 1 to obtain all exosystem parameters from the database automatically.  0 to enter ecosystem parameters manually (see below)
 
 use_planet_spectrum_file		0	
@@ -19,7 +19,7 @@ use_planet_spectrum_file		0
 planet_spectrum_file	/Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_spectra/planet_spectrum_model_1.txt 
 # If using model planet spectrum give complete path to the file.  
 
-planet_file_renew	1
+planet_file_renew	0
 # 1 to make a new planet xml file even if an old one exists (recommend if updating planet information). 0 to make new files only if none currently exist.  Recommend setting to 0 (unless major database changes)
  
 ch			MIRI_LRS_slitless

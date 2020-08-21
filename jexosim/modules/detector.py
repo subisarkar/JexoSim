@@ -229,17 +229,17 @@ def run(opt):
                
               idx = np.argmax(np.array(SNR_list))
               new_t_f =  opt.channel.detector_array.subarray_t_f_list.val[idx]
-              jexosim_msg ("Using subarray mode %s"%(opt.channel.detector_array.subarray_list.val[idx]), opt.diagnostics)
+              jexosim_msg ("Using subarray mode %s"%(opt.channel.detector_array.subarray_list.val[idx]), 1)
               opt.subarray = opt.channel.detector_array.subarray_list.val[idx]
               
               if np.array(SNR_list).max() ==0:
-                  jexosim_msg ("!!! No subarray modes will work for this object")
+                  jexosim_msg ("!!! No subarray modes will work for this object", 1)
                   opt.observation_feasibility = 0
                                  
               opt.channel.detector_readout.t_f.val = new_t_f
               opt.channel.detector_readout.t_g.val = new_t_f
               opt.channel.detector_readout.t_sim.val = new_t_f
-              jexosim_msg ("frame time (t_f) is now... %s"% (new_t_f), opt.diagnostics)
+              jexosim_msg ("frame time (t_f) is now... %s"% (new_t_f), 1)
               dead_time = (ch.detector_readout.nGND.val+ ch.detector_readout.nRST.val)* ch.detector_readout.t_g.val
               zero_time = ch.detector_readout.nNDR0.val* ch.detector_readout.t_g.val                  
           
@@ -284,18 +284,18 @@ def run(opt):
                       xxx
                   if opt.fp_signal.shape[1]/3 != opt.fpn[1]: 
                       xxx
-                  jexosim_msg ("subarray dimensions %s x %s "%(opt.fpn[0], opt.fpn[1]), opt.diagnostics)
+                  jexosim_msg ("subarray dimensions %s x %s "%(opt.fpn[0], opt.fpn[1]), 1)
                   
             #==============================================================================
             #       If multiple subarray modes do not eixst, t_f, t_g, dead_time and zero_time not changed 
             #==============================================================================              
           elif cond ==0: # different subbarrays do not exist,\        
-              jexosim_msg ("Only one subarray available...",  opt.diagnostics) #assuming m=1 in all cases 
+              jexosim_msg ("Only one subarray available...",  1) #assuming m=1 in all cases 
               opt.subarray = opt.channel.detector_array.subarray_list.val[0]
-              jexosim_msg ("Using subarray %s"%(opt.channel.detector_array.subarray_list.val[0]) , opt.diagnostics)
+              jexosim_msg ("Using subarray %s"%(opt.channel.detector_array.subarray_list.val[0]) , 1)
                   
           # re-calculate or calculate n (maccum_calc) and t_int
-          print (sat_time, opt.channel.detector_readout.t_g.val, dead_time)
+          # print (sat_time, opt.channel.detector_readout.t_g.val, dead_time)
           jexosim_msg ("MACCUM (no of groups) %s"%(int(sat_time/opt.channel.detector_readout.t_g.val) - int(dead_time/ch.detector_readout.t_g.val)) , opt.diagnostics  )
           maccum_calc =  int(sat_time/opt.channel.detector_readout.t_g.val) - int(dead_time/ch.detector_readout.t_g.val)
           t_int =  (maccum_calc-1)*ch.detector_readout.t_g.val        
@@ -314,7 +314,7 @@ def run(opt):
       jexosim_msg ("frame time %s t_dead %s t_zero %s"%(opt.channel.detector_readout.t_f.val,  dead_time,   zero_time) , opt.diagnostics)
       
       opt.t_int = t_int
-      jexosim_msg ("multiaccum projected %s"%(maccum_calc), opt.diagnostics)
+      jexosim_msg ("multiaccum projected %s"%(maccum_calc), 1)
             
       if ch.detector_readout.doCDS.val == 1:
           jexosim_msg ("Using CDS, so only 2 NDRs simulated", opt.diagnostics)

@@ -1,0 +1,27 @@
+<root>
+    <title> JexoSim exosystem file </title>
+    <type name="exosystem parameters"> </type>
+
+    <fake_exosystem>
+        <planet_name val="GJ 436 b" comment=""/>
+        <R_p val="0.366" units="Rjup" comment=""/>
+        <M_p val="0.08" units="Mjup" comment=""/>
+        <T_p val="686.0" units="K" comment=""/>
+        <i val="86.85799999999999" units="deg" comment=""/>
+        <e val="0.1616" units="" comment=""/>
+        <a val="0.0308" units="au" comment=""/>
+        <P val="2.64389803" units="day" comment=""/>
+        <albedo val="0.3" units="" comment=""/>
+        <R_s val="0.46" units="Rsun" comment=""/>
+        <M_s val="0.56" units="Msun" comment=""/>
+        <T_s val="3416.0" units="K" comment=""/>
+        <d val="9.753210000000001" units="pc" comment=""/>
+        <logg val="4.860739990946185" units="" comment=""/>
+        <Z val="0.02" units="" comment=""/>
+        <star_name val="GJ 436" comment=""/>
+        <ecliptic_lat val="22.62774" units="deg" comment=""/>
+     
+    </fake_exosystem>
+    
+    
+</root>

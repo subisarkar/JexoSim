@@ -76,7 +76,7 @@ def make_planet_xml_file(opt, pl):
      
     for pl in pl_list:
         
-        check_xml_file = '%s/template.xml'%(target_folder)
+        check_xml_file = '%s/%s.xml'%(target_folder, pl)
         cond = 1
         if os.path.exists(check_xml_file ):
             print ('A file already exists for this planet.  Change planet_file_renew to 1 in jexosim_input_file.txt, to overwrite with a new file')

@@ -23,6 +23,9 @@ from datetime import datetime
 # 
 def run(params_file):
     
+# for a in [0]:
+    # params_file = 'jexosim_input_params_ex2.txt'
+    
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
@@ -45,8 +48,8 @@ def run(params_file):
     # read in input parameters for this simulation
     params_to_opt = Params(opt, params_file, 1)  
     input_params = params_to_opt.params
-    opt = params_to_opt.opt # adjust default values to user defined ones    
-           
+    opt = params_to_opt.opt # adjust default values to user defined ones   
+          
     jexosim_msg('Instrument mode %s \n'%(opt.channel_list.ch.val), 1)    
     jexosim_msg('Reading default instrument mode configuration file \n', 1)
     ch = opt.channel_list.ch.val
@@ -60,19 +63,19 @@ def run(params_file):
     params_to_opt = Params(opt, params_file, 2)
     input_params = params_to_opt.params
     opt = params_to_opt.opt # adjust defaulf values to user defined ones 
-     
+
     pl = opt.exosystem_params.planet.val
     # an XML file is made for the planet (if one exists code will use that unless planet_file_renew =1 )
     make_planet_xml_file(opt, pl)
-     
+ 
     jexosim_msg("Planet selected: %s... \n"%(pl), 1)  
     jexosim_msg('Reading exosystem parameters file ... \n', 1)
     # overrides defaults in JWST.xml file
     ex_file = '%s/xml_files/exosystems/%s.xml'%(opt.__path__, pl)
+    
     opt3 = Options(ex_file).opt
     for key in opt3.__dict__:
         setattr(opt, str(key), opt3.__dict__[key])
-        
  
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
@@ -126,9 +129,12 @@ def run(params_file):
     if opt.simulation.simulation_mode.val == 3:
           recipe  = recipe_3(opt)
           
-    if opt.simulation.output_mode.val == 1:
-        results_file = recipe.filename
-        results.run(results_file)
+    if recipe.feasibility ==1:    
+        if opt.simulation.output_mode.val == 1:
+            results_file = recipe.filename
+            results.run(results_file)
+    else:
+        jexosim_msg('No results', 1)
 
     #==============================================================================
     #      Store results

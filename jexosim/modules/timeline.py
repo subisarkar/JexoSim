@@ -63,12 +63,13 @@ def run(opt):
   if opt.timeline.use_T14.val ==1:
       total_observing_time = opt.T14*(1.0+opt.timeline.before_transit()+opt.timeline.after_transit())
       number_of_exposures = np.ceil((total_observing_time.to(u.s)/opt.exposure_time.to(u.s))).astype(np.int)
+      number_of_exposures = number_of_exposures.value
   elif opt.timeline.use_T14.val ==0:   
-      number_of_exposures = int(opt.timeline.n_exp.val)       
+      number_of_exposures = int(opt.timeline.n_exp.val)    
       if opt.timeline.obs_time.val >0:
-            number_of_exposures = int(opt.timeline.obs_time.val*3600 / opt.exposure_time.value)         
-  opt.n_exp = number_of_exposures.value
-  
+            number_of_exposures = int(opt.timeline.obs_time.val.to(u.s) / opt.exposure_time) 
+  opt.n_exp = number_of_exposures
+ 
   opt.total_observing_time = opt.exposure_time*opt.n_exp
   
   jexosim_msg ("number of integrations %s"%(number_of_exposures),  opt.diagnostics)

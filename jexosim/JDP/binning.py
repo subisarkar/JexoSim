@@ -564,26 +564,29 @@ class extractSpec():
 
 
 
-      
-        nWLs = self.data.shape[2]  # how many steps in the loop
-        # Progress Bar setup:
-        ProgMax = 100    # number of dots in progress bar
-        if nWLs<ProgMax:   ProgMax = nWLs   # if less than 20 points in scan, shorten bar
-        print ("|" +    ProgMax*"-"    + "|     Applying variable position mask: progress")
-        sys.stdout.write('|'); sys.stdout.flush();  # jexosim_msg start of progress bar
-        nProg = 0   # fraction of progress   
+        if self.final_ap ==1:  
+            nWLs = self.data.shape[2]  # how many steps in the loop
+            # Progress Bar setup:
+    
+            ProgMax = 100    # number of dots in progress bar
+            if nWLs<ProgMax:   ProgMax = nWLs   # if less than 20 points in scan, shorten bar
+            print ("|" +    ProgMax*"-"    + "|     Applying variable position mask: progress")
+            sys.stdout.write('|'); sys.stdout.flush();  # jexosim_msg start of progress bar
+            nProg = 0   # fraction of progress   
                 
 
         w_list =[]
         
         for i in range(self.data.shape[2]):
-            if ( i >= nProg*nWLs/ProgMax ):
- 
-                    sys.stdout.write('*'); sys.stdout.flush();  
-                    nProg = nProg+1
-            if ( i >= nWLs-1 ):
- 
-                    sys.stdout.write('|     done  \n'); sys.stdout.flush();                  
+            if self.final_ap ==1:  
+                if ( i >= nProg*nWLs/ProgMax ):
+     
+                        sys.stdout.write('*'); sys.stdout.flush();  
+                        nProg = nProg+1
+                if ( i >= nWLs-1 ):
+     
+                        sys.stdout.write('|     done  \n'); sys.stdout.flush(); 
+                        
             inImage = self.data[...,i]       
             
             signal_list = [] 

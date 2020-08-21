@@ -1,4 +1,4 @@
-simulation_diagnostics                    1
+simulation_diagnostics                    0
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0  
                                            
 simulation_mode                    1
@@ -7,7 +7,7 @@ simulation_mode                    1
 output_mode                    1
 # 1 = deliver processed results, 2 = deliver image stack only          
 
-planet				K2-18 b
+planet				HD 189733 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database		1
@@ -19,10 +19,10 @@ use_planet_spectrum_file		0
 planet_spectrum_file	/Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_spectra/planet_spectrum_model_1.txt 
 # If using model planet spectrum give complete path to the file.  
 
-planet_file_renew	1
+planet_file_renew	0
 # 1 to make a new planet xml file even if an old one exists (recommend if updating planet information). 0 to make new files only if none currently exist.  Recommend setting to 0 (unless major database changes)
  
-ch			MIRI_LRS_slitless
+ch			NIRCam_F444W
 # Enter instrument mode from following choices:
 # NIRSpec_G395M_F290LP
 # NIRSpec_G235M_F170LP
@@ -37,7 +37,7 @@ ch			MIRI_LRS_slitless
 simulation_realisations		1
 # Number of realisations used in simulation. Set > 1 for Monte Carlo.  Recommend set to 1 for OOT sims. Recommend set to 50 for Monte Carlo using full transit sims.
 
-binning	R-bin	
+binning		R-bin	
 # 'R-bin' for R-binning, 'fixed-bin' for bins of given pixel width. 
 
 R			100	
@@ -53,7 +53,7 @@ apply_mask		1
 # Enter 1 to apply mask in data reduction. 0 to omit mask. Recommend 1.
 
 auto_ap		1	
-# Enter 1 to allow code to find optimal mask width. 0 to set mask width by user.  Recommend 1 
+# Enter 1 to allow code to find optimal mask width. 0 to set mask width by user.  Recommend 1 except for noise budgets
 
 ApFactor		1.22	
 # If JDP_auto_ap set to 0, choose mask width in units of F lambda.
@@ -109,7 +109,7 @@ primary_transit		1
 # Enter 1 for primary transit. Enter 2 for secondary eclipse.
 
 # Noise choices
-simulation_noise_source		0
+simulation_noise_source		2
 # Recommend 0 (All noise) for most simulations
 # 0 All noise
 # 2 Photon noise (star) only
