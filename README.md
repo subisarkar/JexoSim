@@ -1,9 +1,6 @@
 # JexoSim
-
-.. raw:: html
-
 <div align="center">
-<img src="docs/jexosim_logo.png" width="400px">
+<img src="docs/jexosim_logo.png" width="300px">
 </img>
 <br/>
 </div>
