@@ -1,5 +1,14 @@
 # JexoSim
 
+.. raw:: html
+
+<div align="center">
+<img src="docs/jexosim_logo.png" width="400px">
+</img>
+<br/>
+</div>
+<br/><br/>
+
 JexoSim (JWST Exoplanet Observation Simulator) is a time-domain simulator for the James Webb Space Telescope, that simulates exoplanet transit observations using all four instruments.
 
 Installation
