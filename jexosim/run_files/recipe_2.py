@@ -11,7 +11,7 @@ import time, os, pickle
 from datetime import datetime
 from jexosim.modules import exosystem, telescope, channel, backgrounds
 from jexosim.modules import detector, timeline, light_curve, systematics, noise
-from jexosim.JDP.runJDP import pipeline_stage_1, pipeline_stage_2
+from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 
 
@@ -126,7 +126,7 @@ class recipe_2(object):
                            jexosim_plot('test_from_sim', opt.diagnostics,
                                         ydata=bb[opt.effective_multiaccum::opt.effective_multiaccum] )       
                            aa = data_stack0.sum(axis=1)                 
-                           jexosim_plot('test_from_jdp', opt.diagnostics,
+                           jexosim_plot('test_from_pipeline', opt.diagnostics,
                                         ydata=aa)                            
                                            
                elif opt.channel.data_pipeline.split ==0:

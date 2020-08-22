@@ -1,49 +1,39 @@
+"""
+Jexosim
+2.0
+Activate
+v 1.0
+
+"""
+
 import numpy as np
 import os
 import jexosim
 from jexosim.activate import gen_trans_files, gen_wavelength_files, gen_PRNU_grid
-# from jexosim.activate import gen_limb_darkening_coeffs, gen_psf
 
 def run():
 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
-
-    input_file = '%s/jexosim/input_files/jexosim_input_paths.txt'%(jexosim_path)
-    
-    with open(input_file) as f:
-        content = f.readlines()
-    content = [x.strip() for x in content]
-
-
-    # DEFAULTS
-    params= {
-        'database_pandeia' :'~',  'output_directory' :'~', }
-
-    for i in range(len(content)):
-        if content[i] != '' and content[i][0] != '#':
-            aa = content[i].split()
-            
-            
-            for key in params.keys():
-                if aa[0]== key:
-                    params[key] = ''
-                    for j in range(1,len(aa)):
-                        params[key] +=  aa[j] +' '
-                    params[key] = params[key][:-1]
-
-
-    if not os.path.exists(params['output_directory']):
-            os.makedirs(params['output_directory'])
-
+    databases_dir = '%s/databases'%(jexosim_path)   
+    cond=0
+    for root, dirs, files in os.walk(databases_dir):
+        for dirc in dirs:
+            if 'pandeia' in dirc:
+                dirc_name = dirc
+                cond=1
+                break
+    if cond==0:
+        print ('Error: database not found')    
+    database_path = '%s/%s'%(databases_dir, dirc_name)
 
     # ==============================================================================
     # Generate transmission files and wavelength solutions from Pandeia database and put in right folder
     # ==============================================================================
     print ("...extracting transmission files")
-    gen_trans_files.run(params)
+    gen_trans_files.run(database_path)
 
     print ("...generating and filing wavelength solutions")
-    gen_wavelength_files.run(params)
+    gen_wavelength_files.run(database_path)
 
     # ==============================================================================
     # Generate a PRNU grid that you can use each time: give % rms and % rms uncertainty

@@ -1,7 +1,7 @@
 """
 JexoSim 
 2.0
-JDP binning module
+Pipeline binning module
 v1.0
 
 """

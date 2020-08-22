@@ -1,9 +1,17 @@
+"""
+JexoSim 
+2.0
+Generate planet files
+v1.0
+
+"""
+
 import numpy as np
 import pandas as pd
 from lxml import etree as ET # USE lxml because it maintins order when setting attributes.
 from jexosim.lib import jexosim_lib
-from astropy import units as u
 import jexosim
+from astropy import units as u
 import os, csv
 
 """
@@ -30,15 +38,18 @@ pl_pubdate:     Planetary Parameter Reference Publication Date
 
 def make_planet_xml_file(opt, pl):
 
-    planet_db_path = opt.common.database_nasa_exoplanet_archive.val
-    
-    # print (planet_db_path)
-
-    # data = pd.read_csv(planet_db_path)
-    
-    # jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
-
-    # target_folder = '%s/jexosim/xml_files/exosystems'%(jexosim_path)
+    jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
+    databases_dir = '%s/databases'%(jexosim_path)   
+    cond=0
+    for root, dirs, files in os.walk(databases_dir):
+        for dirc in files:
+            if 'PS_' in dirc:
+                dirc_name = dirc
+                cond=1
+                break
+    if cond==0:
+        print ('Error: database not found')    
+    planet_db_path = '%s/%s'%(databases_dir, dirc_name)
        
     file=open( planet_db_path, "r")
     reader = csv.reader(file)

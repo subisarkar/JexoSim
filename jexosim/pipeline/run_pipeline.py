@@ -1,13 +1,13 @@
 """
 JexoSim 
 2.0
-JDP run module
+Pipeline run module
 v1.0
 
 """
 
 import numpy as np
-from jexosim.JDP import calibration, jitterdecorr, binning
+from jexosim.pipeline import calibration, jitterdecorr, binning
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 from astropy import units as u  
     

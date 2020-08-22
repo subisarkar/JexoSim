@@ -1,7 +1,7 @@
 """
 JexoSim
 2.0
-JDP Jitter decorrelation module
+Pipeline jitter decorrelation module
 v1.0
 
 """

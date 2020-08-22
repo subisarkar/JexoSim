@@ -6,7 +6,7 @@ Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin
 '''
 from jexosim.modules import exosystem, telescope, channel, backgrounds
 from jexosim.modules import detector, timeline, light_curve, systematics, noise, output
-from jexosim.JDP.runJDP import pipeline_stage_1, pipeline_stage_2
+from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 from astropy import units as u
 from datetime import datetime
@@ -140,8 +140,7 @@ class recipe_1(object):
                         
                         jexosim_msg('Results in %s'%(filename), 1)
                         self.filename = 'OOT_SNR_%s_%s.pickle'%(opt.lab, time_tag)
-                        
-                
+                                
                 
                 elif opt.simulation.output_mode.val == 2:
                      

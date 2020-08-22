@@ -55,8 +55,8 @@ apply_mask		1
 auto_ap		0	
 # Enter 1 to allow code to find optimal mask width. 0 to set mask width by user.  Recommend 1 
 
-ApFactor		1.22	
-# If JDP_auto_ap set to 0, choose mask width in units of F lambda.
+ApFactor		3.66	
+# If pipeline auto_ap set to 0, choose mask width in units of F lambda.
 
 
 # Manual ecosystem entry (only needed if you select not to use planet database)

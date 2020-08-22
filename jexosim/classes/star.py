@@ -6,6 +6,7 @@ from jexosim.classes import sed
 import scipy
 import os
 from jexosim.lib.jexosim_lib import jexosim_msg, planck
+import jexosim
 
 class Star():
 
@@ -18,13 +19,26 @@ class Star():
     jexosim_msg ("Star temperature:  %s"%(opt.exosystem.star.T), opt.diagnostics)
     jexosim_msg ("Star name %s, dist %s, radius %s"%(opt.exosystem.star.name, opt.exosystem.star.d, opt.exosystem.star.R), opt.diagnostics)  
    
-    
+    jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
+    databases_dir = '%s/databases'%(jexosim_path)   
+    cond=0
+    for root, dirs, files in os.walk(databases_dir):
+        for dirc in dirs:
+            if 'BT-Settl' in dirc:
+                dirc_name = dirc
+                cond=1
+                break
+    if cond==0:
+        print ('Error: database not found')    
+    sed_folder = '%s/%s'%(databases_dir, dirc_name)
+
+   
     if opt.exosystem_params.star_spectrum.val == 'simple':
           ph_wl, ph_sed = self.get_simple_spectrum (np.linspace(0.4,12.0,int(1e6))*u.um, 		
     			    opt.exosystem.star.T)			   
           jexosim_msg ("Using black body spectrum for star...", opt.diagnostics)
     else:      
-          ph_wl, ph_sed = self.read_phoenix_spectrum(opt.common.database_phoenix.val, 					 
+          ph_wl, ph_sed = self.read_phoenix_spectrum(sed_folder, 					 
 						    opt.exosystem.star.T, 
 						    opt.exosystem.star.logg, 
 						    opt.exosystem.star.Z)  
@@ -49,13 +63,17 @@ class Star():
         t0= np.round(np.round(star_temperature,-1)/100./0.5)*0.5
     
     logg0 =  np.round(np.round(star_logg,1)/0.5)*0.5
-         
+    
+    cond=0     
     for root, dirs, files in os.walk(sed_folder):
         for filename in files:
             if filename == 'lte0%s-%s-0.0a+0.0.BT-Settl.spec.fits.gz'%(t0.value, logg0):
                 ph_file = '%s/%s'%(sed_folder, filename)
                                              
                 jexosim_msg ("Star file used:  %s"%(ph_file) , self.opt.diagnostics)
+                cond = 1
+    if cond==0:
+        jexosim_msg ("Error:  no star file found", 1)
                  
     with fits.open(ph_file) as hdu:
         wl = u.Quantity(hdu[1].data.field('Wavelength'),

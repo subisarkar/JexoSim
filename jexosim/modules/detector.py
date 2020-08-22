@@ -26,9 +26,9 @@ def run(opt):
 #==============================================================================
       ch = opt.channel
 
-      if os.path.exists('%s/data/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val)):    
-          psf_stack = np.load('%s/data/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val))   
-          psf_stack_wl =  1e6*np.load('%s/data/PSF/%s_psf_stack_wl.npy'%(opt.__path__,ch.instrument.val))       
+      if os.path.exists('%s/../databases/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val)):    
+          psf_stack = np.load('%s/../databases/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val))   
+          psf_stack_wl =  1e6*np.load('%s/../databases/PSF/%s_psf_stack_wl.npy'%(opt.__path__,ch.instrument.val))       
           psf = interpolate.interp1d(psf_stack_wl, psf_stack, axis=2,bounds_error=False, fill_value=0.0, kind='linear')(opt.x_wav_osr.value)      
           psf = np.rot90(psf)       
       else:              
@@ -372,8 +372,14 @@ def run(opt):
       opt.qe_original = copy.deepcopy(opt.qe)
       opt.qe_uncert_original = copy.deepcopy(opt.qe_uncert)
       
+      jexosim_plot('final wl solution on subarray', opt.diagnostics,
+                   ydata=opt.x_wav_osr[1::3],
+                   xlabel = 'x \'spectral\' pixel', ylabel = 'y \'spatial\' pixel',
+                   grid=True)
+        
+      
       sanity_check(opt)
-  
+        
       return opt
       
       

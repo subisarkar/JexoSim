@@ -1,5 +1,7 @@
 """
-Created on Fri Aug  7 08:42:22 2020
+JexoSim
+2.0
+Read and display results
 """
 
 import pickle
@@ -7,19 +9,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import jexosim
 from jexosim.classes.params import Params
+from jexosim.classes.options import Options
 import os
 
 def run(results_file):
     
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
-    paths_file ='%s/jexosim/input_files/jexosim_input_paths.txt'%(jexosim_path)
+    paths_file ='%s/jexosim/input_files/jexosim_paths.txt'%(jexosim_path)
     
     params_to_opt = Params(0, paths_file, 3)  
     paths = params_to_opt.params
-    
-
-    paths = params_to_opt.params
     output_directory = paths['output_directory']
+    if output_directory == '':    
+        common_file = 'jexosim/xml_files/JWST.xml'   
+        opt_b = Options(filename='%s/%s'%(jexosim_path,common_file)).opt
+        output_directory = opt_b.common.output_directory.val
+
     results_file =  '%s/%s'%(output_directory, results_file)
 
     with open(results_file, 'rb') as handle:
@@ -42,7 +47,6 @@ def run(results_file):
     if ch == 'NIRCam_F322W2': wavlim=[2.4, 4.0]  
     if ch == 'NIRISS_SOSS_ORDER_1': wavlim=[0.9, 2.8]
                                             
- 
     # for key in res_dict.keys():
     #     print (key)
         
@@ -164,24 +168,7 @@ def run(results_file):
             plt.grid(True)
                    
     plt.show()
-    # # plt.errordicar(res_dict['wl'],res_dict['p_mean'],res_dict['p_std'])
-    # plt.errordicar(res_dict['wl'],res_dict['signal_mean'])
 
 if __name__ == "__main__":     
-    
-    # run('full_transit_MIRI_LRS_slitless_GJ 1214 b_2020_08_17_1248_20.pick0le')      
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_18_2028_22.pickle')
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_18_2118_03.pickle')
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1830_54.pickle')
-    
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1844_17.pickle')
-    
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1910_59.pickle')
-    
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1916_18.pickle')
-    
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1931_08.pickle')
-    
-    # run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_1936_47.pickle')
-    
+
     run('Full_transit_MIRI_LRS_slitless_K2-18 b_2020_08_21_1007_25.pickle')

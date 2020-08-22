@@ -8,6 +8,7 @@ v1.0
 
 import xml.etree.ElementTree as ET
 import numpy as np
+import jexosim
 from astropy import units as u
 import os
 from   ..  import __path__
@@ -47,6 +48,8 @@ class Options(object):
   def __init__(self, filename = None, default_path = None):
       
     self.opt = self.parser(ET.parse(filename).getroot())
+    
+    jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
 
     if self.opt.type.name == "common configuration":
     
@@ -54,7 +57,7 @@ class Options(object):
           setattr(self.opt, "__path__", default_path)
         elif hasattr(self.opt.common, "config_path"):
           setattr(self.opt, "__path__", 
-                os.path.expanduser(self.opt.common.config_path().replace('__path__', __path__[0])))
+                os.path.expanduser(self.opt.common.config_path().replace('__path__', __path__[0])))        
         
         wl_delta = self.opt.common.wl_min()/ self.opt.common.logbinres()
         # print (wl_delta.value)
@@ -67,7 +70,10 @@ class Options(object):
         setattr(self.opt.common, 'common_wl', (np.arange(self.opt.common.wl_min.val.value,
                     self.opt.common.wl_max.val.value,
                     wl_delta.value)* wl_delta.unit))
-                                   
+        
+        if hasattr(self.opt.common, "output_directory"):
+            self.opt.common.output_directory.val = '%s/output'%(jexosim_path)
+ 
          
     if self.opt.type.name == "channel configuration":
         if hasattr(self.opt.channel.detector_array, "subarray_list"):

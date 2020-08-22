@@ -3,5 +3,9 @@
 build/
 dist/
 jexosim.egg-info
+databases/
+output/
+__pycache__/
+
 
  

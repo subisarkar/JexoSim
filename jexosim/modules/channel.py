@@ -74,9 +74,12 @@ def run(opt):
 #      opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = usePoly(opt)
       opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = useInterp(opt) 
       
-      jexosim_plot('Wavelength solution check', opt.diagnostics, 
+      jexosim_plot('Wavelength solution check -oversampled pixels', opt.diagnostics, 
                    xdata = opt.x_pix_osr, ydata =opt.x_wav_osr, marker='o-' )
-     
+
+      jexosim_plot('Wavelength solution check -normal pixels', opt.diagnostics, 
+                   xdata = opt.x_pix_osr[1::3], ydata =opt.x_wav_osr[1::3], marker='o-' )     
+      
               
       opt.d_x_wav_osr = np.zeros_like(opt.x_wav_osr)
       idx = np.where(opt.x_wav_osr > 0.0)

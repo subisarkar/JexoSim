@@ -14,10 +14,9 @@ from jexosim.run_files.recipe_3 import recipe_3
 from jexosim.run_files import results
 from jexosim.activate.gen_planet_xml_file import make_planet_xml_file
 from jexosim.lib.jexosim_lib import jexosim_msg
-import pickle
 import jexosim
 import os
-from datetime import datetime
+
  
 #====Load defauls from XML files and load input text file with user-defined adjustments==========================================================================
 # 
@@ -37,13 +36,14 @@ def run(params_file):
       
     jexosim_msg('Apply user-defined adjustments to default... \n', 1)
     
-    paths_file = '%s/jexosim/input_files/jexosim_input_paths.txt'%(jexosim_path)
+    paths_file = '%s/jexosim/input_files/jexosim_paths.txt'%(jexosim_path)
     params_file = '%s/jexosim/input_files/%s'%(jexosim_path, params_file)
     
     #read in path information set by user
     params_to_opt = Params(opt, paths_file, 0)  
     paths = params_to_opt.params
     opt = params_to_opt.opt # adjust default values to user defined ones
+       
     
     # read in input parameters for this simulation
     params_to_opt = Params(opt, params_file, 1)  
@@ -58,12 +58,13 @@ def run(params_file):
     for key in opt2.__dict__:
           setattr(opt, str(key), opt2.__dict__[key])
     opt.ICF = ["%s/%s"%(opt.__path__,common_file), ch_file] 
-      
+   
     jexosim_msg('Applying user-defined adjustments to default values... \n', 1)      
     params_to_opt = Params(opt, params_file, 2)
     input_params = params_to_opt.params
     opt = params_to_opt.opt # adjust defaulf values to user defined ones 
-
+    
+ 
     pl = opt.exosystem_params.planet.val
     # an XML file is made for the planet (if one exists code will use that unless planet_file_renew =1 )
     make_planet_xml_file(opt, pl)

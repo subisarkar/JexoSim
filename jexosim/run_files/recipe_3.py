@@ -7,7 +7,7 @@ Recipe 3 - OOT simulation returning a noise budget
 import numpy as np
 from jexosim.modules import exosystem, telescope, channel, backgrounds
 from jexosim.modules import detector, timeline, light_curve, systematics, noise, output
-from jexosim.JDP.runJDP import pipeline_stage_1, pipeline_stage_2
+from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 from astropy import units as u
 from datetime import datetime

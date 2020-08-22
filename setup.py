@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import activate
 
 
 name = 'jexosim'
@@ -7,6 +8,7 @@ url = 'https://github.com/subisarkar/JexoSim/'
 install_requires = ['pytransit>=2.0', 'scipy', 'astropy', 'pandas', 'emcee', 'seaborn', 'uncertainties', 'tqdm', 'lxml']
 entry_point = '__run__:console'
 version = {'2.0'}
+
 
 setup(
     name=name,
@@ -29,5 +31,4 @@ setup(
     zip_safe=False,
 )
 
-
-
+ 

@@ -264,7 +264,7 @@ def fast_method(opt):
   opt.fp = opt.fp[:, idx[0]*3:idx[-1]*3]
 
    #==============================================================================   
-   #3) Obtain a value for the background subtraction in JDP as if the crop did not happened
+   #3) Obtain a value for the background subtraction in pipeline as if the crop did not happened
    #==============================================================================     
 #   1) set up background array for each ndr, of 10 pixels wide vs original fp in length and add zodi and emission
   bkg = np.zeros((10, fp_whole0.shape[1], opt.n_ndr))

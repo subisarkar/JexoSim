@@ -5,10 +5,8 @@
       <logbinres val="1000" units="" comment="Resoving power for common spectral binnin. A linear binning wavelength integral is estimated as wl_min/R"/>
       <wl_min val="0.43" units="um" comment="Shortest wavelength in simulation used for binning input spectra"/>
       <wl_max val="16" units="um" comment="Shortest wavelength in simulation used for binning input spectra"/>
-      <output_directory val="~/JexoSim_Output" comment="output directory to store sim images in FITs format or data processed results in pickle format" />
       <config_path val = "__path__" />
-      <database_nasa_exoplanet_archive val="__path__" comment=""/>
-      <database_phoenix  val="__path__" comment=""/>
+      <output_directory val="__path__/output" comment="output directory to store sim images in FITs format or data processed results in pickle format" />
   </common>
   
   <simulation>

@@ -1,5 +1,10 @@
-''' Generates transmission files for use in JexoSim from the Pandeia database.
-Please credit Pandeia (see Github) if using this database'''
+''' 
+JexoSim
+2.0
+Generate transmission files
+v1.0
+
+'''
 
 import numpy as np
 from astropy.io import fits
@@ -8,10 +13,8 @@ import csv
 import os
 import jexosim
 
-def run(params):
-    
-    database_path = params['database_pandeia']
-    
+def run(database_path):
+   
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
 
     dfp = '%s/jexosim/data/JWST'%(jexosim_path)
@@ -131,7 +134,11 @@ def run(params):
             TR = 1.0
 
             filename = '%s/%s'%(database_path, dic['file'][i])
-            hdul = fits.open(filename)
+            # hdul = fits.open(filename)
+            try:
+                hdul = fits.open(filename)
+            except IOError:
+                hdul = fits.open(filename.lower())     
             
             wl = hdul[1].data['WAVELENGTH']
             tr = hdul[1].data['THROUGHPUT']

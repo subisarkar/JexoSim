@@ -299,20 +299,22 @@ def Psf(wl, fnum_x, fnum_y, delta, nzero = 4, shape='airy'):
     three dimensional array. Each PSF normalised to unity
   '''
 #  fnum_y =  fnum_x
-  delta = delta.to(wl.unit)
+  
+  delta = delta.to(wl.unit).value
+  wl = wl.value
   Nx = int(np.round(scipy.special.jn_zeros(1, nzero)[-1]/(2.0*np.pi) * fnum_x*wl.max()/delta).astype(np.int))
   
   Ny = Nx = np.int(Nx)
 #  Ny = int(np.round(scipy.special.jn_zeros(1, nzero)[-1]/(2.0*np.pi) * fnum_y*wl.max()/delta).astype(np.int))
 
   if shape=='airy':
-    d = 1.0/(fnum_x*(1.0e-30*delta.unit+wl))
+    d = 1.0/(fnum_x*(1.0e-30*+wl))
   elif shape=='gauss':
-    sigma = 1.029*fnum_x*(1.0e-30*delta.unit+wl)/np.sqrt(8.0*np.log(2.0))
+    sigma = 1.029*fnum_x*(1.0e-30+wl)/np.sqrt(8.0*np.log(2.0))
     d     = 0.5/sigma**2
     
-  x = np.linspace(-Nx*delta.item(), Nx*delta.item(), 2*Nx+1)*delta.unit
-  y = np.linspace(-Ny*delta.item(), Ny*delta.item(), 2*Ny+1)*delta.unit
+  x = np.linspace(-Nx*delta.item(), Nx*delta.item(), 2*Nx+1)
+  y = np.linspace(-Ny*delta.item(), Ny*delta.item(), 2*Ny+1)
   
   yy, xx = np.meshgrid(y, x)
  

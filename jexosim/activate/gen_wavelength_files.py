@@ -1,5 +1,10 @@
-''' Generates wavelength solutions files for use in JexoSim from the Pandeia database.
-Please credit Pandeia (see Github) if using this database'''
+''' 
+JexoSim 
+2.0
+Generate wavelength solutions
+v1.0
+
+'''
 
 import numpy as np
 from astropy.io import fits
@@ -8,13 +13,11 @@ import os
 import jexosim
 
 
-def run(params):
-    
-    database_path = params['database_pandeia']
-    
+def run(database_path):
+        
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
 
-    dfp = '%s//jexosim/data/JWST'%(jexosim_path)
+    dfp = '%s/jexosim/data/JWST'%(jexosim_path)
     if not os.path.exists(dfp):
             os.makedirs(dfp) 
    
@@ -68,6 +71,8 @@ def run(params):
     # choose which channels to compile
     dic_list = [MIRI, NIRSpec, NIRISS, NIRCam]
     
+    # dic_list = [NIRCam]
+
 
     for dic in dic_list:
         for i in range(len(dic['file']))   :
@@ -76,39 +81,39 @@ def run(params):
                 
                 wav_max = dic['wav_limits'][i][1]
                 wav_min = dic['wav_limits'][i][0]
+                 
                 filepath = '%s/jwst/%s/dispersion/%s'%(database_path, dic['ch0'], dic['file'][i])
-                hdul = fits.open(filepath)
+                # hdul = fits.open(filepath)
+              
+                try:
+                    hdul = fits.open(filepath)
+                except IOError:
+                    hdul = fits.open(filepath.lower())          
             
                 wl = hdul[1].data['WAVELENGTH']
                 dlds = hdul[1].data['DLDS']
-            
+                
                 wl0=wl[0]
                 wlpix = []
-                
-#                for j in range (10000):
-#                    wlpix.append(wl0)
-#                    if wl0>wav_max + (wav_min-wl[0]): break
-#                    dlds0 = np.interp(wl0, wl, dlds)
-#                #    plt.plot(wl0,dlds0,'ro')
-#                    wl0 = wl0+ dlds0
-                    
-                for j in range (len(wl)):
+
+                for j in range (10000): # gives the wavelengt on each pixel (increasing in steps of 1 pixel)
                     wlpix.append(wl0)
-                    wl0 = wl0+ dlds[j]                    
-                                        
+                    dlds0 = np.interp(wl0, wl, dlds) #rate of change of wavelength with pixel
+                    wl0 = wl0+ dlds0           
+                                                          
                 x = np.arange(0,len(wlpix)*dic['pix_size'],dic['pix_size']) 
                 x= x[::-1]
-#                x = x - (x.max()-x.min())/2. 
-#                
+                
                 wl_mid = (wav_max+ wav_min)/2.0
                 x_mid  = np.interp(wl_mid, wlpix, x)
                 x = x - x_mid
-                                
+                
+                # import matplotlib.pyplot as plt                
                 # plt.figure('wav sol gen check')
                 # plt.plot(x, wlpix)
-
-
+            
                 y = np.zeros(len(x))
+                
             
             elif dic['ch'] == 'NIRISS':
                 filepath = '%s/jwst/%s/wavepix/%s'%(database_path, dic['ch0'], dic['file'][i])

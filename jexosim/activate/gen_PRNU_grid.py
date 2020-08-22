@@ -1,4 +1,9 @@
 """
+JexoSim 
+2.0
+PRNU generation
+v1.0
+
 A re-usable PRNU grid is generated, and large enough to be used for all channels.
 Alternately a random grid can be created each time by activating the ApplyRandomPRNU option
 in the common configuration file

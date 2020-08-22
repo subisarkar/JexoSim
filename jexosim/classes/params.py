@@ -67,14 +67,13 @@ class Params():
                     if key0 == testkey:
                         # print (key0)
                         attr_dict2 = vars(attr_dict[key0])
-                        # print (attr_dict2['val'],attr_dict2['attrib']['val']) 
-                        attr_dict2['val'] = self.params[key]
-                        attr_dict2['attrib']['val'] = self.params[key]
                         # print (attr_dict2['val'],attr_dict2['attrib']['val'])
-                        # print ('')
-                                            
-        
-
+                        if self.params[key] !='': # if blank keeps default
+                            attr_dict2['val'] = self.params[key]
+                            attr_dict2['attrib']['val'] = self.params[key]
+                        # print (attr_dict2['val'],attr_dict2['attrib']['val'])
+                        # print ('x')
+      
     def stage_1(self):    
 
         attr_dict_list = [vars(self.opt.simulation), vars(self.opt.exosystem_params), 
@@ -92,10 +91,11 @@ class Params():
                         # print (key0)
                         attr_dict2 = vars(attr_dict[key0])
                         # print (attr_dict2['val'],attr_dict2['attrib']['val']) 
-                        attr_dict2['val'] = self.params[key]
-                        attr_dict2['attrib']['val'] = self.params[key]
+                        if self.params[key] !='': # if blank keeps default
+                            attr_dict2['val'] = self.params[key]
+                            attr_dict2['attrib']['val'] = self.params[key]
                         # print (attr_dict2['val'],attr_dict2['attrib']['val'])
-                        # print ('')
+                        # print ('x')
                                
         
     def stage_2(self):   
@@ -112,16 +112,17 @@ class Params():
                 for key0 in attr_dict.keys():
                     # print (key0, testkey)
                     if key0 == testkey:
-                        cond = 1
-                        if key0 == 'nRST':
-                            if self.params[key] == 'default':
-                                cond =0
-                        if cond ==1:
-                            attr_dict2 = vars(attr_dict[key0])
-                            # print (attr_dict2['val'],attr_dict2['attrib']['val']) 
-                            attr_dict2['val'] = self.params[key]
-                            attr_dict2['attrib']['val'] = self.params[key]
-                            # print (attr_dict2['val'],attr_dict2['attrib']['val'])
-                            # print ('')
-       
+                        if self.params[key] !='': # if blank keeps default  
+                            cond = 1
+                            if key0 == 'nRST':
+                                if self.params[key] == 'default':
+                                    cond =0
+                            if cond ==1:
+                                attr_dict2 = vars(attr_dict[key0])
+                                # print (attr_dict2['val'],attr_dict2['attrib']['val']) 
+                                attr_dict2['val'] = self.params[key]
+                                attr_dict2['attrib']['val'] = self.params[key]
+                                # print (attr_dict2['val'],attr_dict2['attrib']['val'])
+                                # print ('x')
+           
   
