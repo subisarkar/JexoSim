@@ -44,7 +44,7 @@ Clone the repository from github, and run `setup.py`.  This will setup the remai
     cd JexoSim
     python setup.py install
     
-Move the four folders and the one .csv file you downloaed in the 'Databases' step into the `JexoSim/databases/` folder.
+Move the four folders and the one .csv file you downloaded in the 'Databases' step into the `JexoSim/databases/` folder.
     
     
 ### Output folder
