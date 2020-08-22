@@ -62,7 +62,7 @@ Alternately if using an IDE (e.g. Spyder), you can open the file `JexoSim/jexosi
 
 Results
 ------
-The results from any given simulation are placed in the output folder.  To identify the simulation, the file name includes the type of simulation, the planet, instrument channel and end time of the simulation.  A file with the suffix 'TEMP' is a temporary file for an ongoining multi-realisation simulation, but can be accessed in the same way as a completed simulation file.  The data is in the form of a dictionary.   To display results from a results file (e.g. `Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle`):
+The results from any given simulation are placed in the output folder.  To identify the simulation, the file name includes the type of simulation, the planet, instrument channel and end time of the simulation.  A file with the suffix 'TEMP' is a temporary file for an ongoing multi-realisation simulation, but can be accessed in the same way as a completed simulation file.  The data is in the form of a dictionary.   To display results from a results file (e.g. `Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle`):
 
     cd JexoSim
     python results.py Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle
