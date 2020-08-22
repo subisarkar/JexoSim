@@ -33,9 +33,7 @@ From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-
 Download the following folders:  
 [PSF](https://drive.google.com/file/d/1YFbB02IR9U-9J6UDw8SsdBo5aKh0V-_6/view?usp=sharing)  
 [LDC](https://drive.google.com/file/d/1lWRdqW_wI3y31ugqq2HfyyekGyOSteL_/view?usp=sharing)  
-These contain pre-calculated point spread functions obtained using WebbPSF (Perrin. M. et al. (2014). Proc. SPIE. 9143, 91433X) and limb darkening coefficients obtained using ExoTETHyS (Morello, G. et al. (2020),
-
-Move the above four folders and the one .csv file into the `JexoSim/databases/` folder.
+These contain pre-calculated point spread functions obtained using WebbPSF (Perrin. M. et al. (2014). Proc. SPIE. 9143, 91433X) and limb darkening coefficients obtained using ExoTETHyS (Morello, G. et al. (2020). AJ, 159,  75) .
 
 
 ### GitHub
@@ -45,6 +43,8 @@ Clone the repository from github, and run `setup.py`.  This will setup the remai
     git clone https://github.com/subisarkar/JexoSim.git
     cd JexoSim
     python setup.py install
+    
+Move the four folders and the one .csv file you downloaed in the 'Databases' step into the `JexoSim/databases/` folder.
     
     
 ### Output folder
