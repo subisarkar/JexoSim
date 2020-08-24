@@ -35,7 +35,7 @@ First thing to do is to download the following databases:
 [ATMO foward model grid (local)](https://drive.google.com/file/d/1Kvfi7FTBqM1MfnkTnHsJJqI7EFwnuaIG/view?usp=sharing)(Goyal, J. et al. (2018). MNRAS, 482, 4503)    
 [ATMO foward model grid (rainout)](https://drive.google.com/file/d/1LnpL_kpbZGPEN0G6QhHrL4DcD4hwvaia/view?usp=sharing) (Goyal, J. et al. (2018). MNRAS, 482, 4503).
 
-Unzip/untar and fully extract the folders.  It is not necessary to upzip the final level .txt files in the folders. 
+Unzip/untar and fully extract the folders.  It is not necessary to upzip the final level .txt or .fits files in the folders. 
 
 From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table as follows: under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.
 
