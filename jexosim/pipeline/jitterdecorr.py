@@ -107,7 +107,7 @@ class jitterCode():
     
     def __init__(self, data, opt):
         
-        method = opt.channel.data_pipeline.jitterMethod.val    
+        method = opt.pipeline.jitterMethod.val    
         self.opt = opt
         self.data = data
         self.jdc = JexoSimDecorr(self.data, self.opt)

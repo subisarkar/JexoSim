@@ -76,8 +76,10 @@ class Params():
       
     def stage_1(self):    
 
-        attr_dict_list = [vars(self.opt.simulation), vars(self.opt.exosystem_params), 
-                          vars(self.opt.noise), vars(self.opt.channel_list)]
+        attr_dict_list = [vars(self.opt.simulation), vars(self.opt.observation),
+                          vars(self.opt.pipeline),
+                          vars(self.opt.exosystem_params), 
+                          vars(self.opt.noise)]
         
         for attr_dict in attr_dict_list:
             for key in self.params.keys():
@@ -100,13 +102,14 @@ class Params():
         
     def stage_2(self):   
         
-        attr_dict_list = [vars(self.opt.channel.detector_readout) , vars(self.opt.channel.data_pipeline) ]
+        attr_dict_list = [vars(self.opt.channel.detector_readout) , vars(self.opt.channel.pipeline_params) ]
         
-        # print (opt.common.database_nasa_exoplanet_archive.val)
         for attr_dict in attr_dict_list:
             for key in self.params.keys():
                 # if 'database' in key:
                 testkey = key
+                if testkey == 'obs_n_reset_groups':
+                    testkey = 'nRST'
                 # testkey = (key.replace('database_', ''))
                 # print (testkey)
                 for key0 in attr_dict.keys():
@@ -115,7 +118,7 @@ class Params():
                         if self.params[key] !='': # if blank keeps default  
                             cond = 1
                             if key0 == 'nRST':
-                                if self.params[key] == 'default':
+                                if self.params[key] == 'default' or self.params[key] =='':
                                     cond =0
                             if cond ==1:
                                 attr_dict2 = vars(attr_dict[key0])

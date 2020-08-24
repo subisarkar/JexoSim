@@ -74,7 +74,7 @@ def run(opt):
     hdulist.append(tbhdu)
  
     #write hdulist
-    lab = '%s_%s'%(opt.channel_list.ch.val, opt.exosystem_params.planet.val)
+    lab = '%s_%s'%(opt.observation.obs_channel.val, opt.exosystem_params.planet_name.val)
     time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
     filename = 'JexoSim_%s_%s'%(lab, time_tag)
     hdulist.writeto('%s/%s.fits'%(output_directory, filename))

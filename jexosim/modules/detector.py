@@ -183,7 +183,7 @@ def run(opt):
     #==============================================================================
     #       If using saturation time
     #==============================================================================
-      if ch.detector_readout.use_sat.val == 1:  #uses the calculated multiaccum to set t_int
+      if opt.observation.obs_use_sat.val == 1:  #uses the calculated multiaccum to set t_int
           jexosim_msg ("saturation time implemented", opt.diagnostics)   
           if len(opt.channel.detector_array.subarray_list.val) > 1: 
               cond=1
@@ -304,33 +304,32 @@ def run(opt):
     #       If NOT using saturation time, t_f, t_g, dead_time and zero_time not changed 
     #==============================================================================
       
-      elif ch.detector_readout.use_sat.val == 0:  #uses the chosen multiaccum to set t_int, t_g is fixed by the ICF
+      elif opt.observation.obs_use_sat.val == 0:  #uses the chosen multiaccum to set t_int, t_g is fixed by the ICF
           jexosim_msg ("not using saturation time...", opt.diagnostics)
           #  load n (maccum_calc) and calculate t_int
-          maccum_calc = int(ch.detector_readout.multiaccum.val)
-          t_int = (ch.detector_readout.t_g.val*(ch.detector_readout.multiaccum.val-1))  # int time = cds times = ndr1 time
+          maccum_calc = int(opt.observation.obs_n_groups.val)
+          t_int = (ch.detector_readout.t_g.val*(opt.observation.obs_n_groups.val-1))  # int time = cds times = ndr1 time
       
       jexosim_msg ("t_int %s"%(t_int), opt.diagnostics)
       jexosim_msg ("frame time %s t_dead %s t_zero %s"%(opt.channel.detector_readout.t_f.val,  dead_time,   zero_time) , opt.diagnostics)
       
       opt.t_int = t_int
       jexosim_msg ("multiaccum projected %s"%(maccum_calc), 1)
-            
-      if ch.detector_readout.doCDS.val == 1:
-          jexosim_msg ("Using CDS, so only 2 NDRs simulated", opt.diagnostics)
+      
+      if opt.simulation.sim_full_ramps.val == 0:
+          jexosim_msg ("Approximating ramps with corrected CDS method, so only 2 NDRs simulated", 1)
           opt.effective_multiaccum = 2 # effective multiaccum is what is implemented in sim
           opt.projected_multiaccum = maccum_calc 
       else:
-          opt.effective_multiaccum = maccum_calc
-          opt.projected_multiaccum = maccum_calc 
+          opt.effective_multiaccum = maccum_calc 
                                   
-      ch.detector_readout.exposure_time.val = (t_int + dead_time + zero_time) 
+      opt.exposure_time = (t_int + dead_time + zero_time) 
       
       jexosim_msg ("Estimated integration time - zeroth read %s"%(t_int), opt.diagnostics)  
       jexosim_msg ("Estimated integration time incl zeroth read %s"%(t_int  + zero_time), opt.diagnostics)
-      jexosim_msg ("Estimated TOTAL CYCLE TIME %s"%(ch.detector_readout.exposure_time.val), opt.diagnostics)
+      jexosim_msg ("Estimated TOTAL CYCLE TIME %s"%(opt.exposure_time), opt.diagnostics)
       
-      if ch.detector_readout.exposure_time.val < (2*ch.detector_readout.t_g.val +  dead_time):
+      if opt.exposure_time < (2*ch.detector_readout.t_g.val +  dead_time):
           jexosim_msg ("not enough exposure time for 2 groups + dead time", opt.diagnostics)
           opt.observation_feasibility = 0          
       
@@ -404,7 +403,7 @@ def sanity_check(opt):
     
     jex_sig = opt.fp_signal[1::3,1::3].sum(axis=0)
     
-    R = opt.channel.data_pipeline.R.val
+    R = opt.pipeline.pipeline_R.val
     del_wav = wl/R
     opt.exp_sig  = opt.t_int*del_wav*jex_sig/del_wl
     

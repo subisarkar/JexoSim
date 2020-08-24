@@ -91,7 +91,7 @@ def flatField(opt):
 def subBackground(opt) : 
     jexosim_msg ("subtracting background...", opt.diagnostics)
     
-    if opt.channel.data_pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
+    if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
        opt.data.shape[0]>20:
            aa = opt.bkg.sum(axis=0)/opt.bkg.shape[0] #mean value per column
            opt.data = opt.data- aa                     
@@ -113,7 +113,7 @@ def doUTR(data, opt):
     n_exp = opt.n_exp
     time =  opt.ndr_end_time.value
     
-    if multiaccum==2 or opt.channel.detector_readout.doCDS.val ==1:
+    if multiaccum==2 or opt.simulation.sim_full_ramps.val == 0:
         jexosim_msg ("doing CDS...", opt.diagnostics)
 
         new_data = np.zeros((data.shape[0],data.shape[1], n_exp))
@@ -179,11 +179,13 @@ def doUTR(data, opt):
 #            utr_error[...,ct] = dm
             ct +=1
         # if zero background used, then nan created with slopes - messes up later steps.
-        utr_data[np.isnan(utr_data)] = 0  
+        utr_data[np.isnan(utr_data)] = 0
+        utr_data[np.isinf(utr_data)] = 0  
+
 #        utr_error[np.isnan(utr_error)] = 0 
         
-        utr_data *= opt.t_int
-         
+        utr_data *= opt.t_int.value
+
 #        return utr_data, utr_error   
           
         return utr_data

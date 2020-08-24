@@ -44,25 +44,25 @@ def run(opt):
      
   if opt.input_params['planet_use_database'] == 0: # override data base with user defined inputs
           
-        opt.fake_exosystem.i.val = opt.input_params['exosystem_i']*u.deg
-        opt.fake_exosystem.P.val = opt.input_params['exosystem_P']*u.day
-        opt.fake_exosystem.a.val = opt.input_params['exosystem_a']*u.au
-        opt.fake_exosystem.e.val = opt.input_params['exosystem_e']
-        opt.fake_exosystem.R_p.val = opt.input_params['exosystem_R_p']*u.Rjup
-        opt.fake_exosystem.M_p.val = opt.input_params['exosystem_M_p']*u.Mjup
-        opt.fake_exosystem.T_p.val = opt.input_params['exosystem_T_p']*u.K
-        opt.fake_exosystem.planet_name.val = opt.input_params['exosystem_planet_name']
-        opt.fake_exosystem.albedo.val = opt.input_params['exosystem_albedo']
+        opt.fake_exosystem.i.val = opt.input_params['user_defined_i']*u.deg
+        opt.fake_exosystem.P.val = opt.input_params['user_defined_P']*u.day
+        opt.fake_exosystem.a.val = opt.input_params['user_defined_a']*u.au
+        opt.fake_exosystem.e.val = opt.input_params['user_defined_e']
+        opt.fake_exosystem.R_p.val = opt.input_params['user_defined_R_p']*u.Rjup
+        opt.fake_exosystem.M_p.val = opt.input_params['user_defined_M_p']*u.Mjup
+        opt.fake_exosystem.T_p.val = opt.input_params['user_defined_T_p']*u.K
+        opt.fake_exosystem.planet_name.val = opt.input_params['user_defined_planet_name']
+        opt.fake_exosystem.albedo.val = opt.input_params['user_defined_albedo']
         
-        opt.fake_exosystem.R_s.val = opt.input_params['exosystem_R_s']*u.Rsun
-        opt.fake_exosystem.M_s.val = opt.input_params['exosystem_M_s']*u.Msun
-        opt.fake_exosystem.d.val = opt.input_params['exosystem_d']*u.pc
-        opt.fake_exosystem.T_s.val = opt.input_params['exosystem_T_s']*u.K
-        opt.fake_exosystem.Z.val = opt.input_params['exosystem_Z']
-        opt.fake_exosystem.logg.val = opt.input_params['exosystem_logg']
-        opt.fake_exosystem.star_name.val = opt.input_params['exosystem_star_name']
+        opt.fake_exosystem.R_s.val = opt.input_params['user_defined_R_s']*u.Rsun
+        opt.fake_exosystem.M_s.val = opt.input_params['user_defined_M_s']*u.Msun
+        opt.fake_exosystem.d.val = opt.input_params['user_defined_d']*u.pc
+        opt.fake_exosystem.T_s.val = opt.input_params['user_defined_T_s']*u.K
+        opt.fake_exosystem.Z.val = opt.input_params['user_defined_Z']
+        opt.fake_exosystem.logg.val = opt.input_params['user_defined_logg']
+        opt.fake_exosystem.star_name.val = opt.input_params['user_defined_star_name']
            
-        opt.fake_exosystem.ecliptic_lat.val = opt.input_params['exosystem_ecliptic_lat']*u.deg
+        opt.fake_exosystem.ecliptic_lat.val = opt.input_params['user_defined_ecliptic_lat']*u.deg
         
 
         # print (opt.fake_exosystem.i.val)

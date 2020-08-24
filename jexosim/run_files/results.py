@@ -42,7 +42,7 @@ def run(results_file):
     if ch == 'NIRSpec_G235M_F170LP': wavlim=[1.66, 3.07]
     if ch == 'NIRSpec_G395M_F290LP': wavlim=[2.87, 5.1]
     if ch == 'NIRSpec_PRISM': wavlim=[0.6, 5.3]
-    if ch == 'MIRI_LRS_slitless': wavlim=[0.5, 12.0]
+    if ch == 'MIRI_LRS_slitless': wavlim=[5.0, 12.0]
     if ch == 'NIRCam_F444W': wavlim=[3.9, 5.0]  
     if ch == 'NIRCam_F322W2': wavlim=[2.4, 4.0]  
     if ch == 'NIRISS_SOSS_ORDER_1': wavlim=[0.9, 2.8]
@@ -128,7 +128,7 @@ def run(results_file):
         
             plt.plot(wl,p_mean, 'o-', color='b', label = 'mean recovered spectrum')
             plt.errorbar(wl,p_mean,p_std, ecolor='b')
-            plt.plot(cr_wl,cr, ':', color='r', label='input spectrum')
+            plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
             plt.legend()
             plt.ylabel('Contrast ratio (ppm)')
             plt.xlabel('Wavelength ($\mu m$)')
@@ -171,4 +171,4 @@ def run(results_file):
 
 if __name__ == "__main__":     
 
-    run('Full_transit_MIRI_LRS_slitless_K2-18 b_2020_08_21_1007_25.pickle')
+    run('Full_transit_MIRI_LRS_slitless_GJ 1214 b_2020_08_24_1714_41.pickle')

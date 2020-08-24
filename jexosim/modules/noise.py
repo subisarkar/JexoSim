@@ -243,7 +243,7 @@ def fast_method(opt):
   #==============================================================================     
   wav_sol= opt.x_wav_osr[1::3].value # wav sol in whole pixels
  
-  idx = np.argwhere((wav_sol>=opt.channel.data_pipeline.start_wav.val-0.5)& (wav_sol<=opt.channel.data_pipeline.end_wav.val+0.5))
+  idx = np.argwhere((wav_sol>=opt.channel.pipeline_params.start_wav.val-0.5)& (wav_sol<=opt.channel.pipeline_params.end_wav.val+0.5))
   idx = [idx[0].item(), idx[-1].item()] 
 
   if opt.channel.instrument.val == 'MIRI': # keep - shift seems to give a smoother noise distribution
@@ -347,7 +347,7 @@ def noise_simulator(opt):
     # set up jitterless or jittered pathways
     #==============================================================================
 
-  if opt.channel.data_pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
+  if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
       opt.fp[1::3,1::3].shape[0]>20:
   #fast method not suitable for NIRISS due to curved spectrum or if the width is small
       opt = fast_method(opt)
@@ -465,7 +465,7 @@ def noise_simulator(opt):
         jexosim_msg ("PHOTON NOISE... being added...",  opt.diagnostics  )
         noise_plus_pn =  np.random.poisson(noise.value)
         
-        if opt.channel.detector_readout.doCDS.val == 1:
+        if opt.simulation.sim_full_ramps.val == 0:
             jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
             n = opt.projected_multiaccum
             alpha = 6.0*(n**2+1)/(5.0*n*(n+1))
@@ -498,7 +498,7 @@ def noise_simulator(opt):
   if (opt.noise.EnableReadoutNoise.val == 1  or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:  
         jexosim_msg ("READ NOISE... being added...", opt.diagnostics  )
 #        useShape = (noise.shape[0], noise.shape[1], noise.shape[2])
-        if opt.channel.detector_readout.doCDS.val == 1:
+        if opt.simulation.sim_full_ramps.val == 0:
             
             n = opt.projected_multiaccum
             sigma_ro = opt.channel.detector_pixel.sigma_ro.val
@@ -565,7 +565,7 @@ def run(opt):
   opt.qe_uncert = opt.qe_uncert_original
       
   opt.data , opt.pointing_timeline = noise_simulator(opt)
-  if opt.channel.data_pipeline.useSignal.val == 1:
+  if opt.pipeline.useSignal.val == 1:
       opt.data_signal_only = signal_simulator(opt) 
        
 #==============================================================================

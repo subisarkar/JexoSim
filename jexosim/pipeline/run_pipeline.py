@@ -19,7 +19,7 @@ class pipeline_stage_1():
         
         self.opt.data_raw = opt.data*1
         
-        self.ApFactor = opt.channel.data_pipeline.ApFactor.val   
+        self.ApFactor = opt.pipeline.pipeline_ap_factor.val   
         
         if opt.background.EnableSource.val == 1:
             self.opt.diff =0
@@ -59,8 +59,8 @@ class pipeline_stage_1():
             jexosim_msg ("Decorrelating pointing jitter...", opt.diagnostics)
             self.jitterDecorr()
             
-        if opt.channel.data_pipeline.apply_mask.val==1:
-            if opt.use_auto_Ap == 1:    
+        if opt.pipeline.pipeline_apply_mask.val==1:
+            if opt.pipeline.pipeline_auto_ap.val == 1: 
                 self.autoSizeAp()            
             
         self.extractSpec()
@@ -96,7 +96,7 @@ class pipeline_stage_1():
     def doUTR(self):
         self.opt.data = calibration.doUTR(self.opt.data, self.opt) 
         
-        if self.opt.channel.data_pipeline.useSignal.val == 1:
+        if self.opt.pipeline.useSignal.val == 1:
             self.opt.data_signal_only = calibration.doUTR(self.opt.data_signal_only, self.opt)
             
     def badCorr(self):   
@@ -109,8 +109,8 @@ class pipeline_stage_1():
         
     def autoSizeAp(self):     
         F = self.opt.channel.camera.wfno_x.val
-        wl_max = self.opt.channel.data_pipeline.wavrange_hi.val 
-        wl_min = self.opt.channel.data_pipeline.wavrange_lo.val
+        wl_max = self.opt.channel.pipeline_params.wavrange_hi.val 
+        wl_min = self.opt.channel.pipeline_params.wavrange_lo.val
         wl = self.opt.cr_wl.value   
         if self.opt.timeline.apply_lc.val ==0 :       
             x=100
@@ -199,7 +199,7 @@ class pipeline_stage_1():
         self.extractSpec = binning.extractSpec(self.opt.data, self.opt, self.opt.diff, self.ApFactor,1)
         # 1 = final ap : means code knows this is the ap factor to use on noisy data and plots
         # final ap  0 = signal only or n_pix evals, so no figures for aperture on image plotted.
-        if self.opt.channel.data_pipeline.useSignal.val == 1:        
+        if self.opt.pipeline.useSignal.val == 1:        
             self.extractSpec_signal = binning.extractSpec(self.opt.data_signal_only, self.opt, 0, self.ApFactor, 0) #diff always 0 for signal
         
         # use a set of 3 images with 1 value for all pixels to find out no of pixels per bin
@@ -209,7 +209,7 @@ class pipeline_stage_1():
         # 2) apply mask and extract 1D spectrumif apply mask selected      # special case for NIRISS 
         #==============================================================================
             
-        if self.opt.channel.data_pipeline.apply_mask.val==1:             
+        if self.opt.pipeline.pipeline_apply_mask.val==1:             
             
             # a) noisy data   
             jexosim_msg ("applying mask and extracting 1D spectrum from noisy data", self.opt.diagnostics)
@@ -219,7 +219,7 @@ class pipeline_stage_1():
                     self.extractSpec.applyMask_extract_1D()
            
             # b) noiseless data if selected            
-            if self.opt.channel.data_pipeline.useSignal.val == 1:
+            if self.opt.pipeline.useSignal.val == 1:
                 jexosim_msg ("applying mask and extracting 1D spectrum from signal only data", self.opt.diagnostics)
                 if self.opt.channel.instrument.val =='NIRISS':
                     self.extractSpec_signal.applyMask_extract_1D_NIRISS()
@@ -244,7 +244,7 @@ class pipeline_stage_1():
             self.extractSpec.extract1DSpectra()
             
             # b) noiseless data if selected
-            if self.opt.channel.data_pipeline.useSignal.val == 1:  
+            if self.opt.pipeline.useSignal.val == 1:  
                 jexosim_msg ("NOT applying mask and extracting 1D spectrum from signal only data", self.opt.diagnostics)
                 self.extractSpec_signal.extract1DSpectra()            
             
@@ -267,7 +267,7 @@ class pipeline_stage_1():
         self.extractSpec.binSpectra()    
 
         # b) noiseless data if selected     
-        if self.opt.channel.data_pipeline.useSignal.val == 1: 
+        if self.opt.pipeline.useSignal.val == 1: 
             jexosim_msg ("binning 1D spectra into spectral bins... from signal only data", self.opt.diagnostics)
             self.extractSpec_signal.binSpectra() 
             
@@ -282,7 +282,7 @@ class pipeline_stage_1():
         self.binnedLC =  self.extractSpec.binnedLC  
         self.binnedWav =  self.extractSpec.binnedWav 
         
-        if self.opt.channel.data_pipeline.useSignal.val == 1:           
+        if self.opt.pipeline.useSignal.val == 1:           
             self.binnedLC_signal =  self.extractSpec_signal.binnedLC    
             self.binnedWav_signal =  self.extractSpec_signal.binnedWav  
         else:
@@ -328,7 +328,7 @@ class pipeline_stage_2():
 
 
     def ootSNR(self):
-        if self.opt.channel.data_pipeline.useSignal.val == 1:
+        if self.opt.pipeline.useSignal.val == 1:
             self.processOOT = binning.processOOT(self.binnedLC, self.binnedLC_signal,self.binnedWav, self.opt)   
         else:
             self.processOOT = binning.processOOT(self.binnedLC, self.binnedLC, self.binnedWav, self.opt)   
@@ -336,7 +336,7 @@ class pipeline_stage_2():
         self.ootSignal = self.processOOT.ootSignal     
         self.ootNoise = self.processOOT.ootNoise
              
-        if self.opt.channel.data_pipeline.useAllen.val ==1:
+        if self.opt.pipeline.useAllen.val ==1:
             self.ootAllen = self.processOOT.ootAllen
             self.noiseAt1hr = self.processOOT.noiseAt1hr
           

@@ -18,16 +18,15 @@ class recipe_2a(object):
     def __init__(self, opt):
         
 
-        opt.channel.data_pipeline.useSignal.val=0
-        opt.channel.data_pipeline.use_fast.val =1
-        opt.channel.data_pipeline.split  = 0
+        opt.pipeline.useSignal.val=0
+        opt.pipeline.use_fast.val =1
+        opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
-        opt.use_auto_Ap = opt.channel.data_pipeline.auto_ap.val
-        opt.channel.detector_readout.doCDS.val=1   
+        
         opt.timeline.apply_lc.val = 1
         opt.timeline.useLDC.val = 1
-        opt.channel.data_pipeline.useAllen.val =0
-        opt.channel.data_pipeline.fit_gamma.val  =0 #keep zero for uncert on p
+        opt.pipeline.useAllen.val =0
+        opt.pipeline.fit_gamma.val  =0 #keep zero for uncert on p
        
         start = 0 
         end = int(start + opt.no_real)
@@ -50,11 +49,11 @@ class recipe_2a(object):
            duration_per_ndr0 = opt.duration_per_ndr*1
            
            if n_ndr0 > 20000:
-               opt.channel.data_pipeline.split = 1
+               opt.pipeline.split = 1
                if opt.diagnostics ==1 :
                    jexosim_msg ('number of NDRs > 20000: using split protocol', opt.diagnostics)
            else:
-               opt.channel.data_pipeline.split = 0 
+               opt.pipeline.split = 0 
        
            for j in range(start, end):
                
@@ -66,7 +65,7 @@ class recipe_2a(object):
                
                pp = time.time()
                # split simulation into chunks to permit computation - makes no difference to final results    
-               if opt.channel.data_pipeline.split ==1:
+               if opt.pipeline.split ==1:
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
                    ndrs_per_round = opt.effective_multiaccum*int(1000/opt.multiaccum)      
                    idx_list =[]
@@ -114,7 +113,7 @@ class recipe_2a(object):
                    opt.duration_per_ndr = duration_per_ndr0
                    opt.n_exp = int(opt.n_ndr/opt.multiaccum).value
                                                             
-               elif opt.channel.data_pipeline.split ==0:
+               elif opt.pipeline.split ==0:
    
                    opt  = self.run_JexoSimB(opt)                  
                    data_stack = opt.data

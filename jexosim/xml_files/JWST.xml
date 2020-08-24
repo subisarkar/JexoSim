@@ -10,13 +10,36 @@
   </common>
   
   <simulation>
-      <simulation_diagnostics  val="0" comment=""/>
-      <simulation_mode  val="1" comment=""/>
-      <simulation_realisations  val="1" comment=""/>
-      <output_mode val = "1" units="" comment="1 = process through pipeline and store as pickle file, 2 = do not process through pipeline and store image stack as a FITS file"/>
+      <sim_diagnostics  val="0" comment=""/>
+      <sim_mode  val="1" comment=""/>
+      <sim_realisations  val="1" comment=""/>
+      <sim_output_type val = "1" units="" comment="1 = process through pipeline and store as pickle file, 2 = do not process through pipeline and store image stack as a FITS file"/>
+      <sim_full_ramps  val="0" comment=""/>
   </simulation>
-
   
+  <observation>
+    <obs_type val = "1" units="" comment="1= primary transit, 2= secondary eclipse"/>
+    <obs_channel val="NIRSpec_G395M_F290LP" />
+    <obs_use_sat val = "1" units="" comment="sets use of saturation time"/>
+    <obs_n_groups val = "2" units="" comment="sets number of groups"/>
+  </observation>
+  
+  <pipeline>
+      <pipeline_binning val="R-bin" comment="either fixed-bin  or R-bin"/>
+      <pipeline_R val="58.0" units="" comment="R power if R-bin selected"/>
+      <pipeline_bin_size val="5" units="" comment="size of fixed-bins in pixel columns if fixed-bin selected"/>
+      <pipeline_apply_mask val="1" units="" comment="apply an aperture mask or not"/>
+      <pipeline_ap_factor val="1.22" units="" comment="if mask applied, width in units of Flambda"/>
+      <pipeline_ap_shape val="rect"  comment="rect = rectangular mask where width = ApFactor*F*lambda(max), wav = wavelength dependent mask where width = ApFactor * F *lambda. rect is default"/>
+      <useAllen val="0" units="" comment="if result_type is 0, this selects use of Allen analysis"/>
+      <useReduced val="0" units="" comment="selects reduced number of bins in data pipline for speed "/>
+      <jitterMethod val="pointing-interp" comment=""/>
+      <fit_gamma val="0" units="" comment=""/>
+      <useSignal val="1" units="" comment=""/>
+      <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
+      <pipeline_auto_ap val="1" units="" comment=""/>
+  </pipeline>
+
   <pointing_model>
       <PointingModel val="__path__/data/Pointing/JWST_pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
       <adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
@@ -24,21 +47,22 @@
   </pointing_model>
 
  <exosystem_params>
-    <primary_transit val = "1" units="" comment="1= primary transit, 2= secondary eclipse"/>
-    <star_spectrum val = "model" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
-    <planet val = 'K2-18 b' />
-    <use_planet_spectrum_file val = '1' units="" comment="1= uses an input spectrum from file, 0=uses an estimate based on the radius or flux ratio" />
-    <planet_spectrum_file val="__path__/data/planet_spectra/planet_spectrum_model_1.txt" comment="planet/star contrast ratio"/>
-    
-    <planet_file_renew val="1" comment=""/>
-    
-    <use_norm val="0" units="" comment="0 or 1: use a star spectrum normalized to given magnitude"/>
-    <norm_band val="J" comment="band of normalized magnitude"/>
-    <norm_mag val="6.591" units="" comment="normalized magnitude"/>
-    
+    <star_spectrum_model val = "complex" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
+    <planet_name val = 'GJ 1214 b' />
+    <planet_spectrum_model val = "simple" comment="" />
+    <planet_spectrum_file val="__path__" comment="planet/star contrast ratio"/>
+    <star_spectrum_mag_norm  val="0" units="" comment="0 or 1: use a star spectrum normalized to given magnitude"/>
+    <star_spectrum_mag_band  val="J" comment="band of normalized magnitude"/>
+    <star_spectrum_mag  val="6.591" units="" comment="normalized magnitude"/>
+    <planet_spectrum_params_cond  val="local"  comment=""/>
+    <planet_spectrum_params_co  val="0.7" units="" comment=""/>
+    <planet_spectrum_params_haze  val="1" units="" comment=""/>
+    <planet_spectrum_params_cloud  val="0" units="" comment=""/>
+    <planet_spectrum_params_met  val="1.7" units="" comment=""/>
+    <planet_spectrum_params_mmw  val="18" units="" comment=""/>
+
  </exosystem_params>
  
-
   <noise>
       <EnableSpatialJitter val="0" units=""/>
       <EnableSpectralJitter val="0" units=""/>
@@ -50,8 +74,7 @@
       <ApplyRandomPRNU val="1" units="" comment="If 1 generates a random grid of QE variations"/>
       <QErms val="0.03" units="" comment="if ApplyRandomPRNU is true, this is the rms variation applied"/>
       <QErms_uncert val="0.005" units="" comment="if ApplyRandomPRNU is true, this is the uncertainty applied"/>
-      
-      <simulation_noise_source     val="0" units=""/>
+      <sim_noise_source  val="0" units=""/>
   </noise>
   
   <background>
@@ -85,14 +108,6 @@
 
   <telescope_effective_diameter val="5.686952642" units="m" comment="from Pandeia data json file giving collecting area of 25.4009m2"/>
 </common_optics>
-
-<channel_list>
-   <!--<ch val="NIRCAM_F444W" />-->
-   <!-- <ch val="NIRISS_SOSS" /> -->
-   <ch val="NIRSpec_G395M_F290LP" />
-   <!--<ch val="MIRI_LRS" />-->
-</channel_list>
-
 
 
 </root>

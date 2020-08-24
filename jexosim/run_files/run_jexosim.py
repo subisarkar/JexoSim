@@ -43,16 +43,16 @@ def run(params_file):
     params_to_opt = Params(opt, paths_file, 0)  
     paths = params_to_opt.params
     opt = params_to_opt.opt # adjust default values to user defined ones
-       
+ 
     
     # read in input parameters for this simulation
     params_to_opt = Params(opt, params_file, 1)  
     input_params = params_to_opt.params
     opt = params_to_opt.opt # adjust default values to user defined ones   
           
-    jexosim_msg('Instrument mode %s \n'%(opt.channel_list.ch.val), 1)    
+    jexosim_msg('Instrument mode %s \n'%(opt.observation.obs_channel.val), 1)    
     jexosim_msg('Reading default instrument mode configuration file \n', 1)
-    ch = opt.channel_list.ch.val
+    ch = opt.observation.obs_channel.val
     ch_file = '%s/xml_files/%s.xml'%(opt.__path__, ch)
     opt2 = Options(ch_file).opt
     for key in opt2.__dict__:
@@ -65,7 +65,7 @@ def run(params_file):
     opt = params_to_opt.opt # adjust defaulf values to user defined ones 
     
  
-    pl = opt.exosystem_params.planet.val
+    pl = opt.exosystem_params.planet_name.val
     # an XML file is made for the planet (if one exists code will use that unless planet_file_renew =1 )
     make_planet_xml_file(opt, pl)
  
@@ -81,7 +81,7 @@ def run(params_file):
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
     #==============================================================================      
-    i = int(opt.noise.simulation_noise_source.val) # noise option - choose 0 for all noise - default      
+    i = int(opt.noise.sim_noise_source.val) # noise option - choose 0 for all noise - default      
     nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
            'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
            'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
@@ -114,24 +114,25 @@ def run(params_file):
     #  Run with right recipe
     #==============================================================================
     opt.lab = '%s_%s'%(ch, pl)
-    opt.no_real = opt.simulation.simulation_realisations.val
-    opt.diagnostics = opt.simulation.simulation_diagnostics.val
+    opt.no_real = opt.simulation.sim_realisations.val
+    opt.diagnostics = opt.simulation.sim_diagnostics.val
     opt.input_params = input_params
+    opt.jexosim_path = jexosim_path
     
-    jexosim_msg(('Simulation mode %s'%(int(opt.simulation.simulation_mode.val))), 1)
+    jexosim_msg(('Simulation mode %s'%(int(opt.simulation.sim_mode.val))), 1)
           
-    if opt.simulation.simulation_mode.val == 1:
+    if opt.simulation.sim_mode.val == 1:
           recipe  = recipe_1(opt)
-    if opt.simulation.simulation_mode.val == 2:
-       if opt.simulation.output_mode.val == 1:   
+    if opt.simulation.sim_mode.val == 2:
+       if opt.simulation.sim_output_type.val == 1:   
            recipe  = recipe_2(opt)   
-       elif opt.simulation.output_mode.val == 2: # fits only
+       elif opt.simulation.sim_output_type.val == 2: # fits only
            recipe  = recipe_2a(opt)   
-    if opt.simulation.simulation_mode.val == 3:
+    if opt.simulation.sim_mode.val == 3:
           recipe  = recipe_3(opt)
           
     if recipe.feasibility ==1:    
-        if opt.simulation.output_mode.val == 1:
+        if opt.simulation.sim_output_type.val == 1:
             results_file = recipe.filename
             results.run(results_file)
     else:

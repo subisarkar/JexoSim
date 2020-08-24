@@ -90,11 +90,12 @@ def make_planet_xml_file(opt, pl):
         check_xml_file = '%s/%s.xml'%(target_folder, pl)
         cond = 1
         if os.path.exists(check_xml_file ):
-            print ('A file already exists for this planet.  Change planet_file_renew to 1 in jexosim_input_file.txt, to overwrite with a new file')
-            if opt.exosystem_params.planet_file_renew.val == 1:
-                cond = 1
-            else:
-                cond = 0
+            print ('A file already exists for this planet')
+            # if opt.exosystem_params.planet_file_renew.val == 1:
+            #     cond = 1
+            # else:
+            #     cond = 0
+            cond=0  # if need a new file, just delete the old one
         
         if cond ==1:
             print ('Making new file')

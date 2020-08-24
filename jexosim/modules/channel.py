@@ -11,7 +11,7 @@ from jexosim.lib import jexosim_lib
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 import numpy           as np
 from astropy import units as u
-import scipy.constants as spc
+from astropy import constants as const
 import scipy.interpolate
 import copy
  
@@ -53,7 +53,7 @@ def run(opt):
 
       
       opt.qe_spec = qe
-      opt.Re = qe.sed * (qe.wl).to(u.m)/(spc.c * spc.h * u.m)
+      opt.Re = qe.sed * (qe.wl).to(u.m)/(const.c.value * const.h.value * u.m)
       opt.star.sed.sed *= opt.Re*u.electron/u.W/u.s
       
       jexosim_msg('check 1.3 - Star sed max:  %s'%(opt.star.sed.sed.max()), opt.diagnostics)  
@@ -94,8 +94,9 @@ def run(opt):
       jexosim_msg ("check 1.4:  %s"%(opt.star.sed.sed.max()), opt.diagnostics)   
       
       opt.star.sed.rebin(opt.x_wav_osr)         
-      opt.planet.sed.rebin(opt.x_wav_osr)    
-      
+      opt.planet.sed.rebin(opt.x_wav_osr)   
+
+       
       jexosim_plot('planet sed', opt.diagnostics, xdata=opt.planet.sed.wl, ydata=opt.planet.sed.sed)
 
       opt.planet_sed_original = copy.deepcopy(opt.planet.sed.sed)

@@ -20,25 +20,27 @@ class recipe_1(object):
         filename =""
         
         self.results_dict ={}
-        self.results_dict['simulation_mode'] = opt.simulation.simulation_mode.val
-        self.results_dict['simulation_realisations'] = opt.simulation.simulation_realisations.val
-        self.results_dict['ch'] =  opt.channel_list.ch.val 
+        self.results_dict['simulation_mode'] = opt.simulation.sim_mode.val
+        self.results_dict['simulation_realisations'] = opt.simulation.sim_realisations.val
+        self.results_dict['ch'] =  opt.observation.obs_channel.val 
         self.noise_dict ={}    
    
-        opt.channel.data_pipeline.useSignal.val=0
-        opt.channel.data_pipeline.use_fast.val =1
-        opt.channel.data_pipeline.split  = 0
+        opt.pipeline.useSignal.val=0
+        opt.pipeline.use_fast.val =1
+        opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
-        opt.use_auto_Ap = opt.channel.data_pipeline.auto_ap.val
-        opt.channel.detector_readout.doCDS.val=1      
+             
          
         opt.timeline.apply_lc.val = 0
         opt.timeline.useLDC.val = 0
-        opt.channel.data_pipeline.useAllen.val =1
+        opt.pipeline.useAllen.val =1
         
         opt.timeline.obs_time.val = 3.0*u.hr
         
-        noise_type = int(opt.noise.simulation_noise_source.val)
+        opt.timeline.obs_time.val = 0.5*u.hr
+        
+        noise_type = int(opt.noise.sim_noise_source.val)
+        
         
         
         nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -81,7 +83,7 @@ class recipe_1(object):
                 self.feasibility = 1
                 opt = self.run_JexoSimB(opt)
                 
-                if opt.simulation.output_mode.val == 1:  
+                if opt.simulation.sim_output_type.val == 1:  
                     opt = self.run_pipeline_stage_1(opt)       
                     opt = self.run_pipeline_stage_2(opt)              
                     self.pipeline = opt.pipeline_stage_2
@@ -91,33 +93,33 @@ class recipe_1(object):
                     if j == start:                    
                         self.noise_dict[opt.noise_tag]['signal_std_stack'] = self.pipeline.ootNoise
                         self.noise_dict[opt.noise_tag]['signal_mean_stack'] = self.pipeline.ootSignal
-                        if opt.channel.data_pipeline.useAllen.val == 1:
+                        if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_stack'] = self.pipeline.noiseAt1hr
                             
                         self.noise_dict[opt.noise_tag]['signal_std_mean'] = self.pipeline.ootNoise
                         self.noise_dict[opt.noise_tag]['signal_mean_mean'] = self.pipeline.ootSignal
-                        if opt.channel.data_pipeline.useAllen.val == 1:
+                        if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_mean'] = self.pipeline.noiseAt1hr
                             
                         self.noise_dict[opt.noise_tag]['signal_std_std'] = np.zeros(len(self.pipeline.binnedWav))
                         self.noise_dict[opt.noise_tag]['signal_mean_std'] = np.zeros(len(self.pipeline.binnedWav))
-                        if opt.channel.data_pipeline.useAllen.val == 1:
+                        if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_std'] = np.zeros(len(self.pipeline.binnedWav))
             
                     else:
                         self.noise_dict[opt.noise_tag]['signal_std_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_std_stack'], self.pipeline.ootNoise))
                         self.noise_dict[opt.noise_tag]['signal_mean_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_mean_stack'], self.pipeline.ootSignal))
-                        if opt.channel.data_pipeline.useAllen.val == 1:
+                        if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['fracNoT14_stack'], self.pipeline.noiseAt1hr))
     
                         self.noise_dict[opt.noise_tag]['signal_std_mean'] = self.noise_dict[opt.noise_tag]['signal_std_stack'].mean(axis=0)
                         self.noise_dict[opt.noise_tag]['signal_mean_mean'] = self.noise_dict[opt.noise_tag]['signal_mean_stack'].mean(axis=0)
-                        if opt.channel.data_pipeline.useAllen.val == 1:
+                        if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_mean'] = self.noise_dict[opt.noise_tag]['fracNoT14_stack'].mean(axis=0)
                             
                         self.noise_dict[opt.noise_tag]['signal_std_std'] = self.noise_dict[opt.noise_tag]['signal_std_stack'].std(axis=0)
                         self.noise_dict[opt.noise_tag]['signal_mean_std'] = self.noise_dict[opt.noise_tag]['signal_mean_stack'].std(axis=0)
-                        if opt.channel.data_pipeline.useAllen.val == 1:
+                        if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_std'] = self.noise_dict[opt.noise_tag]['fracNoT14_stack'].std(axis=0)
     
     
@@ -142,7 +144,7 @@ class recipe_1(object):
                         self.filename = 'OOT_SNR_%s_%s.pickle'%(opt.lab, time_tag)
                                 
                 
-                elif opt.simulation.output_mode.val == 2:
+                elif opt.simulation.sim_output_type.val == 2:
                      
                     output.run(opt)
                             

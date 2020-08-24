@@ -39,7 +39,7 @@ class processLC():
         self.ecc = opt.z_params[5]
         self.omega = opt.z_params[6] 
  
-#        self.opt.channel.data_pipeline.useReduced.val =1
+#        self.opt.pipeline.useReduced.val =1
      
         try: 
             self.opt.LDClaw
@@ -67,7 +67,7 @@ class processLC():
         self.fitModelLC()
         
         
-        if self.opt.channel.data_pipeline.useReduced.val == 1:
+        if self.opt.pipeline.useReduced.val == 1:
             self.binnedWav = self.finalWav
           
  
@@ -83,7 +83,7 @@ class processLC():
         nProg = 0   # fraction of progress   
 
         step = 1
-        if self.opt.channel.data_pipeline.useReduced.val == 1:
+        if self.opt.pipeline.useReduced.val == 1:
             jexosim_msg ("using reduced number of R-bins for speed..." , self.opt.diagnostics)
             step = 5        
         
@@ -233,7 +233,7 @@ class processLC():
         if err == 0:
             err = 1e-8      
          
-        if self.opt.channel.data_pipeline.fit_gamma.val == 1: 
+        if self.opt.pipeline.fit_gamma.val == 1: 
             if self.opt.LDClaw=='claret4':
                 fit_init = [p_est, oot_est, 0.0, 0.0, 0.0, 0.0]
                 fit  = minimize(self.chi_sq_4, fit_init, args=(), method='Nelder-Mead', jac=None, hess=None, hessp=None, bounds=None, constraints=(), tol=None, callback=None, options=None) 
@@ -316,8 +316,8 @@ class extractSpec():
         F = self.opt.channel.camera.wfno_x.val
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
         ApFactor = self.ApFactor
-        ApShape = self.opt.channel.data_pipeline.ApShape.val
-        wl_max = self.opt.channel.data_pipeline.wavrange_hi.val
+        ApShape = self.opt.pipeline.pipeline_ap_shape.val
+        wl_max = self.opt.channel.pipeline_params.wavrange_hi.val
         
         jexosim_msg ("ap factor %s"%(ApFactor) , self.opt.diagnostics)
         jexosim_msg ("ap shape %s"%(ApShape ),      self.opt.diagnostics)
@@ -496,8 +496,8 @@ class extractSpec():
         F = self.opt.channel.camera.wfno_x.val  # use F_x to set width, since NIRISS F_y is just estimate used to gen PSF if no WebbPSF used
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
         ApFactor = self.ApFactor
-        ApShape = self.opt.channel.data_pipeline.ApShape.val
-        wl_max = self.opt.channel.data_pipeline.wavrange_hi.val
+        ApShape = self.opt.pipeline.pipeline_ap_shape.val
+        wl_max = self.opt.channel.pipeline_params.wavrange_hi.val
         
         if self.opt.y_pos_osr != []:
             y_pos = self.opt.y_pos_osr[1::3]/3.0
@@ -663,21 +663,21 @@ class extractSpec():
     def binSpectra(self):
         
         wl = self.opt.cr_wl.value
-        R = self.opt.channel.data_pipeline.R.val
-        wavrange_lo = self.opt.channel.data_pipeline.wavrange_lo.val
-        wavrange_hi = self.opt.channel.data_pipeline.wavrange_hi.val
+        R = self.opt.pipeline.pipeline_R.val
+        wavrange_lo = self.opt.channel.pipeline_params.wavrange_lo.val
+        wavrange_hi = self.opt.channel.pipeline_params.wavrange_hi.val
         wavrange = [wavrange_lo, wavrange_hi]
         x_wav_osr = self.opt.x_wav_osr
         x_pix_osr = self.opt.x_pix_osr
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
-        bin_size = self.opt.channel.data_pipeline.bin_size.val
+        bin_size = self.opt.pipeline.pipeline_bin_size.val
 
         cond=1 #directs to new method
 #       cond=0 # previous method
             
         
 #        1) find the bin sizes in wavelength space
-        if self.opt.channel.data_pipeline.binning.val == 'R-bin':
+        if self.opt.pipeline.pipeline_binning.val == 'R-bin':
             jexosim_msg ('binning spectra into R-bins...',  self.opt.diagnostics)
             for i in range (len(wl)):
                 if wl[i]>0:
@@ -958,8 +958,8 @@ class extractSpec():
             self.binnedWav = wavcen_list0
             
          
-        elif self.opt.channel.data_pipeline.binning.val  == 'fixed-bin':
-            jexosim_msg ('binning spectra into fixed-bins of size %s pixel columns...%s'%(bin_size), self.opt.diagnostics)
+        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin':
+            jexosim_msg ('binning spectra into fixed-bins of size %s pixel columns'%(bin_size), self.opt.diagnostics)
             
             offs=0          
 #============================use only temp for noise budget to match spectral ==================================================
@@ -969,8 +969,9 @@ class extractSpec():
                  offs = 3
                    
 #==============================================================================
-            spec = np.add.reduceat(self.spectra, np.arange(offs,self.spectra.shape[1])[::bin_size], axis = 1)
-            wav = np.add.reduceat(wl, np.arange(offs,len(wl))[::bin_size]) / bin_size            
+
+            spec = np.add.reduceat(self.spectra, np.arange(int(offs),self.spectra.shape[1])[::int(bin_size)], axis = 1)
+            wav = np.add.reduceat(wl, np.arange(offs,len(wl))[::int(bin_size)])  / bin_size            
 #            spec = np.add.reduceat(self.spectra, np.arange(self.spectra.shape[1])[::bin_size], axis = 1)
 #            wav = np.add.reduceat(wl, np.arange(len(wl))[::bin_size]) / bin_size
             if wav[-1] < wav [-2]:
@@ -988,18 +989,18 @@ class extractSpec():
     def binGamma(self):
         
         wl = self.opt.cr_wl.value
-        R = self.opt.channel.data_pipeline.R.val
-        wavrange_lo = self.opt.channel.data_pipeline.wavrange_lo.val
-        wavrange_hi = self.opt.channel.data_pipeline.wavrange_hi.val
+        R = self.opt.pipeline.pipeline_R.val
+        wavrange_lo = self.opt.channel.pipeline_params.wavrange_lo.val
+        wavrange_hi = self.opt.channel.pipeline_params.wavrange_hi.val
         wavrange = [wavrange_lo, wavrange_hi]
         x_wav_osr = self.opt.x_wav_osr
         x_pix_osr = self.opt.x_pix_osr
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
-        bin_size = self.opt.channel.data_pipeline.bin_size.val
+        bin_size = self.opt.pipeline.pipeline_bin_size.val
         useWeightedAv =1 #better than using simple average
 #        useWeightedAv =0 
         
-        if self.opt.channel.data_pipeline.binning.val == 'R-bin':
+        if self.opt.pipeline.pipeline_binning.val == 'R-bin':
             jexosim_msg ('binning LDCs into R-bins...', self.opt.diagnostics)
             for i in range (len(wl)):
                 if wl[i]>0:
@@ -1166,7 +1167,7 @@ class extractSpec():
             self.binnedGamma = count_array
             
          
-        elif self.opt.channel.data_pipeline.binning.val  == 'fixed-bin':
+        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin':
             jexosim_msg ('binning gamma into fixed-bins of size %s pixel columns...%s'%(bin_size), self.opt.diagnostics)
             self.gamma = self.opt.ldc[1:]
             for jj in range(self.gamma.shape[0]):            
@@ -1187,17 +1188,17 @@ class extractSpec():
     def binGamma2(self):
         
         wl = self.opt.cr_wl.value
-        R = self.opt.channel.data_pipeline.R.val
-        wavrange_lo = self.opt.channel.data_pipeline.wavrange_lo.val
-        wavrange_hi = self.opt.channel.data_pipeline.wavrange_hi.val
+        R = self.opt.pipeline.pipeline_R.val
+        wavrange_lo = self.opt.channel.pipeline_params.wavrange_lo.val
+        wavrange_hi = self.opt.channel.pipeline_params.wavrange_hi.val
         wavrange = [wavrange_lo, wavrange_hi]
         x_wav_osr = self.opt.x_wav_osr
         x_pix_osr = self.opt.x_pix_osr
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
-        bin_size = self.opt.channel.data_pipeline.bin_size.val        
+        bin_size = self.opt.pipeline.pipeline_bin_size.val        
         
         
-        if self.opt.channel.data_pipeline.binning.val == 'R-bin':
+        if self.opt.pipeline.pipeline_binning.val == 'R-bin':
             for i in range (len(wl)):
                 if wl[i]>0:
                     idx0 = i
@@ -1321,7 +1322,7 @@ class extractSpec():
             self.binnedGamma = count_array
  
 
-        elif self.opt.channel.data_pipeline.binning.val  == 'fixed-bin':
+        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin':
             jexosim_msg ('binning gamma into fixed-bins of size %s pixel columns...%s'%(bin_size), self.opt.diagnostics)
             self.gamma = self.opt.ldc[1:]
             for jj in range(self.gamma.shape[0]):            
@@ -1350,7 +1351,7 @@ class processOOT():
         self.opt = opt      
         self.obtainSNR() 
           
-        if self.opt.channel.data_pipeline.useAllen.val ==1:
+        if self.opt.pipeline.useAllen.val ==1:
             for i in [0]:
                 self.obtainAllen() 
 

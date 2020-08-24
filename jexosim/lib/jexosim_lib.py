@@ -11,7 +11,7 @@ from scipy import interpolate
 from scipy.integrate import cumtrapz
 import scipy.special
 import sys, os
-import scipy.constants as spc
+from astropy import constants as const
 from astropy import units as u
 import matplotlib.pyplot as plt
 plt.style.use('classic')
@@ -20,7 +20,8 @@ plt.style.use('classic')
 def calc_logg(m,r):
     m = m.to(u.kg)
     r = r.to(u.m)
-    G = spc.G*u.m**3/u.kg**1/u.s**2
+    # G = spc.G*u.m**3/u.kg**1/u.s**2
+    G = const.G
     g = G*m /r**2
     g0 = g.to(u.cm/u.s**2)
     return g, np.log10(g0.value)

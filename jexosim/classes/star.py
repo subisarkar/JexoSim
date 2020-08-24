@@ -3,8 +3,8 @@ import numpy   as np
 from astropy.io import fits
 from astropy import units as u
 from jexosim.classes import sed
-import scipy
-import os
+from astropy import constants as const
+import os, sys
 from jexosim.lib.jexosim_lib import jexosim_msg, planck
 import jexosim
 
@@ -33,7 +33,7 @@ class Star():
     sed_folder = '%s/%s'%(databases_dir, dirc_name)
 
    
-    if opt.exosystem_params.star_spectrum.val == 'simple':
+    if opt.exosystem_params.star_spectrum_model.val == 'simple':
           ph_wl, ph_sed = self.get_simple_spectrum (np.linspace(0.4,12.0,int(1e6))*u.um, 		
     			    opt.exosystem.star.T)			   
           jexosim_msg ("Using black body spectrum for star...", opt.diagnostics)
@@ -43,9 +43,9 @@ class Star():
 						    opt.exosystem.star.logg, 
 						    opt.exosystem.star.Z)  
               
-    if opt.exosystem_params.use_norm.val == 1:
-        ph_sed  = self.useTelFlux(ph_wl, ph_sed, opt.exosystem_params.norm_band.val, 
-                                  opt.exosystem_params.norm_mag.val)
+    if opt.exosystem_params.star_spectrum_mag_norm.val == 1:
+        ph_sed  = self.useTelFlux(ph_wl, ph_sed, opt.exosystem_params.star_spectrum_mag_band.val, 
+                                  opt.exosystem_params.star_spectrum_mag.val)
     else  :        
         ph_sed  *=  ((opt.exosystem.star.R).to(u.m)/(opt.exosystem.star.d).to(u.m))**2 		      # [W/m^2/mu]
     
@@ -67,13 +67,16 @@ class Star():
     cond=0     
     for root, dirs, files in os.walk(sed_folder):
         for filename in files:
-            if filename == 'lte0%s-%s-0.0a+0.0.BT-Settl.spec.fits.gz'%(t0.value, logg0):
+            if filename == 'lte0%s-%s-0.0a+0.0.BT-Settl.spec.fits'%(t0.value, logg0):
                 ph_file = '%s/%s'%(sed_folder, filename)
-                                             
+                cond = 1
+            elif filename == 'lte0%s-%s-0.0a+0.0.BT-Settl.spec.fits.gz'%(t0.value, logg0):
+                ph_file = '%s/%s'%(sed_folder, filename)
                 jexosim_msg ("Star file used:  %s"%(ph_file) , self.opt.diagnostics)
                 cond = 1
     if cond==0:
         jexosim_msg ("Error:  no star file found", 1)
+        sys.exit()
                  
     with fits.open(ph_file) as hdu:
         wl = u.Quantity(hdu[1].data.field('Wavelength'),
@@ -97,7 +100,8 @@ class Star():
   def useTelFlux(self, wl, sed,  mag_type='J', mag=8.0):
       
       jexosim_msg ("normalizing stellar spectrum to %s mag %s"%(mag_type, mag),  self.opt.diagnostics)
-              
+      
+      wl = wl.value
       if mag_type == 'J':
           wav = 1.235
           Jy = 1594
@@ -110,7 +114,8 @@ class Star():
           wav = 2.22
           Jy = 667                      
           
-      F_0 = scipy.constants.c*1e6*1e-26*(Jy)/wav**2
+      # F_0 = scipy.constants.c*1e6*1e-26*(Jy)/wav**2
+      F_0 = const.c.value*1e6*1e-26*(Jy)/wav**2
  
       F_x = F_0*10**(-mag/2.5)
                 

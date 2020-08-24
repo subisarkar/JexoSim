@@ -49,41 +49,22 @@
   </detector_pixel>
   
   <detector_readout>
-      <frame_time val="0.902" units= "s"  comment="time resolution of simulation"/>
       <t_f val="0.902" units= "s" comment="2048x32 subarray mode"/>
       <t_g val="0.902" units= "s" comment="2048x32 subarray mode"/>
       <t_sim val="0.902" units= "s" comment=""/>
-      <multiaccum val="2" units= "" comment="number of groups in a ramp; aka MULTIACCUM"/>
-      <doCDS val="1" units= "" comment="0 = up-the-ramp, 1= CDS.  If pick CDS then final integration time will be (n-_groups-1)*array_readtime and only first and last NDR are simulated"/>
-      <use_sat val="1" units="" comment="if true calculates minimum saturation time of a pixel and sets that as the exposure time" />
       <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
-      <exposure_time val="0" units="s" comment="time for one exposure containg set of NDRs and includes dead time if use_sat is false - however this is not implemented as it will conflict with frame_time and multiaccum.  Instead the expsoure time is calculated by multiaccum*frame_time +dead time" />
       <nGND val='0' units="" comment="duration of reset event in units of frame time" />
       <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
       <nRST val = '1' units="" comment="Time lapse between last NDR and reset in units of frame time" />
   </detector_readout>
   
-  <data_pipeline>
+  <pipeline_params>
       <start_wav val="2.7" units="" />
       <end_wav val="5.2" units="" />
       <extra_pix val="0" units="" />
       <wavrange_lo val="2.87" units="" />
       <wavrange_hi val="5.1" units="" />
-      <binning val="R-bin" units="" comment="either fixed-bin  or R-bin"/>
-      <R val="58.0" units="" comment="based on average R in Pandexo paper"/>
-      <bin_size val="30" units="" comment="size of fixed-bins in pixel columns if fixed-bin selected"/>
-      <apply_mask val="1" units="" comment="apply an aperture mask or not"/>
-      <ApFactor val="1.22" units="" comment="if mask applied, width in units of Flambda"/>
-      <ApShape val="rect" units="" comment="rect = rectangular mask where width = ApFactor*F*lambda(max), wav = wavelength dependent mask where width = ApFactor * F *lambda. rect is default"/>
-      <result_type val="0" units="" comment="0= SNR results, 1= planet spectrum with error bars"/>
-      <useAllen val="1" units="" comment="if result_type is 0, this selects use of Allen analysis"/>
-      <useReduced val="0" units="" comment="selects reduced number of bins in data pipline for speed "/>
-      <jitterMethod val="pointing-interp" units="" comment=""/>
-      <fit_gamma val="0" units="" comment=""/>
-      <useSignal val="0" units="" comment=""/>
-      <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
-      <auto_ap val="1" units="" comment=""/>
-    </data_pipeline>
+    </pipeline_params>
 
 </channel>
 

@@ -1,9 +1,6 @@
 # JexoSim
-
-.. raw:: html
-
 <div align="center">
-<img src="docs/jexosim_logo.png" width="400px">
+<img src="docs/jexosim_logo.png" width="300px">
 </img>
 <br/>
 </div>
@@ -34,8 +31,11 @@ or
 
 First thing to do is to download the following databases:  
 [Pandeia](https://stsci.app.box.com/v/pandeia-refdata-v1p5p1/) (Pontoppidan, K.M. et al. (2016). Proc. SPIE, 9910, 991016)  
-[Phoenix BT-Settl database](https://phoenix.ens-lyon.fr/Grids/BT-Settl/CIFIST2011_2015/FITS/BT-Settl_M-0.0a+0.0.tar) (Allard F., Homeier D., Freytag B., 2012, Philos. Trans. Royal Soc. A, 370, 2765)  
-Unzip and fully extract the folders.
+[Phoenix BT-Settl database](https://phoenix.ens-lyon.fr/Grids/BT-Settl/CIFIST2011_2015/FITS/BT-Settl_M-0.0a+0.0.tar) (Allard F., Homeier D., Freytag B., 2012, Philos. Trans. Royal Soc. A, 370, 2765) 
+[ATMO foward model grid (local)](https://drive.google.com/file/d/1Kvfi7FTBqM1MfnkTnHsJJqI7EFwnuaIG/view?usp=sharing)
+[ATMO foward model grid (rainout)](https://drive.google.com/file/d/1LnpL_kpbZGPEN0G6QhHrL4DcD4hwvaia/view?usp=sharing) (Goyal, J. et al. (2018). MNRAS, 482, 4503).
+
+Unzip/untar and fully extract the folders.  It is not necessary to upzip the final level .txt files in the folders. 
 
 From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table as follows: under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.
 
@@ -43,6 +43,8 @@ Download the following folders:
 [PSF](https://drive.google.com/file/d/1YFbB02IR9U-9J6UDw8SsdBo5aKh0V-_6/view?usp=sharing)  
 [LDC](https://drive.google.com/file/d/1lWRdqW_wI3y31ugqq2HfyyekGyOSteL_/view?usp=sharing)  
 These contain pre-calculated point spread functions obtained using WebbPSF (Perrin. M. et al. (2014). Proc. SPIE. 9143, 91433X) and limb darkening coefficients obtained using ExoTETHyS (Morello, G. et al. (2020). AJ, 159,  75) .
+
+If you use any of the above databases in your research, please credit the authors.
 
 
 ### GitHub
@@ -53,8 +55,8 @@ Clone the repository from github, and run `setup.py`.  This will setup the remai
     cd JexoSim
     python setup.py install
     
-Move the four folders and the one .csv file you downloaded in the 'Databases' step into the `JexoSim/databases/` folder.
-    
+Move the six folders and the one .csv file you downloaded in the 'Databases' step into the `JexoSim/databases/` folder.
+Do not rename the folders or files (the code should be able to identify them).   
     
 ### Output folder
 By default JexoSim will place the results from the simulations into the `JexoSim/output/` folder. However you may choose a different location to store these results.  To do so find the file `jexosim_paths.txt` in the `JexoSim/jexosim/input_files/` folder, and next to `output_directory` (leaving at least one white space gap),  enter the full path to the location including folder name, e.g. `/Users/UserA/Desktop/JexoSim_Results`.  The folder will be automatically generated. If this is blank, the default location will be chosen.

@@ -18,16 +18,11 @@ def run(opt):
 		 (planet.planet.R).to(u.m), 
 		 (planet.planet.star.R).to(u.m))  ).to(u.hour)    
   opt.time_at_transit      = opt.T14*(0.5+opt.timeline.before_transit())
-  
-  NDR_time_estimate  = opt.t_int/(opt.channel.detector_readout.multiaccum()-1)
 
-  jexosim_msg ("NDR time estimate", NDR_time_estimate)
-  
    
   opt.frame_time = opt.channel.detector_readout.t_f.val   # Frame exposure, CLK
   opt.T14 = (opt.T14).to(u.s)
   
-  opt.exposure_time   = opt.channel.detector_readout.exposure_time() # Exposure time
 # Estimate NDR rates
   opt.multiaccum     = opt.effective_multiaccum    # Number of NDRs per exposure
   opt.allocated_time = (opt.channel.detector_readout.nGND()+

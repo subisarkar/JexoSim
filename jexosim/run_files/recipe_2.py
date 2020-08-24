@@ -4,6 +4,10 @@ JexoSim
 Recipe 2 :
 Monte Carlo full transit simulation returning transit depths and noise on transit dept per spectral bin
 
+Each realisation run the stage 2 JexoSim routine with a new noise randomization
+The if the pipeline_auto_ap=1, the aperture mask size may vary with each realisation
+This should not matter since final measurement is the fractional transit depth
+
 '''
 
 import numpy as np
@@ -22,20 +26,19 @@ class recipe_2(object):
         filename=""
         
         self.results_dict ={}
-        self.results_dict['simulation_mode'] = opt.simulation.simulation_mode.val
-        self.results_dict['simulation_realisations'] = opt.simulation.simulation_realisations.val      
-        self.results_dict['ch'] =  opt.channel_list.ch.val 
+        self.results_dict['simulation_mode'] = opt.simulation.sim_mode.val
+        self.results_dict['simulation_realisations'] = opt.simulation.sim_realisations.val
+        self.results_dict['ch'] =  opt.observation.obs_channel.val 
 
-        opt.channel.data_pipeline.useSignal.val=0
-        opt.channel.data_pipeline.use_fast.val =1
-        opt.channel.data_pipeline.split  = 0
+        opt.pipeline.useSignal.val=0
+        opt.pipeline.use_fast.val =1
+        opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
-        opt.use_auto_Ap = opt.channel.data_pipeline.auto_ap.val
-        opt.channel.detector_readout.doCDS.val=1   
+
         opt.timeline.apply_lc.val = 1
         opt.timeline.useLDC.val = 1
-        opt.channel.data_pipeline.useAllen.val =0
-        opt.channel.data_pipeline.fit_gamma.val  =0 #keep zero for uncert on p
+        opt.pipeline.useAllen.val =0
+        opt.pipeline.fit_gamma.val  =0 #keep zero for uncert on p
        
         start = 0 
         end = int(start + opt.no_real)
@@ -58,11 +61,11 @@ class recipe_2(object):
            duration_per_ndr0 = opt.duration_per_ndr*1
            
            if n_ndr0 > 20000:
-               opt.channel.data_pipeline.split = 1
+               opt.pipeline.split = 1
                if opt.diagnostics ==1 :
                    jexosim_msg ('number of NDRs > 20000: using split protocol', opt.diagnostics)
            else:
-               opt.channel.data_pipeline.split = 0 
+               opt.pipeline.split = 0 
        
            for j in range(start, end):
                
@@ -74,7 +77,7 @@ class recipe_2(object):
                
                pp = time.time()
                # split simulation into chunks to permit computation - makes no difference to final results    
-               if opt.channel.data_pipeline.split ==1:
+               if opt.pipeline.split ==1:
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
                    ndrs_per_round = opt.multiaccum*int(1000/opt.multiaccum)      
                    idx_list =[]
@@ -110,7 +113,7 @@ class recipe_2(object):
                        opt  = self.run_pipeline_stage_1(opt)
                        
                        if i ==0:
-                           opt.channel.data_pipeline.ApFactor.val= opt.AvBest
+                           opt.pipeline.pipeline_ap_factor.val= opt.AvBest
                        
                        data0 = opt.pipeline_stage_1.binnedLC
                        data = opt.pipeline_stage_1.opt.data_raw
@@ -129,13 +132,13 @@ class recipe_2(object):
                            jexosim_plot('test_from_pipeline', opt.diagnostics,
                                         ydata=aa)                            
                                            
-               elif opt.channel.data_pipeline.split ==0:
+               elif opt.pipeline.split ==0:
    
                    opt  = self.run_JexoSimB(opt)
                    opt  = self.run_pipeline_stage_1(opt)
                    if j==start:  # first realization sets the ap, then the other use the same one
                        opt.use_auto_Ap = 1 
-                       opt.channel.data_pipeline.ApFactor.val= opt.AvBest
+                       opt.pipeline.pipeline_ap_factor.val= opt.AvBest
                    else:
                        opt.use_auto_Ap = 0
         
