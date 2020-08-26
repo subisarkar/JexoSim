@@ -34,7 +34,7 @@ class Planet(object):
         self.file_model()  
         jexosim_msg ("filed planet spectrum chosen", 1)
     else:
-        jexosim_msg('Error : no compatible entry for planet_spectrum_model', 1)
+        jexosim_msg('Error1 : no compatible entry for planet_spectrum_model', 1)
         sys.exit()
           
     
@@ -43,7 +43,7 @@ class Planet(object):
         wl = np.arange(0.3,30,0.1)*u.um
         cr = np.array([( (self.planet.R).to(u.m)/(self.planet.star.R).to(u.m))**2]*len(wl))*u.dimensionless_unscaled
         self.sed = sed.Sed(wl,cr)      
-    if self.opt.observation.obs_type.val == 2:
+    elif self.opt.observation.obs_type.val == 2:
         wl = np.arange(0.3,30,0.1)*u.um
         star_flux =  np.pi*planck(wl, self.planet.star.T)*(  (self.planet.star.R).to(u.m) / (self.planet.star.d).to(u.m))**2
         planet_flux_em =  np.pi*planck(wl, self.planet.T)*(  (self.planet.R).to(u.m) / (self.planet.star.d).to(u.m))**2
@@ -56,7 +56,7 @@ class Planet(object):
         # plt.plot(wl, star_flux)
         # xxxx
     else:
-        jexosim_msg("Error: no compatible entry for obs_type", 1)
+        jexosim_msg("Error2 : no compatible entry for obs_type", 1)
         sys.exit()
 
 
@@ -83,7 +83,7 @@ class Planet(object):
               jexosim_msg("Error: no compatible entry for planet_spectrum_params_cond", 1)
               sys.exit()
     
-          databases_dir = '%s/databases'%(self.opt.jexosim_path)   
+          databases_dir = '%s/archive'%(self.opt.jexosim_path)
           cond=0
           for root, dirs, files in os.walk(databases_dir):
               for dirc in dirs:
@@ -137,9 +137,6 @@ class Planet(object):
           # plt.figure(4)
           # plt.plot(wl, cr)
           # xxxx
-
-            
- 
             
       elif self.opt.observation.obs_type.val == 2: # currently no grid for this
           wl = np.arange(0.3,30,0.1)*u.um
@@ -150,7 +147,7 @@ class Planet(object):
           cr = planet_flux / star_flux
           self.sed = sed.Sed(wl,cr)    
       else:
-          jexosim_msg("Error: no compatible entry for obs_type", 1)       
+          jexosim_msg("Error3: no compatible entry for obs_type", 1)       
   
    
   def file_model(self):
@@ -189,7 +186,7 @@ class Planet(object):
     elif os.path.exists('%s/%s.txt.gz'%(folder, filename_root)):
         filename = '%s.txt.gz'%(filename_root)
     else:
-        jexosim_msg('Error: no planetspectrum file found', 1)
+        jexosim_msg('Error: no planet spectrum file found', 1)
         sys.exit()      
     jexosim_msg('Planets spectrum file selected: %s'%(filename), 1)   
       

@@ -20,7 +20,7 @@ class Star():
     jexosim_msg ("Star name %s, dist %s, radius %s"%(opt.exosystem.star.name, opt.exosystem.star.d, opt.exosystem.star.R), opt.diagnostics)  
    
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
-    databases_dir = '%s/databases'%(jexosim_path)   
+    databases_dir = '%s/archive'%(jexosim_path)   
     cond=0
     for root, dirs, files in os.walk(databases_dir):
         for dirc in dirs:

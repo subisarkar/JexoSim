@@ -14,7 +14,7 @@ from jexosim.activate import gen_trans_files, gen_wavelength_files, gen_PRNU_gri
 def run():
 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
-    databases_dir = '%s/databases'%(jexosim_path)   
+    databases_dir = '%s/archive'%(jexosim_path)
     cond=0
     for root, dirs, files in os.walk(databases_dir):
         for dirc in dirs:

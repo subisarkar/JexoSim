@@ -25,38 +25,41 @@ or
 or    
     
     activate jexosim
-      
-
-### Databases
-
-First thing to do is to download the following databases:  
-[Pandeia](https://stsci.app.box.com/v/pandeia-refdata-v1p5p1/) (Pontoppidan, K.M. et al. (2016). Proc. SPIE, 9910, 991016)  
-[Phoenix BT-Settl database](https://phoenix.ens-lyon.fr/Grids/BT-Settl/CIFIST2011_2015/FITS/BT-Settl_M-0.0a+0.0.tar) (Allard F., Homeier D., Freytag B., 2012, Philos. Trans. Royal Soc. A, 370, 2765)  
-[ATMO foward model grid (local)](https://drive.google.com/file/d/1Kvfi7FTBqM1MfnkTnHsJJqI7EFwnuaIG/view?usp=sharing)(Goyal, J. et al. (2018). MNRAS, 482, 4503)    
-[ATMO foward model grid (rainout)](https://drive.google.com/file/d/1LnpL_kpbZGPEN0G6QhHrL4DcD4hwvaia/view?usp=sharing) (Goyal, J. et al. (2018). MNRAS, 482, 4503).
-
-Unzip/untar and fully extract the folders.  It is not necessary to upzip the final level .txt or .fits files in the folders. 
-
-From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table as follows: under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.
-
-Download the following folders:  
-[PSF](https://drive.google.com/file/d/1YFbB02IR9U-9J6UDw8SsdBo5aKh0V-_6/view?usp=sharing)  
-[LDC](https://drive.google.com/file/d/1lWRdqW_wI3y31ugqq2HfyyekGyOSteL_/view?usp=sharing)  
-These contain pre-calculated point spread functions obtained using WebbPSF (Perrin. M. et al. (2014). Proc. SPIE. 9143, 91433X) and limb darkening coefficients obtained using ExoTETHyS (Morello, G. et al. (2020). AJ, 159,  75) .
-
-If you use any of the above databases in your research, please credit the authors.
 
 
 ### GitHub
 
-Clone the repository from github, and run `setup.py`.  This will setup the remaining package dependencies for JexoSim.  It will also extract transmission files and generate wavelength solutions from the Pandeia database, producing JexoSim-compatible files, and a PRNU grid.
+Clone the repository from github.
 
-    git clone https://github.com/subisarkar/JexoSim.git
+git clone https://github.com/subisarkar/JexoSim.git
+
+
+### Databases
+
+Next download the following databases. 
+[Pandeia](https://stsci.app.box.com/v/pandeia-refdata-v1p5p1/) (Pontoppidan, K.M. et al. (2016). Proc. SPIE, 9910, 991016).  This is used to obtain the instrument transmissions, QE and wavelength solutions.  Unzip this folder, then move the folder into the `JexoSim/archive/` folder already in the  `JexoSim` folder structure.  The final path will look like this:  `path_to_JexoSim/JexoSim/archive/pandeia_data-1.5.1`.   The version number (e.g. 1.5.1) of the folder may change, but the code will still recognise the folder. 
+
+[Phoenix BT-Settl database](https://phoenix.ens-lyon.fr/Grids/BT-Settl/CIFIST2011_2015/FITS/BT-Settl_M-0.0a+0.0.tar) (Allard F., Homeier D., Freytag B., 2012, Philos. Trans. Royal Soc. A, 370, 2765).  These are the stellar spectrum models.  Unzip the folder to give the folder labelled `BT-Settl_M-0.0a+0.0`.  (There is no need to unzip the enclosed fits files.).  Then moved the folder into  `JexoSim/archive/` to give the final path `path_to_JexoSim/JexoSim/archive/BT-Settl_M-0.0a+0.0`.
+
+[ATMO foward model grid (local)](https://drive.google.com/file/d/1Kvfi7FTBqM1MfnkTnHsJJqI7EFwnuaIG/view?usp=sharing)(Goyal, J. et al. (2018). MNRAS, 482, 4503)    
+[ATMO foward model grid (rainout)](https://drive.google.com/file/d/1LnpL_kpbZGPEN0G6QhHrL4DcD4hwvaia/view?usp=sharing) (Goyal, J. et al. (2018). MNRAS, 482, 4503).
+These are used to obtain model planet spectra.  Unzip both these folders and move them into the `JexoSim/archive/`.  The final paths will be  `path_to_JexoSim/JexoSim/archive/transfiles_local` and  `path_to_JexoSim/JexoSim/archive/transfiles_rainout`.  
+
+[PSF](https://drive.google.com/file/d/1YFbB02IR9U-9J6UDw8SsdBo5aKh0V-_6/view?usp=sharing)  
+[LDC](https://drive.google.com/file/d/1lWRdqW_wI3y31ugqq2HfyyekGyOSteL_/view?usp=sharing)  
+These contain pre-calculated point spread functions obtained using WebbPSF (Perrin. M. et al. (2014). Proc. SPIE. 9143, 91433X) and limb darkening coefficients obtained using ExoTETHyS (Morello, G. et al. (2020). AJ, 159,  75).  Unzip the folders and move them into `JexoSim/archive/`.  The final paths will be `path_to_JexoSim/JexoSim/archive/PSF` and `path_to_JexoSim/JexoSim/archive/LDC`  
+
+From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table as follows: under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.  Move the .csv file into the `JexoSim/archive/` folder. The final path to the file will be  `path_to_JexoSim/JexoSim/archive/PS_xxxxxxxxxxx.csv`, where the exact name of the .csv file will vary based on the download date and time.  No need to rename the file however, as the code will recognise the file.
+
+If you use any of the above databases in your research, please credit the above authors.
+
+
+### Set up
+Next navigate to inside the `JexoSim` folder and run `setup.py`.  This will setup the remaining package dependencies for JexoSim.  It will also extract transmission files and generate wavelength solutions from the Pandeia database, producing JexoSim-compatible files, and a PRNU grid.
+
     cd JexoSim
     python setup.py install
     
-Move the six folders and the one .csv file you downloaded in the 'Databases' step into the `JexoSim/databases/` folder.
-Do not rename the folders or files (the code should be able to identify them).   
     
 ### Output folder
 By default JexoSim will place the results from the simulations into the `JexoSim/output/` folder. However you may choose a different location to store these results.  To do so find the file `jexosim_paths.txt` in the `JexoSim/jexosim/input_files/` folder, and next to `output_directory` (leaving at least one white space gap),  enter the full path to the location including folder name, e.g. `/Users/UserA/Desktop/JexoSim_Results`.  The folder will be automatically generated. If this is blank, the default location will be chosen.

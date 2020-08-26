@@ -299,23 +299,20 @@ def Psf(wl, fnum_x, fnum_y, delta, nzero = 4, shape='airy'):
   Psf : ndarray
     three dimensional array. Each PSF normalised to unity
   '''
-#  fnum_y =  fnum_x
-  
-  delta = delta.to(wl.unit).value
-  wl = wl.value
+
   Nx = int(np.round(scipy.special.jn_zeros(1, nzero)[-1]/(2.0*np.pi) * fnum_x*wl.max()/delta).astype(np.int))
   
   Ny = Nx = np.int(Nx)
 #  Ny = int(np.round(scipy.special.jn_zeros(1, nzero)[-1]/(2.0*np.pi) * fnum_y*wl.max()/delta).astype(np.int))
 
   if shape=='airy':
-    d = 1.0/(fnum_x*(1.0e-30*+wl))
+    d = 1.0/(fnum_x*(1.0e-30+wl))
   elif shape=='gauss':
     sigma = 1.029*fnum_x*(1.0e-30+wl)/np.sqrt(8.0*np.log(2.0))
     d     = 0.5/sigma**2
     
-  x = np.linspace(-Nx*delta.item(), Nx*delta.item(), 2*Nx+1)
-  y = np.linspace(-Ny*delta.item(), Ny*delta.item(), 2*Ny+1)
+  x = np.linspace(-Nx*delta , Nx*delta , 2*Nx+1) 
+  y = np.linspace(-Ny*delta , Ny*delta , 2*Ny+1) 
   
   yy, xx = np.meshgrid(y, x)
  
@@ -325,6 +322,7 @@ def Psf(wl, fnum_x, fnum_y, delta, nzero = 4, shape='airy'):
   elif shape=='gauss':
     arg = np.multiply.outer(yy**2 + xx**2, d)
     img = np.exp(-arg)
+    
   
   if fnum_y !=  fnum_x:
       x_pix = img.shape[0]  
@@ -334,7 +332,7 @@ def Psf(wl, fnum_x, fnum_y, delta, nzero = 4, shape='airy'):
       x_pos = np.linspace(0,1,x_pix)
       y_pos = np.linspace(0,1,y_pix)
       new_img = np.zeros((y_pix, x_pix, img.shape[2]))
-   
+#      print x_pix, img[...,0].shape
       for i in range(img.shape[2]):
           img_ = interpolate.interp2d(x_pos,x_pos,img[...,i], kind='linear')(x_pos,y_pos)
           new_img[...,i]=img_
@@ -350,7 +348,7 @@ def Psf(wl, fnum_x, fnum_y, delta, nzero = 4, shape='airy'):
   idx = np.where(wl <= 0.0)
   if idx:
     img[..., idx] *= 0.0
-  
+      
   return img
    
   

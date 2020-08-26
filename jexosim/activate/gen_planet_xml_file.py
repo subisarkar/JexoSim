@@ -39,7 +39,7 @@ pl_pubdate:     Planetary Parameter Reference Publication Date
 def make_planet_xml_file(opt, pl):
 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
-    databases_dir = '%s/databases'%(jexosim_path)   
+    databases_dir = '%s/archive'%(jexosim_path)
     cond=0
     for root, dirs, files in os.walk(databases_dir):
         for dirc in files:

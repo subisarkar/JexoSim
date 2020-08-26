@@ -1,6 +1,6 @@
 ######################### SIMULATION ################################################
 
-sim_diagnostics       0             
+sim_diagnostics       1             
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
 sim_mode                   1 

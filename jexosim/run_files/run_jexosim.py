@@ -77,6 +77,7 @@ def run(params_file):
     opt3 = Options(ex_file).opt
     for key in opt3.__dict__:
         setattr(opt, str(key), opt3.__dict__[key])
+        
  
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
@@ -142,8 +143,7 @@ def run(params_file):
     #==============================================================================
     #      Store results
     #==============================================================================
-
    
 if __name__ == "__main__":     
     
-    run('jexosim_input_params_ex1.txt')      
+    run('jexosim_input_params_ex2.txt')      

@@ -15,7 +15,9 @@ import matplotlib.pyplot as plt
 import copy, os
 from scipy import interpolate
 import sys
+import scipy
  
+
 
 def run(opt):
     
@@ -26,13 +28,17 @@ def run(opt):
 #==============================================================================
       ch = opt.channel
 
-      if os.path.exists('%s/../databases/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val)):    
-          psf_stack = np.load('%s/../databases/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val))   
-          psf_stack_wl =  1e6*np.load('%s/../databases/PSF/%s_psf_stack_wl.npy'%(opt.__path__,ch.instrument.val))       
+      if os.path.exists('%s/../archive/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val)):
+          psf_stack = np.load('%s/../archive/PSF/%s_psf_stack.npy'%(opt.__path__,ch.instrument.val))
+          psf_stack_wl =  1e6*np.load('%s/../archive/PSF/%s_psf_stack_wl.npy'%(opt.__path__,ch.instrument.val))
           psf = interpolate.interp1d(psf_stack_wl, psf_stack, axis=2,bounds_error=False, fill_value=0.0, kind='linear')(opt.x_wav_osr.value)      
-          psf = np.rot90(psf)       
-      else:              
-          psf = jexosim_lib.Psf(opt.x_wav_osr, ch.camera.wfno_x(), ch.camera.wfno_y(), opt.fp_delta, shape='airy')  
+          psf = np.rot90(psf) 
+          opt.psf_type = 'wfe'
+      else: # uses airy if no psf database however this is to be avoided, as pipeline assumes the wfe database psfs.
+          psf = jexosim_lib.Psf(opt.x_wav_osr.value, ch.camera.wfno_x.val, ch.camera.wfno_y.val, opt.fp_delta.value, shape='airy')  
+          psf[np.isnan(psf)] =0
+          opt.psf_type = 'airy'
+
       opt.psf = psf 
 
       jexosim_msg("PSF shape %s, %s"%(opt.psf.shape[0],opt.psf.shape[1] ), opt.diagnostics)     
@@ -42,14 +48,14 @@ def run(opt):
       for i in range(psf.shape[2]):
           sum1.append(psf[...,i].sum())
           if psf[...,i].sum()!=0:
-#              psf[...,i] =psf[...,i]/psf[...,i].sum() 
-              if np.round(psf[...,i].sum(),3) !=1.0:    
-                  jexosim_msg('error... check PSF normalisation %s'%(psf[...,i].sum()), 1)
-                  sys.exit()
+              # psf[...,i] =psf[...,i]/psf[...,i].sum() 
+                if np.round(psf[...,i].sum(),3) !=1.0:    
+                    jexosim_msg('error... check PSF normalisation %s %s'%(psf[...,i].sum(), opt.x_wav_osr[i]), 1)
+                    sys.exit()
                   
       jexosim_plot('test7 - psf sum vs subpixel position (should be 1)', opt.diagnostics, 
                    xdata=opt.x_pix_osr, ydata = sum1, marker='bo')
-          
+    
 #==============================================================================    
            #7# Populate focal plane with monochromatic PSFs
 #============================================================================== 
@@ -65,9 +71,21 @@ def run(opt):
           i0 = (opt.y_pos_osr).astype(np.int)
           
       i1 = i0 + psf.shape[0]
+      
+      # print (i0.max(), i0.min(), i1.max(), i1.min())
+      # xxxx
+      
+      if opt.channel.name == 'NIRISS_SOSS_ORDER_1':
+          # fix if airy psfs used
+          if opt.psf_type == 'airy':
+              original_fp = copy.deepcopy(opt.fp)
+              if i1.max() > opt.fp.shape[0]: #psfs will fall outside fp area due to curve
+                  original_fp = copy.deepcopy(opt.fp)
+                  opt.fp = np.zeros((i1.max(), opt.fp.shape[1] ))  # temp increase in fp size           
     
       FPCOPY = copy.deepcopy(opt.fp)
-      opt.fp_signal = copy.deepcopy(opt.fp)   
+      opt.fp_signal = copy.deepcopy(opt.fp)       
+          
       for k in idx:
           FPCOPY[i0[k]:i1[k], j0[k]:j1[k]] += opt.psf[...,k] * opt.star.sed.sed[k].value    
       if opt.background.EnableSource.val == 1 or opt.background.EnableAll.val == 1:
@@ -75,6 +93,20 @@ def run(opt):
               opt.fp[i0[k]:i1[k], j0[k]:j1[k]] += psf[...,k] * opt.star.sed.sed[k].value          
       for k in idx: 
               opt.fp_signal[i0[k]:i1[k], j0[k]:j1[k]] += psf[...,k] * opt.star.sed.sed[k].value                
+      
+        
+      if opt.channel.name == 'NIRISS_SOSS_ORDER_1': # fix if airy psfs used
+          if opt.psf_type == 'airy':  # now return fp to original size
+              if i1.max() > original_fp.shape[0]: 
+                  diff = i1.max()- original_fp.shape[0]         
+                  FPCOPY = FPCOPY[diff:]
+                  opt.fp = opt.fp[diff:]
+                  opt.fp_signal = opt.fp_signal[diff:]
+              
+      plt.figure('test')
+      plt.imshow(opt.fp)
+      
+      
       opt.pre_convolved_fp = copy.deepcopy(opt.fp)
 #==============================================================================
 # #8# Now deal with the planet
@@ -136,7 +168,7 @@ def run(opt):
       opt.fp = jexosim_lib.fast_convolution(opt.fp, opt.fp_delta, kernel, kernel_delta)
       FPCOPY = jexosim_lib.fast_convolution(FPCOPY, opt.fp_delta, kernel, kernel_delta)       
       opt.fp_signal = jexosim_lib.fast_convolution(opt.fp_signal, opt.fp_delta, kernel, kernel_delta)
-      
+
       jexosim_msg ("check 4 - convolved FP max %s %s"%(opt.fp.max(), FPCOPY[1::3,1::3].max()) , opt.diagnostics)    #FPCOPY0 = exolib.fast_convolution(FPCOPY[1::3,1::3], 18e-6*pq.m, kernel, kernel_delta)    
 
       opt.kernel = kernel
@@ -145,6 +177,8 @@ def run(opt):
       # Fix units
       opt.fp = opt.fp*opt.star.sed.sed.unit  
       opt.fp_signal = opt.fp_signal*opt.star.sed.sed.unit  
+      
+
 
 #==============================================================================
 # 10.  Find saturation time
@@ -260,8 +294,9 @@ def run(opt):
                   # special case for NIRISS substrip 96
                   if opt.channel.detector_array.subarray_list.val[idx] =='SUBSTRIP96' and \
                               opt.channel.instrument.val =='NIRISS':
-                        ycrop = 360; ycrop0= 120 
-                        xcrop0 = xcrop =0
+                        if opt.psf_type != 'airy': # should not really use airy however - potential problem in data reduction as designed for wfe psf.
+                            ycrop = 360; ycrop0= 120 
+                            xcrop0 = xcrop =0
                 
                   if ycrop > 0 or ycrop0 >0: 
                       opt.fp_signal = opt.fp_signal[ycrop:-ycrop0] # crop the oversampled FP array to 96 x 3 in y axis
@@ -281,9 +316,11 @@ def run(opt):
                       opt.planet.sed.wl = opt.x_wav_osr
                       
                   if opt.fp_signal.shape[0]/3 != opt.fpn[0]:
-                      xxx
+                      jexosim_msg('Error: detector 1 - check code', 1)
+                      sys.exit()
                   if opt.fp_signal.shape[1]/3 != opt.fpn[1]: 
-                      xxx
+                      jexosim_msg('Error: detector 2 - check code', 1)
+                      sys.exit()
                   jexosim_msg ("subarray dimensions %s x %s "%(opt.fpn[0], opt.fpn[1]), 1)
                   
             #==============================================================================

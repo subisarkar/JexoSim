@@ -128,7 +128,7 @@ def getLDC_interp(opt, planet, wl):
         logg = planet.star.logg
         jexosim_msg ("T_s, logg>>>> %s %s"%(T, logg ), opt.diagnostics)
       
-        folder = '%s/databases/LDC'%(opt.jexosim_path)
+        folder = '%s/archive/LDC'%(opt.jexosim_path)
         
         t_base = np.int(T/100.)*100
         if T>=t_base+100:
