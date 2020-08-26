@@ -10,7 +10,7 @@ JexoSim (JWST Exoplanet Observation Simulator) is a time-domain simulator for th
 
 Installation
 ------
-We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should install Python=3.8.5, matplotlib=3.3.1-0, setuptools=49.6.0, numpy=1.19.1, numba=0.50.1, and astropy=4.0.1. Using conda the following command line instruction will do all this for you:.
+We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should install Python=3.8.5, matplotlib=3.3.1-0, setuptools=49.6.0, numpy=1.19.1, numba=0.50.1.  Using conda the following command line instruction will do all this for you:.
 
     conda create -n jexosim3 python=3.8.5 matplotlib=3.3.1-0 setuptools=49.6.0 numpy=1.19.1 numba=0.50.1
 
@@ -67,10 +67,11 @@ If you use any of the above databases in your research, please credit the above 
 
 
 ### Set up
-Next navigate to inside the `JexoSim` folder and run `setup.py`.  This will setup the remaining package dependencies for JexoSim.  It will also extract transmission files and generate wavelength solutions from the Pandeia database, producing JexoSim-compatible files, and a PRNU grid.
+Next navigate to inside the `JexoSim` folder and run `setup.py`, followed by  `activate.py`.  This will setup the remaining package dependencies for JexoSim, extract transmission files and generate wavelength solutions from the Pandeia database, producing JexoSim-compatible files, and generate a PRNU grid.
 
     cd JexoSim
     python setup.py install
+    python activate.py
     
     
 ### Output folder
