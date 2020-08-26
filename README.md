@@ -12,7 +12,7 @@ Installation
 ------
 We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should use Python 3.8, and the user should install numpy, numba, matplotlib and setuptools in this environment at this stage.  Using conda the following command line instruction will do all this for you:.
 
-    conda create -n jexosim python=3.8 numpy numba matplotlib setuptools
+    conda create -n jexosim python=3.8 numpy numba matplotlib astropy setuptools
 
 Then activate this environment. Depending on the system the activation command may be any one of the following:
 
