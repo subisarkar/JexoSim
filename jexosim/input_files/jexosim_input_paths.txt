@@ -1,8 +1,0 @@
-database_pandeia   			 
-database_phoenix   			 
-database_nasa_exoplanet_archive          
-#Write full paths to each downloaded database  
-
-output_directory     			              
-#Write full path to folder in which results will be placed 
-
