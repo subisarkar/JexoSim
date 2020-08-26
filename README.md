@@ -42,7 +42,7 @@ Next download the following databases.
 This is used to obtain the instrument transmissions, QE and wavelength solutions.  Unzip this folder, then move the folder into the `JexoSim/archive/` folder already in the  `JexoSim` folder structure.  The final path will look like this:  `path_to_JexoSim/JexoSim/archive/pandeia_data-1.5.1`.   The version number (e.g. 1.5.1) of the folder may change, but the code will still recognise the folder. 
 
 [Phoenix BT-Settl database](https://phoenix.ens-lyon.fr/Grids/BT-Settl/CIFIST2011_2015/FITS/BT-Settl_M-0.0a+0.0.tar) (Allard F., Homeier D., Freytag B., 2012, Philos. Trans. Royal Soc. A, 370, 2765).  
-These are the stellar spectrum models.  Unzip the folder to give the folder labelled `BT-Settl_M-0.0a+0.0`.  (There is no need to unzip the enclosed fits files.).  Then moved the folder into  `JexoSim/archive/` to give the final path `path_to_JexoSim/JexoSim/archive/BT-Settl_M-0.0a+0.0`.
+These are the stellar spectrum models.  Unzip the folder to give the folder labelled `BT-Settl_M-0.0a+0.0`.  (There is no need to unzip the enclosed fits files.)  Then moved the folder into  `JexoSim/archive/` to give the final path `path_to_JexoSim/JexoSim/archive/BT-Settl_M-0.0a+0.0`.
 
 [ATMO foward model grid (local)](https://drive.google.com/file/d/1Kvfi7FTBqM1MfnkTnHsJJqI7EFwnuaIG/view?usp=sharing) (Goyal, J. et al., 2018, MNRAS, 482, 4503)    
 [ATMO foward model grid (rainout)](https://drive.google.com/file/d/1LnpL_kpbZGPEN0G6QhHrL4DcD4hwvaia/view?usp=sharing) (Goyal, J. et al., 2018, MNRAS, 482, 4503)  
