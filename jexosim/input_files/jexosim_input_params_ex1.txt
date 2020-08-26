@@ -34,7 +34,7 @@ sim_full_ramps	0
 obs_type	1	 
 # 1 = primary transit. 2 = secondary eclipse. 
 
-obs_channel 	NIRCam_F444W	 
+obs_channel 	NIRCam_F444W
 # Enter instrument channel from following choices (subarray is auto-selected):
 # NIRSpec_G395M_F290LP
 # NIRSpec_G235M_F170LP

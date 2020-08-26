@@ -94,6 +94,7 @@ The results from any given simulation are placed in the output folder.  To ident
     python results.py Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_08_19_2147_43.pickle
 
 Make sure the file is in the designated output directory for this to work.
+In addition a .txt with the same name as the dictionary file will be generated containing derived simulation values (e.g. number of NDRs, integration time etc.) and the input parameter file values used.
 
 Examples
 ------

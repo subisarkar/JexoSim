@@ -119,8 +119,9 @@ def run(params_file):
     opt.diagnostics = opt.simulation.sim_diagnostics.val
     opt.input_params = input_params
     opt.jexosim_path = jexosim_path
+    opt.params_file_path = params_file 
     
-    jexosim_msg(('Simulation mode %s'%(int(opt.simulation.sim_mode.val))), 1)
+    jexosim_msg(('Simulation mode %s'%(int(opt.simulation.sim_mode.val))), 1)    
           
     if opt.simulation.sim_mode.val == 1:
           recipe  = recipe_1(opt)
@@ -130,8 +131,7 @@ def run(params_file):
        elif opt.simulation.sim_output_type.val == 2: # fits only
            recipe  = recipe_2a(opt)   
     if opt.simulation.sim_mode.val == 3:
-          recipe  = recipe_3(opt)
-          
+          recipe  = recipe_3(opt)          
           
     if recipe.feasibility ==1:    
         if opt.simulation.sim_output_type.val == 1:

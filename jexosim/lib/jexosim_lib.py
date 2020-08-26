@@ -663,45 +663,54 @@ def oversample(fp, ad_osf):
     return new_fp
 
 
-def write_record(opt, path, lab):
+def write_record(opt, path, lab, input_text_file):
     
-
-
     textfile = '%s/%s.txt'%(path,lab)
-    file = open(textfile,'w')
-    file.write('Planet:  %s'%(opt.planet.planet.name))
-    file.write('\nChannel:  %s'%(opt.channel.name))
-    file.write('\n\nNoise option:  %s'%(opt.noise_tag))
     
-    file.write('\n ')
-    file.write('\nObservation feasible?:  %s'%(opt.observation_feasibility))
- 
-    file.write('\n ')
-    file.write('\nUse saturation time?:  %s'%(opt.channel.detector_readout.use_sat.val))
-    file.write('\nSat time (to designated fraction of full well):  %s sec'%(opt.sat_time))
-    file.write('\nt_f:  %s sec'%(opt.channel.detector_readout.t_f.val.value.item()))
-    file.write('\nt_g:  %s sec'%(opt.channel.detector_readout.t_g.val.value.item()))
-    file.write('\nt_sim:  %s sec'%(opt.channel.detector_readout.t_sim.val.value.item()))
-    file.write('\nsubarray  :  %s'%(opt.subarray))
+    with open(textfile, "w") as f1:
+        f1.write('===== Simulation values =====')
+        f1.write('\n ')
+        f1.write('\nPlanet:  %s'%(opt.planet.planet.name))
+        f1.write('\nChannel:  %s'%(opt.channel.name))
+        f1.write('\n\nNoise option:  %s'%(opt.noise_tag))     
+        f1.write('\n ')
+        f1.write('\nObservation feasible?:  %s'%(opt.observation_feasibility))     
+        f1.write('\n ')
+        f1.write('\nUse saturation time?:  %s'%(opt.observation.obs_use_sat.val))
+        f1.write('\nSat time (to designated fraction of full well):  %s sec'%(opt.sat_time))
+        f1.write('\nt_f:  %s sec'%(opt.channel.detector_readout.t_f.val.value.item()))
+        f1.write('\nt_g:  %s sec'%(opt.channel.detector_readout.t_g.val.value.item()))
+        f1.write('\nt_sim:  %s sec'%(opt.channel.detector_readout.t_sim.val.value.item()))
+        f1.write('\nsubarray  :  %s'%(opt.subarray))
+    
+        if opt.observation_feasibility ==1:
+            f1.write('\nt_int:  %s sec'%(opt.t_int.value.item()))
+            f1.write('\nt_cycle:  %s sec'%(opt.exposure_time.value.item()))  
+            f1.write('\nprojected multiaccum (n groups):  %s'%(opt.projected_multiaccum))
+            f1.write('\neffective multiaccum (n groups):  %s'%(opt.effective_multiaccum))
+            f1.write('\nnumber of NDRs simulated:  %s'%(opt.n_ndr) )
+            f1.write('\nnumber of integration cycles:  %s'%(opt.n_exp) )          
+            f1.write('\n ')
+            if opt.simulation.sim_output_type.val == 1: # excludes fits files
+                f1.write('\nApFactor:  %s'%(opt.pipeline.pipeline_ap_factor.val) )
+                f1.write('\nAperture shape:  %s'%(opt.pipeline.pipeline_ap_shape.val) )
+                f1.write('\nSpectral binning:  %s '%(opt.pipeline.pipeline_binning.val) )
+                if opt.pipeline.pipeline_binning.val == 'R-bin':
+                            f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_R.val) )
+                else:
+                          f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_bin_size.val) )
+    
+    with open(textfile, "a") as f1:
+        f1.write('\n ')
+        f1.write('\n ')
+        f1.write('===== Copy of input parameters file used =====')
+        f1.write('\n ')
+        f1.write('\n ')
+      
+    with open(input_text_file) as f:
+        with open(textfile, "a") as f1:
+            for line in f:       
+                f1.write(line)
 
-    if opt.observation_feasibility ==1:
-        file.write('\nt_int:  %s sec'%(opt.t_int.value.item()))
-        file.write('\nt_cycle:  %s sec'%(opt.exposure_time.value.item()))
-
-        file.write('\nprojected multiaccum (n groups):  %s'%(opt.projected_multiaccum))
-        file.write('\neffective multiaccum (n groups):  %s'%(opt.effective_multiaccum))
-        file.write('\nnumber of NDRs simulated:  %s'%(opt.n_ndr) )
-        file.write('\nnumber of integration cycles:  %s'%(opt.n_exp) )
-        
-        file.write('\n ')
-        file.write('\nApFactor:  %s'%(opt.pipeline.ApFactor) )
-        file.write('\nAperture shape:  %s'%(opt.channel.data_pipeline.ApShape.val) )
-        file.write('\nSpectral binning:  %s '%(opt.channel.data_pipeline.binning.val) )
-        if opt.channel.data_pipeline.binning.val == 'R-bin':
-                   file.write('\nBinned R power:  %s '%(opt.channel.data_pipeline.R.val) )
-        else:
-                  file.write('\nBinned R power:  %s '%(opt.channel.data_pipeline.bin_size.val) )
-        
-        
-    file.close()
+    f1.close()
 

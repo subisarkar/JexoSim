@@ -142,7 +142,8 @@ class recipe_3(object):
                         
                     elif opt.simulation.sim_output_type.val == 2:
                         
-                        output.run(opt)
+                        filename = output.run(opt)
+                        write_record(opt, output_directory, filename, opt.params_file_path)
 
             if self.feasibility ==1:      
 
@@ -166,7 +167,9 @@ class recipe_3(object):
                             jexosim_msg('Results in %s'%(filename), 1)
                             self.filename = 'Noise_budget_%s_%s.pickle'%(opt.lab, time_tag)
 
-    
+                            write_record(opt, output_directory, self.filename, opt.params_file_path)
+
+
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)
       exosystem.run(opt)

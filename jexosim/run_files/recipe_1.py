@@ -40,9 +40,7 @@ class recipe_1(object):
         opt.timeline.obs_time.val = 0.5*u.hr
         
         noise_type = int(opt.noise.sim_noise_source.val)
-        
-        
-        
+               
         nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
                'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
@@ -147,6 +145,8 @@ class recipe_1(object):
                 elif opt.simulation.sim_output_type.val == 2:
                      
                     output.run(opt)
+                    
+                write_record(opt, output_directory, self.filename, opt.params_file_path)
                             
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)

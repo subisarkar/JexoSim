@@ -66,7 +66,8 @@ class recipe_2(object):
                    jexosim_msg ('number of NDRs > 20000: using split protocol', opt.diagnostics)
            else:
                opt.pipeline.split = 0 
-       
+   
+    
            for j in range(start, end):
                
                if (opt.no_real-start) > 1:
@@ -78,13 +79,17 @@ class recipe_2(object):
                pp = time.time()
                # split simulation into chunks to permit computation - makes no difference to final results    
                if opt.pipeline.split ==1:
+                   jexosim_msg('Splitting data series into chunks', opt.diagnostics)
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
-                   ndrs_per_round = opt.multiaccum*int(1000/opt.multiaccum)      
+                   ndrs_per_round = opt.multiaccum*int(1000/opt.multiaccum)   
+                   # ndrs_per_round = opt.multiaccum*int(60/opt.multiaccum)      
+
                    idx_list =[]
                    for i in range(0, n_ndr0, ndrs_per_round):
                        idx_list.append(i)        
     
                    for i in range(len(idx_list)):
+                       jexosim_msg('=== Chunk %s ====='%(i), opt.diagnostics)
                        if idx_list[i] == idx_list[-1]:
                            opt.n_ndr = n_ndr0 - idx_list[i]
                            opt.lc_original = lc0[:,idx_list[i]:]
@@ -101,10 +106,10 @@ class recipe_2(object):
                        opt.n_exp = int(opt.n_ndr/opt.multiaccum)
                                    
                        if i == 0:
-                           opt.use_auto_Ap = 1
+                           opt.pipeline.pipeline_auto_ap.val= 1
                            opt.use_external_jitter = 0
                        else:
-                           opt.use_auto_Ap = 0
+                           opt.pipeline.pipeline_auto_ap.val = 0
                            opt.use_external_jitter = 1 # uses the jitter timeline from the first realization
                            if (opt.noise.EnableSpatialJitter.val  ==1 or opt.noise.EnableSpectralJitter.val  ==1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
                                opt.input_yaw_jitter, opt.input_pitch_jitter, opt._input_frame_osf = opt.yaw_jitter, opt.pitch_jitter, opt.frame_osf 
@@ -115,6 +120,7 @@ class recipe_2(object):
                        if i ==0:
                            opt.pipeline.pipeline_ap_factor.val= opt.AvBest
                        
+                       jexosim_msg('Aperture used %s'%(opt.pipeline.pipeline_ap_factor.val), opt.diagnostics)
                        data0 = opt.pipeline_stage_1.binnedLC
                        data = opt.pipeline_stage_1.opt.data_raw
                                                                   
@@ -206,7 +212,7 @@ class recipe_2(object):
            jexosim_msg('Results in %s'%(filename), 1)
            self.filename = 'Full_transit_%s_%s.pickle'%(opt.lab, time_tag)
                
-                
+           write_record(opt, output_directory, self.filename, opt.params_file_path)
             
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)

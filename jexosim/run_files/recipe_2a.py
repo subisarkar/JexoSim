@@ -17,7 +17,8 @@ from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 class recipe_2a(object):
     def __init__(self, opt):
         
-
+        output_directory = opt.common.output_directory.val
+        
         opt.pipeline.useSignal.val=0
         opt.pipeline.use_fast.val =1
         opt.pipeline.split  = 0
@@ -119,8 +120,10 @@ class recipe_2a(object):
                    data_stack = opt.data
                
                opt.data = data_stack
-               output.run(opt)
                
+               filename = output.run(opt)
+                      
+               write_record(opt, output_directory, filename, opt.params_file_path)               
       
             
     def run_JexoSimA(self, opt):

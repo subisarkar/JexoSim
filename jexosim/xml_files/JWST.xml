@@ -99,7 +99,7 @@
 
 <common_optics>
   <transmissions>
-    <optical_surface type="mirror" transmission="__path__/reference_files/JWST/OTE/Transmissions/OTE_trans.csv" val="50" units="K" comment=""/>
+    <optical_surface type="mirror" transmission="__path__/data/JWST/OTE/Transmissions/OTE_trans.csv" val="50" units="K" comment=""/>
   </transmissions>
 
   <emissions>

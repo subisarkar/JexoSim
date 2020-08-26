@@ -18,17 +18,6 @@ def run(opt):
     jexosim_msg('Save to fits file ... ', 1)
     output_directory  = opt.common.output_directory.val
 
-  # existing_sims = glob.glob(os.path.join(out_path, 'sim_*'))
-  
-  # if not existing_sims:
-  #   # Empty list
-  #   sim_number = 0
-  # else:
-  #   sim_number = sorted([np.int(l.split('_')[-1]) for l in existing_sims])[-1]
-  #   sim_number += 1
-  
-  # out_path = os.path.join(out_path, 'sim_{:04d}'.format(sim_number))
-
     hdu        = fits.PrimaryHDU()
     hdu.header['NEXP'] = (opt.n_exp, 'Number of exposures')
     hdu.header['MACCUM_P'] = (opt.projected_multiaccum, 'Multiaccum (projected)')
@@ -78,34 +67,8 @@ def run(opt):
     time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
     filename = 'JexoSim_%s_%s'%(lab, time_tag)
     hdulist.writeto('%s/%s.fits'%(output_directory, filename))
+    
+    return '%s/%s.fits'%(output_directory, filename)
    
 
-  
-    # textfile = (os.path.join(out_path, '{:s}_info.txt'.format(key)))
-    # file = open(textfile,'w')
-    # file.write('Planet:  %s'%(opt.astroscene.planet.val))    
-#    file.write('\nChannel:  %s'%(channel.keys()[0]))   
-#    file.write('\n\nNoise option:  %s'%(opt.noise_option)) 
-#    file.write('\n\nSource?:  %s'%(bool(opt.source_switch)))    
-#    file.write('\nSN:  %s'%(opt.noise.EnableShotNoise.val))
-#    file.write('\nRN:  %s'%(opt.noise.EnableReadoutNoise.val))    
-#    file.write('\nJN(Spatial):  %s'%(opt.noise.EnableSpatialJitter.val))
-#    file.write('\nJN(Spectral):  %s'%(opt.noise.EnableSpectralJitter.val))
-#    file.write('\nEmmission?:  %s'%(bool(opt.emm_switch)))
-#    file.write('\nZodi?:  %s'%(bool(opt.zodi_switch)))
-#    file.write('\nDC?:  %s'%(bool(opt.dc_switch)))
-#    file.write('\nRandom QE grid selected?:  %s'%(bool(opt.use_random_QE)))    
-#    file.write('\nQE grid applied?:  %s'%(bool(opt.apply_QE)))
-#    file.write('\nFlat field and bkg subtraction applied?:  %s'%(bool(opt.apply_flat)))
-#    file.write('\nDiffuse source?:  %s'%(bool(opt.diff)))    
-#    file.write('\n ')   
-#    file.write('\nmultiaccum:  %s'%(opt.detector_readout.multiaccum.val))  
-#    file.write('\nNDR_time (>NDR0):  %s'%(opt.NDR_time)) 
-#    file.write('\nNDR_time (NDR0):  %s'%(opt.detector_readout.nNDR0()*opt.frame_time) )    
-#    file.write('\nexposure cycle time:  %s'%(opt.exposure_time) ) 
-#    file.write('\nnumber of exposures:  %s'%(opt.n_exp) ) 
-#    file.write('\ncalculated integration time (this is used to find the exposure time):  %s'%(opt.integration_time_estimate))
-
-    # file.close() 
-    
 

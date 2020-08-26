@@ -9,7 +9,7 @@ sim_mode                   3
 sim_output_type                  1  
 # 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format.
 
-sim_noise_source		 0
+sim_noise_source		 
 # Pick a number from the list below. For most simulations recommend using 0 (All noise). Not applicable if sim_mode = 3
 # 0 All noise sources 
 # 2 Star (photon noise)
