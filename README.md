@@ -10,11 +10,11 @@ JexoSim (JWST Exoplanet Observation Simulator) is a time-domain simulator for th
 
 Installation
 ------
-We recommend installing Anaconda, and then setting up a virtual environment for JexoSim to avoid package conflicts.  This is will also install numpy, numba, matplotlib and setuptools, which are best installed at this step for stability.  
+We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should use Python 3.8, and the user should install numpy, numba, matplotlib and setuptools in this environment at this stage.  Using conda the following command line instruction will do all this for you:.
 
     conda create -n jexosim python=3.8 numpy numba matplotlib setuptools
 
-Then activate this environment. Depending on the version you have, the activation command may be any one of the following:
+Then activate this environment. Depending on the system the activation command may be any one of the following:
 
     source activate jexosim
     
@@ -29,14 +29,14 @@ or
 
 ### GitHub
 
-Clone the repository from github.
+Next, clone the repository from github.
 
-git clone https://github.com/subisarkar/JexoSim.git
+    git clone https://github.com/subisarkar/JexoSim.git
 
 
 ### Databases
 
-Next download the following databases.  
+Next, download the following databases.  
 
 [Pandeia](https://stsci.app.box.com/v/pandeia-refdata-v1p5p1/) (Pontoppidan, K.M. et al., 2016, Proc. SPIE, 9910, 991016).  
 This is used to obtain the instrument transmissions, QE and wavelength solutions.  Unzip this folder, then move the folder into the `JexoSim/archive/` folder already in the  `JexoSim` folder structure.  The final path will look like this:  `path_to_JexoSim/JexoSim/archive/pandeia_data-1.5.1`.   The version number (e.g. 1.5.1) of the folder may change, but the code will still recognise the folder. 
