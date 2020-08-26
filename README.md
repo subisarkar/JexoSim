@@ -67,11 +67,11 @@ If you use any of the above databases in your research, please credit the above 
 
 
 ### Set up
-Next navigate to inside the `JexoSim` folder and run `setup.py`, followed by  `activate.py`.  This will setup the remaining package dependencies for JexoSim, extract transmission files and generate wavelength solutions from the Pandeia database, producing JexoSim-compatible files, and generate a PRNU grid.
+Next navigate to inside the `JexoSim` folder and run `setup.py`, followed by  `generate.py`.  This will setup the remaining package dependencies for JexoSim, extract transmission files and generate wavelength solutions from the Pandeia database, producing JexoSim-compatible files, and generate a PRNU grid.
 
     cd JexoSim
     python setup.py install
-    python activate.py
+    python generate.py
     
     
 ### Output folder

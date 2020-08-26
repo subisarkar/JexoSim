@@ -1,7 +1,7 @@
 """
 Jexosim
 2.0
-Activate
+Generate
 v 1.0
 
 """
@@ -9,7 +9,7 @@ v 1.0
 import numpy as np
 import os
 import jexosim
-from jexosim.activate import gen_trans_files, gen_wavelength_files, gen_PRNU_grid
+from jexosim.generate import gen_trans_files, gen_wavelength_files, gen_PRNU_grid
 
 def run():
 

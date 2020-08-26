@@ -12,7 +12,7 @@ from jexosim.run_files.recipe_2 import recipe_2
 from jexosim.run_files.recipe_2a import recipe_2a
 from jexosim.run_files.recipe_3 import recipe_3
 from jexosim.run_files import results
-from jexosim.activate.gen_planet_xml_file import make_planet_xml_file
+from jexosim.generate.gen_planet_xml_file import make_planet_xml_file
 from jexosim.lib.jexosim_lib import jexosim_msg
 import jexosim
 import os
