@@ -10,9 +10,9 @@ JexoSim (JWST Exoplanet Observation Simulator) is a time-domain simulator for th
 
 Installation
 ------
-We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should use Python 3.8, and the user should install numpy, numba, matplotlib and setuptools in this environment at this stage.  Using conda the following command line instruction will do all this for you:.
+We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should install Python=3.8.5, matplotlib=3.3.1-0, setuptools=49.6.0, numpy=1.19.1, numba=0.50.1, and astropy=4.0.1. Using conda the following command line instruction will do all this for you:.
 
-    conda create -n jexosim python=3.8 numpy numba matplotlib setuptools
+    conda create -n jexosim3 python=3.8.5 matplotlib=3.3.1-0 setuptools=49.6.0 numpy=1.19.1 numba=0.50.1
 
 Then activate this environment. Depending on the system the activation command may be any one of the following:
 
