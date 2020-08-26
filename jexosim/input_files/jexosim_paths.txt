@@ -1,0 +1,3 @@
+output_directory     		                 
+#Write full path to folder in which results will be placed.  Leave at least one white space after 'output_directory' and then write the path on the same line.  Leave blank to use the default output folder.
+
