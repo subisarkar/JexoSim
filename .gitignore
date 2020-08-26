@@ -2,6 +2,7 @@
 .pyc
 build/
 dist/
+archive/
 jexosim.egg-info
 output/
 __pycache__/
