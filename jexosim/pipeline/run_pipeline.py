@@ -187,7 +187,7 @@ class pipeline_stage_1():
         jexosim_msg ("average best aperture factor %s"%(AvBest), self.opt.diagnostics)
         self.opt.AvBest = AvBest
         self.ApFactor = AvBest
-
+        self.opt.pipeline.pipeline_ap_factor.val = self.ApFactor
  
     def extractSpec(self):
         
