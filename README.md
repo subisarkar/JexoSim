@@ -51,6 +51,16 @@ These contain pre-calculated point spread functions obtained using WebbPSF (Perr
 
 From the [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS&constraint=default_flag=1), download the 'Planetary Systems' table as follows: under 'Download Table' choose 'CSV format', 'Download all columns', 'Download all rows', and then hit 'Download Table'.  Move the .csv file into the `JexoSim/archive/` folder. The final path to the file will be  `path_to_JexoSim/JexoSim/archive/PS_xxxxxxxxxxx.csv`, where the exact name of the .csv file will vary based on the download date and time.  No need to rename the file however, as the code will recognise the file.
 
+The final contents of the `JexoSim/archive/`  folder should look something like this:
+
+<div align="left">
+<img src="docs/archive_folder.png" width="300px">
+</img>
+<br/>
+</div>
+<br/><br/>
+
+
 If you use any of the above databases in your research, please credit the above authors.
 
 
