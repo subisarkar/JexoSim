@@ -36,7 +36,8 @@ git clone https://github.com/subisarkar/JexoSim.git
 
 ### Databases
 
-Next download the following databases. 
+Next download the following databases.  
+
 [Pandeia](https://stsci.app.box.com/v/pandeia-refdata-v1p5p1/) (Pontoppidan, K.M. et al., 2016, Proc. SPIE, 9910, 991016).  
 This is used to obtain the instrument transmissions, QE and wavelength solutions.  Unzip this folder, then move the folder into the `JexoSim/archive/` folder already in the  `JexoSim` folder structure.  The final path will look like this:  `path_to_JexoSim/JexoSim/archive/pandeia_data-1.5.1`.   The version number (e.g. 1.5.1) of the folder may change, but the code will still recognise the folder. 
 
