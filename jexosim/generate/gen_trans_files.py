@@ -49,16 +49,16 @@ def run(database_path):
         'jwst/nirspec/qe/jwst_nirspec_qe_20160902193401.fits',
         'jwst/nirspec/optical/jwst_nirspec_mos_internaloptics_throughput_20160902193401.fits',
         'jwst/nirspec/filters/jwst_nirspec_f290lp_trans_20160902193401.fits',
-        'jwst/nirspec/blaze/jwst_nirspec_g395M_speceff_20160902193401.fits',    
+        'jwst/nirspec/blaze/jwst_nirspec_g395m_speceff_20160902193401.fits',
             
         'jwst/nirspec/filters/jwst_nirspec_f070lp_trans_20160902193401.fits',    
         'jwst/nirspec/filters/jwst_nirspec_f100lp_trans_20160902193401.fits',   
         'jwst/nirspec/filters/jwst_nirspec_f170lp_trans_20160902193401.fits',    
         'jwst/nirspec/filters/jwst_nirspec_clear_trans_20160902193401.fits',       
-        'jwst/nirspec/blaze/jwst_nirspec_g140M_speceff_20160902193401.fits',    
-        'jwst/nirspec/blaze/jwst_nirspec_g140H_speceff_20160902193401.fits',    
-        'jwst/nirspec/blaze/jwst_nirspec_g235M_speceff_20160902193401.fits',    
-        'jwst/nirspec/blaze/jwst_nirspec_g235H_speceff_20160902193401.fits',
+        'jwst/nirspec/blaze/jwst_nirspec_g140h_speceff_20160902193401.fits',
+        'jwst/nirspec/blaze/jwst_nirspec_g140h_speceff_20160902193401.fits',
+        'jwst/nirspec/blaze/jwst_nirspec_g235m_speceff_20160902193401.fits',
+        'jwst/nirspec/blaze/jwst_nirspec_g235h_speceff_20160902193401.fits',
         'jwst/nirspec/blaze/jwst_nirspec_prism_speceff_20160902193401.fits'
         ],    
         'label': [
@@ -134,11 +134,11 @@ def run(database_path):
             TR = 1.0
 
             filename = '%s/%s'%(database_path, dic['file'][i])
-            # hdul = fits.open(filename)
-            try:
-                hdul = fits.open(filename)
-            except IOError:
-                hdul = fits.open(filename.lower())     
+            hdul = fits.open(filename)
+            #try:
+            #    hdul = fits.open(filename)
+            #except IOError:
+            #    hdul = fits.open(filename.lower())
             
             wl = hdul[1].data['WAVELENGTH']
             tr = hdul[1].data['THROUGHPUT']
