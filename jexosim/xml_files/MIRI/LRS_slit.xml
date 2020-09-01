@@ -28,30 +28,31 @@
   </simulation_factors>
       
   <detector_array>
-    <array_geometry val="1024, 1024" units= "dimensionless" comment="FULL subarray https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Subarrays"/>
+    <subarray_list val="FULL" comment=""/>
+    <subarray_geometry_list val="1024,1024" units= "dimensionless" comment=""/>
+    <subarray_t_f_list val="2.775" units= "s" comment=""/>
+    <array_geometry val="1024,1024" units= "" comment=""/>
     <qe val="__path__/data/JWST/MIRI/Transmissions/MIRI_QE.csv" comment="" />
     <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
     <PRNU val="3.0" comment="flat field variation % rms" />
     <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
   </detector_array>
 
-  <detector_pixel>
+<detector_pixel>
     <pixel_size val="25" units="micron" />
     <plate_scale_x val="3.05556E-05" units="deg" comment="based on published 0.11 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Overview"  />
     <plate_scale_y val="3.05556E-05" units="deg" comment="based on published 0.11 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Overview"  />
-    <Idc val="0.2" units="electron/s" comment="baseline array Rieke et al 2015 PASP https://iopscience.iop.org/article/10.1086/682257/pdf and https://jwst-docs.stsci.edu/mid-infrared-instrument/miri-instrumentation/miri-detector-overview"/>
-    <sigma_ro val="28" units="" comment="Detector readout noise in 14 e-rms based on Rieke 2015 converted Fowler-8 sampling Var_fowler = Var_ro 2/N"/>
+    <Idc val="0.12" units="electron/s" comment=""/>
+    <sigma_ro val="32.6" units="" comment=""/>
     <pixel_diffusion_length val="1e-30" units="micron" />
-    <full_well val="250000" units="" comment=" 250000 from Rieke et al 2015 PASP https://iopscience.iop.org/article/10.1086/682257/pdf and  https://jwst-docs.stsci.edu/mid-infrared-instrument/miri-instrumentation/miri-detector-overview 193655 from pandexo online"/>
-    <pedestal_drift val="" units="" />
-    <kTC_noise val="" units="" comment=""/>
-  </detector_pixel>
+    <full_well val="193655.0" units="" comment=""/>
+    <pedestal_drift val="0" units="" />
+    <kTC_noise val="0" units="" comment=""/>
+</detector_pixel>
   
   <detector_readout>
-    <t_f val="2.775" units= "s" comment=""/>
-    <t_g val="2.775" units= "s" comment="change name to group time integration time of a single group https://jwst-docs.stsci.edu/display/JTI/MIRI+Detector+Subarrays"/>
-    <t_sim val="2.775" units= "s" comment=""/>
-    <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
+    <pattern_list val="FAST" comment=""/>
+    <pattern_params_list val="1,0" comment="n_frame, n_skip"/>
     <nGND val='0' units="" comment="duration of reset event in units of frame time" />
     <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
     <nRST val = '0' units="" comment="Time lapse between last NDR and reset in units of frame time" />

@@ -16,7 +16,6 @@ from astropy import units as u
 import matplotlib.pyplot as plt
 plt.style.use('classic')
 
-
 def calc_logg(m,r):
     m = m.to(u.kg)
     r = r.to(u.m)
@@ -34,7 +33,7 @@ def calc_EqT(T_s,R_s,a,A,tidal):
     T_p = T_s*(R_s.to(u.m)/a.to(u.m))**0.5*((1-A)/factor)**0.25
      
     return T_p       
-
+   
 def jexosim_error(error_msg):
     sys.stderr.write("Error code: {:s}\n".format(error_msg))
     sys.exit(0)
@@ -42,8 +41,7 @@ def jexosim_error(error_msg):
 def jexosim_msg(msg, show):
   if show == 1:
       print (msg)
-      
-      
+          
 def jexosim_plot(figure_name, show, image=False, xlabel=None, 
                  ylabel=None, image_data=None, xdata=None, ydata=None, marker='-',
                  xlim=None, ylim=None, aspect=None, interpolation=None, linewidth=1, alpha=1,
@@ -83,21 +81,6 @@ def jexosim_plot(figure_name, show, image=False, xlabel=None,
           if label is not None:
               plt.legend(loc='best')
 
-    
-def calc_EqT(T_s,R_s,a,A,tidal):
-   
-    if tidal == 1: 
-        factor = 2.
-    else:
-        factor = 4.
-    T_p = T_s*(R_s.to(u.m)/a.to(u.m))**0.5*((1-A)/factor)**0.25
-     
-    return T_p       
-
-def jexosim_error(error_msg):
-    sys.stderr.write("Error code: {:s}\n".format(error_msg))
-    sys.exit(0)
-    
   
 def logbin(x, a,  R, xmin=None, xmax=None):
   n = a.size
@@ -141,8 +124,7 @@ def rebin(x, xp, fp):
     Returns
     -------
     out	: 	array like
-	new samples
-  
+	new samples  
   '''
   
   if (x.unit != xp.unit):
@@ -205,7 +187,7 @@ def fast_convolution(im, delta_im, ker, delta_ker):
       spectrum:			array like
 				the image convolved with the kernel.
   """
-  fc_debug = False
+  # fc_debug = False
   # Fourier transform the kernel
   kerf = (np.fft.rfft2(ker))
   ker_k = [ np.fft.fftfreq(ker.shape[0], d=delta_ker),
@@ -225,17 +207,17 @@ def fast_convolution(im, delta_im, ker, delta_ker):
 					   kerf.real)
   kerf_i = interpolate.RectBivariateSpline(ker_k[0], ker_k[1],
 					   kerf.imag)
-  if (fc_debug):
-    pl.plot(ker_k[0], kerf[:, 0].real,'.r')
-    pl.plot(ker_k[0], kerf[:, 0].imag,'.g')
-    pl.plot(im_k[0], kerf_r(im_k[0], im_k[1])[:, 0],'-r')
-    pl.plot(im_k[0], np.abs(imf[:, 0]),'-b')
+  # if (fc_debug):
+  #   pl.plot(ker_k[0], kerf[:, 0].real,'.r')
+  #   pl.plot(ker_k[0], kerf[:, 0].imag,'.g')
+  #   pl.plot(im_k[0], kerf_r(im_k[0], im_k[1])[:, 0],'-r')
+  #   pl.plot(im_k[0], np.abs(imf[:, 0]),'-b')
 
   # Convolve
   imf = imf * (kerf_r(im_k[0], im_k[1]) + 1j*kerf_i(im_k[0], im_k[1])) 
   
-  if (fc_debug):
-    pl.plot(im_k[0], np.abs(imf[:, 0]),'-y')
+  # if (fc_debug):
+  #   pl.plot(im_k[0], np.abs(imf[:, 0]),'-y')
 
   imf = np.fft.ifftshift(imf, axes=0)
   
@@ -381,18 +363,15 @@ def PixelResponseFunction(opt, psf_shape, osf, delta, lx = 1.7*u.um, ipd = 0.0*u
   '''
   if type(osf) != int: osf = np.int(osf)
     
-#  lx = 0*u.um # top hat
-  
+#  lx = 0*u.um # top hat 
   lx += 1e-8*u.um # to avoid problems if user pass lx=0
 #==============================================================================
 #  lx = 3.7*u.um # approximates Hardy et al
 #==============================================================================
- 
   lx = lx.to(delta.unit)
  
   jexosim_msg ("diffusion length in IPRF %s"%(lx), opt.diagnostics)
  
-  
 #==========FOR IMAGES ONLY====================================================================
 #  osf*=33 # for image demo only 
 #==============================================================================
@@ -409,9 +388,7 @@ def PixelResponseFunction(opt, psf_shape, osf, delta, lx = 1.7*u.um, ipd = 0.0*u
   mask_xx = np.where(np.abs(xx) > 0.5*(delta-ipd))
   mask_yy = np.where(np.abs(yy) > 0.5*(delta-ipd))
   xx, yy = np.meshgrid(xx, yy)
-  
 
-  
   kernel = np.arctan(np.tanh( 0.5*( 0.5*delta.value - xx.value)/lx.value )) - \
 	   np.arctan(np.tanh( 0.5*(-0.5*delta.value - xx.value)/lx.value ))
 	 	 
@@ -507,7 +484,7 @@ def pointing_jitter(opt):
   jitter_file = opt.jitter_psd_file 
   total_observing_time = opt.total_observing_time
   frame_time = opt.frame_time
-  rms = opt.pointing_model.pointing_rms.val
+  rms = opt.simulation.sim_pointing_rms.val
     
   ''' Estimate pointing jitter timeline
   
@@ -542,21 +519,6 @@ def pointing_jitter(opt):
   else:
     psd_yaw = data[..., 1]/2
     psd_pitch = psd_yaw
-  
-#  psd_yaw = psd_yaw[1:]
-#  psd_pitch = psd_pitch[1:] 
-#  psd_freq = psd_freq[1:]
-  
-#  
-#  if opt.Inc_PSD ==1:    
-#          psd_yaw = psd_yaw * 1.52
-#          psd_pitch = psd_pitch * 1.52  
-          
-#  if np.sum(opt.psd) >0 :
-#      psd_freq = np.linspace(1/(10*3600.), 10, 100)
-#      psd_yaw = np.ones(len(psd_freq))*opt.psd
-#      psd_pitch = np.ones(len(psd_freq))*opt.psd
-#      
 
   # each frame needs to be split such that jitter is Nyquis sampled
   jitter_sps = 2.0*psd_freq.max()/u.s
@@ -569,39 +531,23 @@ def pointing_jitter(opt):
 
   number_of_samples_ = np.int(osf*np.ceil(total_observing_time/frame_time))  + 100
   N0 = number_of_samples_ 
- 
 
   number_of_samples = 2**(np.ceil(np.log2(number_of_samples_)))
-  
-
   number_of_samples = int( (number_of_samples /2)+1  )
-#  number_of_samples += 100
-
-## for same random sim 
-#  ind= int(np.log10(number_of_samples))
-#  rnd = 10**ind
-#  number_of_samples = rnd + np.ceil(number_of_samples/ rnd) * rnd
 
   freq = np.linspace(0.0, 0.5* osf/ (frame_time).to(u.s).value, number_of_samples)
 
-
-  
   npsd_yaw   = 1.0e-30+np.interp(freq, psd_freq, psd_yaw, left=0.0, right=0.0)
   npsd_pitch = 1.0e-30+np.interp(freq, psd_freq, psd_pitch, left=0.0, right=0.0)
 
- 
-   
   jexosim_msg ("interpolation of PSD done", opt.diagnostics)
 #  import matplotlib.pyplot as plt
 #  plt.figure(33)
 #  plt.plot(psd_freq,psd_yaw, 'rx-')
 #  plt.plot(freq,npsd_yaw,'bx-')
-
-
   npsd_yaw    = np.sqrt(npsd_yaw   * np.gradient(freq))
   npsd_pitch  = np.sqrt(npsd_pitch * np.gradient(freq))
 
- 
   yaw_jit_re   = np.random.normal(scale=npsd_yaw/2.0)
   yaw_jit_im   = np.random.normal(scale=npsd_yaw/2.0)
   pitch_jit_re = np.random.normal(scale=npsd_pitch/2.0)
@@ -610,29 +556,23 @@ def pointing_jitter(opt):
   pitch_jit_im[0] = pitch_jit_im[-1] = 0.0
   yaw_jit_im[0]   = yaw_jit_im[-1]   = 0.0
 
-
   norm = 2*(number_of_samples-1)
-
-  
+ 
   jexosim_msg ("starting irfft" , opt.diagnostics)
   yaw_jit = norm*np.fft.irfft(yaw_jit_re + 1j * yaw_jit_im)*u.deg
   pitch_jit = norm*np.fft.irfft(pitch_jit_re + 1j * pitch_jit_im)*u.deg
   jexosim_msg ("completed.....", opt.diagnostics)
 
-  if opt.pointing_model.adjust_rms.val ==1:
+  if opt.simulation.sim_adjust_rms.val ==1:
     norm = (rms**2/(yaw_jit.var()+ pitch_jit.var())).simplified
     yaw_jit *= np.sqrt(norm)
     pitch_jit *= np.sqrt(norm)
-
-
-   
+ 
   if len(yaw_jit) > N0:
       yaw_jit = yaw_jit[0:N0]
       pitch_jit = pitch_jit[0:N0]  
-            
-  
-  
-  jexosim_msg ("jitter RMS in mas %s %s"%(np.std (yaw_jit)*3600*1000, np.std(pitch_jit)*3600*1000) , opt.diagnostics)
+ 
+  jexosim_msg ("jitter RMS in mas %s %s"%(np.std (yaw_jit.value)*3600*1000, np.std(pitch_jit.value)*3600*1000) , opt.diagnostics)
     
   return yaw_jit, pitch_jit, osf
 
@@ -674,31 +614,35 @@ def write_record(opt, path, lab, input_text_file):
         f1.write('\nChannel:  %s'%(opt.channel.name))
         f1.write('\n\nNoise option:  %s'%(opt.noise_tag))     
         f1.write('\n ')
-        f1.write('\nObservation feasible?:  %s'%(opt.observation_feasibility))     
-        f1.write('\n ')
+
         f1.write('\nUse saturation time?:  %s'%(opt.observation.obs_use_sat.val))
         f1.write('\nSat time (to designated fraction of full well):  %s sec'%(opt.sat_time))
-        f1.write('\nt_f:  %s sec'%(opt.channel.detector_readout.t_f.val.value.item()))
-        f1.write('\nt_g:  %s sec'%(opt.channel.detector_readout.t_g.val.value.item()))
-        f1.write('\nt_sim:  %s sec'%(opt.channel.detector_readout.t_sim.val.value.item()))
+        f1.write('\nt_f:  %s sec'%(opt.t_f.value))
+        f1.write('\nt_g:  %s sec'%(opt.t_g.value))
+        f1.write('\nt_sim:  %s sec'%(opt.t_sim.value))
         f1.write('\nsubarray  :  %s'%(opt.subarray))
-    
-        if opt.observation_feasibility ==1:
-            f1.write('\nt_int:  %s sec'%(opt.t_int.value.item()))
-            f1.write('\nt_cycle:  %s sec'%(opt.exposure_time.value.item()))  
-            f1.write('\nprojected multiaccum (n groups):  %s'%(opt.projected_multiaccum))
-            f1.write('\neffective multiaccum (n groups):  %s'%(opt.effective_multiaccum))
-            f1.write('\nnumber of NDRs simulated:  %s'%(opt.n_ndr) )
-            f1.write('\nnumber of integration cycles:  %s'%(opt.n_exp) )          
-            f1.write('\n ')
-            if opt.simulation.sim_output_type.val == 1: # excludes fits files
-                f1.write('\nApFactor:  %s'%(opt.pipeline.pipeline_ap_factor.val) )
-                f1.write('\nAperture shape:  %s'%(opt.pipeline.pipeline_ap_shape.val) )
-                f1.write('\nSpectral binning:  %s '%(opt.pipeline.pipeline_binning.val) )
-                if opt.pipeline.pipeline_binning.val == 'R-bin':
-                            f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_R.val) )
-                else:
-                          f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_bin_size.val) )
+        
+        f1.write('\nsaturation flag  :  %s'%(opt.sat_flag))
+        f1.write('\nsaturation limit  :  %s electrons'%(opt.sat_limit.value))
+        f1.write('\nnumber of saturated pixels per image  :  %s'%(opt.no_sat))
+        f1.write('\nzero values applied to saturated pixels  :  %s'%(opt.pipeline.pipeline_bad_corr.val))
+         
+        f1.write('\nt_int:  %s sec'%(opt.t_int.value.item()))
+        f1.write('\nt_cycle:  %s sec'%(opt.exposure_time.value.item()))  
+        f1.write('\nprojected multiaccum (n groups):  %s'%(opt.projected_multiaccum))
+        f1.write('\neffective multiaccum (n groups):  %s'%(opt.effective_multiaccum))
+        f1.write('\nnumber of NDRs simulated:  %s'%(opt.n_ndr) )
+        f1.write('\nnumber of integration cycles:  %s'%(opt.n_exp) )          
+        f1.write('\n ')
+        if opt.simulation.sim_output_type.val == 1: # excludes fits files
+            f1.write('\nApFactor:  %s'%(opt.pipeline.pipeline_ap_factor.val) )
+            f1.write('\nAperture shape:  %s'%(opt.pipeline.pipeline_ap_shape.val) )
+            f1.write('\nSpectral binning:  %s '%(opt.pipeline.pipeline_binning.val) )
+            if opt.pipeline.pipeline_binning.val == 'R-bin':
+                        f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_R.val) )
+            else:
+                      f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_bin_size.val) )
+        f1.write('\nWavelength: %s %s'%(opt.channel.pipeline_params.wavrange_lo.val, opt.channel.pipeline_params.wavrange_hi.val) )
     
     with open(textfile, "a") as f1:
         f1.write('\n ')

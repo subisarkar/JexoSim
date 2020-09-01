@@ -3,7 +3,7 @@ JexoSim
 2.0
 Recipe 2 :
 Monte Carlo full transit simulation returning transit depths and noise on transit dept per spectral bin
-
+Result is a FITS file only
 '''
 
 import numpy as np
@@ -20,7 +20,7 @@ class recipe_2a(object):
         output_directory = opt.common.output_directory.val
         
         opt.pipeline.useSignal.val=0
-        opt.pipeline.use_fast.val =1
+        opt.pipeline.use_fast.val =0  # this is important to return the right size of image
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
         

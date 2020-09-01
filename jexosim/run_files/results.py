@@ -26,7 +26,7 @@ def run(results_file):
         output_directory = opt_b.common.output_directory.val
 
     results_file =  '%s/%s'%(output_directory, results_file)
-
+ 
     with open(results_file, 'rb') as handle:
        res_dict = pickle.load(handle)
         
@@ -37,80 +37,26 @@ def run(results_file):
               
     ch =res_dict['ch']
     
+    sim_text = '%s.txt'%(results_file)
     
-    if ch == 'NIRSpec_G140M_F100LP': wavlim=[0.97, 1.84]
-    if ch == 'NIRSpec_G235M_F170LP': wavlim=[1.66, 3.07]
-    if ch == 'NIRSpec_G395M_F290LP': wavlim=[2.87, 5.1]
-    if ch == 'NIRSpec_PRISM': wavlim=[0.6, 5.3]
-    if ch == 'MIRI_LRS_slitless': wavlim=[5.0, 12.0]
-    if ch == 'NIRCam_F444W': wavlim=[3.9, 5.0]  
-    if ch == 'NIRCam_F322W2': wavlim=[2.4, 4.0]  
-    if ch == 'NIRISS_SOSS_ORDER_1': wavlim=[0.9, 2.8]
-                                            
-    # for key in res_dict.keys():
-    #     print (key)
-        
-    if res_dict['simulation_mode'] == 1 or res_dict['simulation_mode'] == 3:
-        no_dict =  res_dict['noise_dic']  
-        # for key in no_dict.keys():
-        #     print (key)
-        
-        for key in no_dict.keys():
-            
-            
-            idx = np.argwhere(no_list==key)[0].item()
-            col = color[idx]
-            
-            idx = np.argwhere ((no_dict[key]['wl']>=wavlim[0])&(no_dict[key]['wl']<=wavlim[1])).T[0]
-            
-
-            noise_type = key
-            wl = no_dict[key]['wl'][idx]
-            
-            if res_dict['simulation_realisations'] == 1:          
-                sig_stack = no_dict[key]['signal_mean_stack'][idx]
-                no_stack = no_dict[key]['signal_std_stack'][idx]
-                fracNoT14_stack = no_dict[key]['fracNoT14_stack'][idx]
-            else:
-                sig_stack = no_dict[key]['signal_mean_stack'][:,idx]
-                no_stack = no_dict[key]['signal_std_stack'][:,idx]
-                fracNoT14_stack = no_dict[key]['fracNoT14_stack'][:,idx]
-            
-            sig_mean = no_dict[key]['signal_mean_mean'][idx]
-            no_mean = no_dict[key]['signal_std_mean'][idx]
-            fracNoT14_mean = no_dict[key]['fracNoT14_mean'][idx]
+    with open(sim_text) as f:
+        content = f.readlines()
+        content = [x.strip() for x in content]        
+        for i in range(len(content)):       
+            if content[i] != '' and content[i][0] != '#':
+                aa = content[i].split()
+                if aa[0] == 'Wavelength:':
+                    wavlim=[np.float(aa[1]), np.float(aa[2])]
     
-            plt.figure('signal %s'%(res_dict['time_tag']))
-            plt.plot(wl,sig_mean, 'o-', color = col, label = noise_type)
-            if res_dict['simulation_realisations'] > 1:    
-                for i in range(sig_stack.shape[0]):
-                    plt.plot(wl,sig_stack[i], ':', color = col, alpha=0.5)           
-            plt.legend()
-            plt.ylabel('Signal (e$^-$)')
-            plt.xlabel('Wavelength ($\mu m$)')
-            plt.grid(True)
-     
-            plt.figure('noise %s'%(res_dict['time_tag']))
-            plt.plot(wl,no_mean, 'o-', color = col, label = noise_type)
-            if res_dict['simulation_realisations'] > 1:
-                for i in range(no_stack.shape[0]):
-                    plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
-            plt.legend()
-            plt.ylabel('Noise (e$^-$)')
-            plt.xlabel('Wavelength ($\mu m$)')
-            plt.grid(True)
-            
-            
-            plt.figure('fractional noise %s'%(res_dict['time_tag']))
-            plt.semilogy(wl,fracNoT14_mean, 'o-', color = col, label = noise_type)
-            if res_dict['simulation_realisations'] > 1:
-                for i in range(fracNoT14_stack.shape[0]):
-                    plt.plot(wl,fracNoT14_stack[i], '.', color = col, alpha=0.5)           
-            plt.legend()
-            plt.ylabel('Fractional noise at T14 (ppm)')
-            plt.xlabel('Wavelength ($\mu m$)')
-            plt.grid(True)
-            
+    # if ch == 'NIRSpec_G140M_F100LP': wavlim=[0.97, 1.84]
+    # if ch == 'NIRSpec_G235M_F170LP': wavlim=[1.66, 3.07]
+    # if ch == 'NIRSpec_G395M_F290LP': wavlim=[2.87, 5.1]
+    # if ch == 'NIRSpec_PRISM': wavlim=[0.6, 5.3]
+    # if ch == 'MIRI_LRS_slitless': wavlim=[5.0, 12.0]
+    # if ch == 'NIRCam_F444W': wavlim=[3.9, 5.0]  
+    # if ch == 'NIRCam_F322W2': wavlim=[2.4, 4.0]  
+    # if ch == 'NIRISS_SOSS_ORDER_1': wavlim=[0.9, 2.8]
+ 
         
     if res_dict['simulation_mode'] == 2:
         
@@ -166,9 +112,114 @@ def run(results_file):
             plt.figure('precision %s'%(res_dict['time_tag']))
             plt.plot(wav, y, '-', color='r', linewidth=2) 
             plt.grid(True)
+            
+            plt.figure('bad pixels %s'%(res_dict['time_tag']))          
+            plt.imshow(res_dict['bad_map'], interpolation='none', aspect='auto')
+            ticks = np.arange(res_dict['bad_map'].shape[1])[0::50]  
+            ticklabels =  np.round(res_dict['pixel wavelengths'], 2)[0::50] 
+            plt.xticks(ticks=ticks, labels = ticklabels)
+            plt.ylabel('Spatial pixel')
+            plt.xlabel('Wavelength ($\mu m$)')
+            
+            plt.figure('example integration image %s'%(res_dict['time_tag']))          
+            plt.imshow(res_dict['example_exposure_image'], interpolation='none', aspect='auto')
+            ticks = np.arange(res_dict['example_exposure_image'].shape[1])[0::50]  
+            ticklabels =  np.round(res_dict['pixel wavelengths'], 2)[0::50] 
+            plt.xticks(ticks=ticks, labels = ticklabels)
+            plt.ylabel('Spatial pixel')
+            plt.xlabel('Wavelength ($\mu m$)')           
+                
+    else: 
+        no_dict =  res_dict['noise_dic']  
+
+    
+        for key in no_dict.keys():
+   
+            idx = np.argwhere(no_list==key)[0].item()
+            col = color[idx]
+            
+            idx = np.argwhere ((no_dict[key]['wl']>=wavlim[0])&(no_dict[key]['wl']<=wavlim[1])).T[0]          
+
+            noise_type = key
+            wl = no_dict[key]['wl'][idx]
+            
+            if res_dict['simulation_realisations'] == 1:          
+                sig_stack = no_dict[key]['signal_mean_stack'][idx]
+                no_stack = no_dict[key]['signal_std_stack'][idx]
+                if 'fracNoT14_mean' in no_dict[key].keys():
+                    fracNoT14_stack = no_dict[key]['fracNoT14_stack'][idx]
+            else:
+                sig_stack = no_dict[key]['signal_mean_stack'][:,idx]
+                no_stack = no_dict[key]['signal_std_stack'][:,idx]
+                if 'fracNoT14_mean' in no_dict[key].keys():
+                    fracNoT14_stack = no_dict[key]['fracNoT14_stack'][:,idx]
+            
+            sig_mean = no_dict[key]['signal_mean_mean'][idx]
+            no_mean = no_dict[key]['signal_std_mean'][idx]
+            if 'fracNoT14_mean' in no_dict[key].keys():
+                fracNoT14_mean = no_dict[key]['fracNoT14_mean'][idx]
+    
+            plt.figure('signal %s'%(res_dict['time_tag']))
+            plt.plot(wl,sig_mean, 'o-', color = col, label = noise_type)
+            if res_dict['simulation_realisations'] > 1:    
+                for i in range(sig_stack.shape[0]):
+                    plt.plot(wl,sig_stack[i], ':', color = col, alpha=0.5)           
+            plt.legend()
+            plt.ylabel('Signal (e$^-$)')
+            plt.xlabel('Wavelength ($\mu m$)')
+            plt.grid(True)
+     
+            plt.figure('noise %s'%(res_dict['time_tag']))
+            plt.plot(wl,no_mean, 'o-', color = col, label = noise_type)
+            if res_dict['simulation_realisations'] > 1:
+                for i in range(no_stack.shape[0]):
+                    plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
+            plt.legend()
+            plt.ylabel('Noise (e$^-$)')
+            plt.xlabel('Wavelength ($\mu m$)')
+            plt.grid(True)
+            
+            if res_dict['simulation_realisations'] > 1:
+                for i in range(no_stack.shape[0]):
+                    plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
+      
+
+            
+            if 'fracNoT14_mean' in no_dict[key].keys():
+                plt.figure('fractional noise %s'%(res_dict['time_tag']))
+                plt.semilogy(wl,fracNoT14_mean, 'o-', color = col, label = noise_type)
+                if res_dict['simulation_realisations'] > 1:
+                    for i in range(fracNoT14_stack.shape[0]):
+                        plt.plot(wl,fracNoT14_stack[i], '.', color = col, alpha=0.5)           
+                plt.legend()
+                plt.ylabel('Fractional noise at T14 (ppm)')
+                plt.xlabel('Wavelength ($\mu m$)')
+                plt.grid(True)
+                
+
+            plt.figure('bad pixels %s'%(res_dict['time_tag']))          
+            plt.imshow(no_dict[key]['bad_map'], interpolation='none', aspect='auto')
+            ticks = np.arange(no_dict[key]['bad_map'].shape[1])[0::50]  
+            ticklabels =  np.round(no_dict[key]['pixel wavelengths'], 2)[0::50] 
+            plt.xticks(ticks=ticks, labels = ticklabels)
+            plt.ylabel('Spatial pixel')
+            plt.xlabel('Wavelength ($\mu m$)')
+            
+            plt.figure('example integration image %s'%(res_dict['time_tag']))          
+            plt.imshow(no_dict[key]['example_exposure_image'], interpolation='none', aspect='auto')
+            ticks = np.arange(no_dict[key]['example_exposure_image'].shape[1])[0::50]  
+            ticklabels =  np.round(no_dict[key]['pixel wavelengths'], 2)[0::50] 
+            plt.xticks(ticks=ticks, labels = ticklabels)
+            plt.ylabel('Spatial pixel')
+            plt.xlabel('Wavelength ($\mu m$)')           
+                
+                
+    
+
+
                    
     plt.show()
 
 if __name__ == "__main__":     
 
-    run('Full_transit_MIRI_LRS_slitless_GJ 1214 b_2020_08_24_1714_41.pickle')
+    run('OOT_SNR_NIRSpec_BOTS_PRISM_K2-18 b_2020_09_01_0818_39.pickle')

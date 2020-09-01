@@ -35,7 +35,7 @@ class recipe_3(object):
         opt.timeline.useLDC.val = 0
         opt.pipeline.useAllen.val =1
         
-        opt.pipeline.pipeline_auto_ap = 0
+        opt.pipeline.pipeline_auto_ap.val = 0
          
         opt.timeline.obs_time.val = 3.0*u.hr
          
@@ -121,7 +121,12 @@ class recipe_3(object):
                             self.noise_dict[opt.noise_tag]['signal_mean_std'] = np.zeros(len(self.pipeline.binnedWav))
                             if opt.pipeline.useAllen.val == 1:
                                 self.noise_dict[opt.noise_tag]['fracNoT14_std'] = np.zeros(len(self.pipeline.binnedWav))
-                
+
+                            self.noise_dict[opt.noise_tag]['bad_map'] = opt.bad_map
+                            self.noise_dict[opt.noise_tag]['example_exposure_image'] = opt.exp_image
+                            self.noise_dict[opt.noise_tag]['pixel wavelengths'] = opt.x_wav_osr[1::3].value
+                                             
+
                         else:
                             self.noise_dict[opt.noise_tag]['signal_std_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_std_stack'], self.pipeline.ootNoise))
                             self.noise_dict[opt.noise_tag]['signal_mean_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_mean_stack'], self.pipeline.ootSignal))
@@ -137,7 +142,11 @@ class recipe_3(object):
                             self.noise_dict[opt.noise_tag]['signal_mean_std'] = self.noise_dict[opt.noise_tag]['signal_mean_stack'].std(axis=0)
                             if opt.pipeline.useAllen.val == 1:
                                 self.noise_dict[opt.noise_tag]['fracNoT14_std'] = self.noise_dict[opt.noise_tag]['fracNoT14_stack'].std(axis=0)
-    
+
+                        self.noise_dict[opt.noise_tag]['bad_map'] = opt.bad_map
+                        self.noise_dict[opt.noise_tag]['example_exposure_image'] = opt.exp_image
+                        self.noise_dict[opt.noise_tag]['pixel wavelengths'] = opt.x_wav_osr[1::3].value
+                            
                         self.results_dict['noise_dic'] = self.noise_dict
                         
                     elif opt.simulation.sim_output_type.val == 2:

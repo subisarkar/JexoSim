@@ -1,8 +1,8 @@
 <root>
-    <title> NIRISS_SOSS_ORDER_1 </title>
+    <title> NIRISS_SOSS_GR700XD </title>
     <type name="channel configuration"> </type>
   
-<channel name="NIRISS_SOSS_ORDER_1" comment="NIRISS_SOSS_ORDER_1">
+<channel name="NIRISS_SOSS_GR700XD" comment="NIRISS_SOSS_GR700XD">
     <instrument val = "NIRISS"/>
 
  <transmissions>
@@ -42,19 +42,17 @@
     <pixel_size val="18" units="micron" />
     <plate_scale_x val="1.81667E-05" units="deg" comment="based on published 0.0654 arcsec/pix from website https://jwst-docs.stsci.edu/display/JTI/NIRISS+Detector" />
     <plate_scale_y val="1.82778E-05" units="deg" comment="based on published 0.0658 arcsec/pix from website https://jwst-docs.stsci.edu/display/JTI/NIRISS+Detector" />
-    <Idc val="0.0414" units="electron/s" comment="Detector dark current in e/s based on NIRISS detector website https://jwst-docs.stsci.edu/near-infrared-imager-and-slitless-spectrograph/niriss-instrumentation/niriss-detector-overview/niriss-detector-performance#NIRISSDetectorPerformance-Darkcurrent"/>
-    <sigma_ro val="12.9542" units="" comment="Detector readout frame noise in e-rms based on NIRISS detector website https://jwst-docs.stsci.edu/display/JTI/NIRISS+Detector+Performance"/>
+    <Idc val="0.0387" units="electron/s" comment=""/>
+    <sigma_ro val="11.55" units="" comment=""/>
     <pixel_diffusion_length val="1e-30" units="micron" />
-    <full_well val="100000" units="" comment="https://jwst-docs.stsci.edu/near-infrared-imager-and-slitless-spectrograph/niriss-instrumentation/niriss-detector-overview"/>
+    <full_well val="72000" units="" comment=""/>
     <pedestal_drift val="22" units="" />
     <kTC_noise val="65" units="" />
   </detector_pixel>
   
   <detector_readout>
-      <t_f val="5.494" units= "s" comment="use 2400.0 for paper reuslts - same for tf, tg, tsim"/>
-      <t_g val="5.494" units= "s" comment=""/>
-      <t_sim val="5.494" units= "s" comment=""/>
-      <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
+      <pattern_list val="NISRAPID" comment=""/>
+      <pattern_params_list val="1,0" comment="n_frame, n_skip"/>
       <nGND val='0' units="" comment="duration of reset event in units of frame time" />
       <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
       <nRST val = '1' units="" comment="Time lapse between last NDR and reset in units of frame time" />

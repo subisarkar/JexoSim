@@ -13,8 +13,6 @@ class Star():
   def __init__(self, opt):
       
     self.opt = opt
-    
-    # opt.exosystem.star.d = 4.48966476375e+17*u.m
            
     jexosim_msg ("Star temperature:  %s"%(opt.exosystem.star.T), opt.diagnostics)
     jexosim_msg ("Star name %s, dist %s, radius %s"%(opt.exosystem.star.name, opt.exosystem.star.d, opt.exosystem.star.R), opt.diagnostics)  
@@ -29,7 +27,8 @@ class Star():
                 cond=1
                 break
     if cond==0:
-        print ('Error: database not found')    
+        jexosim_msg('Error Star 1: database not found')   
+        sys.exit()
     sed_folder = '%s/%s'%(databases_dir, dirc_name)
 
    
@@ -51,6 +50,7 @@ class Star():
     
     jexosim_msg("star check 2: %s"%ph_sed.max(), self.opt.diagnostics)
     self.sed = sed.Sed(ph_wl, ph_sed)
+
     
           
   def read_phoenix_spectrum(self, sed_folder, star_temperature, star_logg, star_f_h):
@@ -75,7 +75,7 @@ class Star():
                 jexosim_msg ("Star file used:  %s"%(ph_file) , self.opt.diagnostics)
                 cond = 1
     if cond==0:
-        jexosim_msg ("Error:  no star file found", 1)
+        jexosim_msg ("Error Star 2:  no star file found", 1)
         sys.exit()
                  
     with fits.open(ph_file) as hdu:
@@ -98,7 +98,7 @@ class Star():
     return wl, sed
 
   def useTelFlux(self, wl, sed,  mag_type='J', mag=8.0):
-      
+     
       jexosim_msg ("normalizing stellar spectrum to %s mag %s"%(mag_type, mag),  self.opt.diagnostics)
       
       wl = wl.value
@@ -114,7 +114,6 @@ class Star():
           wav = 2.22
           Jy = 667                      
           
-      # F_0 = scipy.constants.c*1e6*1e-26*(Jy)/wav**2
       F_0 = const.c.value*1e6*1e-26*(Jy)/wav**2
  
       F_x = F_0*10**(-mag/2.5)
@@ -129,7 +128,9 @@ class Star():
       
       scale = F_x/F_s
       sed= sed*scale
-  
+      
+      sed = sed*u.W/u.m**2/u.um
+     
       return sed
     
 

@@ -18,15 +18,19 @@ import copy
 def run(opt):
     
       jexosim_msg('channel check0 : %s'%(opt.star.sed.sed.max()), opt.diagnostics)
-    
-      ch = opt.channel
       
+      fpn = opt.channel.detector_array.array_geometry.val.split(',')
+      opt.fpn = [int(fpn[0]), int(fpn[1])]  
+      opt.fp  = np.zeros(( int(opt.fpn[0]*opt.channel.simulation_factors.osf.val),
+                            int(opt.fpn[1]*opt.channel.simulation_factors.osf.val) ))      
+      opt.fp_delta = opt.channel.detector_pixel.pixel_size.val / opt.channel.simulation_factors.osf.val  
+                
       tr_ =np.array([1.]*len(opt.common.common_wl))*u.dimensionless_unscaled
       
-      ch.transmissions.optical_surface = ch.transmissions.optical_surface if isinstance(ch.transmissions.optical_surface, list) else \
-                                                                        [ch.transmissions.optical_surface]
+      opt.channel.transmissions.optical_surface = opt.channel.transmissions.optical_surface if isinstance(opt.channel.transmissions.optical_surface, list) else \
+                                                                        [opt.channel.transmissions.optical_surface]
                                                                            
-      for op in ch.transmissions.optical_surface:
+      for op in opt.channel.transmissions.optical_surface:
           dtmp=np.loadtxt(op.transmission.replace('__path__', opt.__path__), delimiter=',')
           tr = Sed(dtmp[:,0]*u.um, dtmp[:,1]*u.dimensionless_unscaled)
           tr.rebin(opt.common.common_wl)
@@ -37,10 +41,11 @@ def run(opt):
        
       jexosim_lib.sed_propagation(opt.star.sed, opt.channel_transmission)
       
+     
 #==============================================================================
 # apply QE and convert to electrons
 #==============================================================================
-      dtmp=np.loadtxt(ch.detector_array.qe().replace('__path__', opt.__path__), delimiter=',')
+      dtmp=np.loadtxt(opt.channel.detector_array.qe().replace('__path__', opt.__path__), delimiter=',')
       qe = Sed(dtmp[:,0]*u.um, dtmp[:,1]*u.dimensionless_unscaled)
       
       qe.rebin(opt.common.common_wl)
@@ -57,19 +62,9 @@ def run(opt):
       opt.star.sed.sed *= opt.Re*u.electron/u.W/u.s
       
       jexosim_msg('check 1.3 - Star sed max:  %s'%(opt.star.sed.sed.max()), opt.diagnostics)  
-           
-    ### create focal plane 
-    #1# allocate focal plane with pixel oversampling such that Nyquist sampling is done correctly 
-      fpn = ch.detector_array.array_geometry.val.split(',')
-      fpn = [int(fpn[0]), int(fpn[1])]  
-      opt.fpn = fpn    
-      opt.fp  = np.zeros(( int(opt.fpn[0]*ch.simulation_factors.osf.val),
-                           int(opt.fpn[1]*ch.simulation_factors.osf.val) ))
-       
-    #2# This is the current sampling interval in the focal plane.      
-      opt.fp_delta = ch.detector_pixel.pixel_size() / ch.simulation_factors.osf()      
-      opt.osf         = np.int(ch.simulation_factors.osf())
-      opt.offs        = np.int(ch.simulation_factors.pix_offs())
+            
+      opt.osf         = np.int(opt.channel.simulation_factors.osf())
+      opt.offs        = np.int(opt.channel.simulation_factors.pix_offs())
    
 #      opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = usePoly(opt)
       opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = useInterp(opt) 
@@ -111,7 +106,7 @@ def run(opt):
 
       jexosim_plot('star sed check 2.0', opt.diagnostics, 
                    xdata=opt.x_wav_osr, ydata=opt.star.sed.sed , marker='-')
-      
+  
       return opt
       
     
@@ -119,8 +114,12 @@ def run(opt):
 
 def useInterp(opt):
     
-      offset = opt.fpn[1]*opt.channel.detector_pixel.pixel_size()/2.0  
-        
+      offset = opt.fpn[1]*opt.channel.detector_pixel.pixel_size()/2.0
+ 
+      if opt.channel.name == 'NIRSpec_BOTS_G140H_F100LP' or opt.channel.name == 'NIRSpec_BOTS_G235H_F170LP'\
+          or opt.channel.name == 'NIRSpec_BOTS_G395H_F290LP':
+          offset = 1024*opt.channel.detector_pixel.pixel_size.val #centre the designated central wavelength at the boundary between subarray1024A and 1024b on NRS1
+     
       dtmp=np.loadtxt(opt.channel.camera.dispersion.path.replace(
 	  '__path__', opt.__path__), delimiter=',')          
       ld = scipy.interpolate.interp1d(dtmp[...,2]*u.um + offset.to(u.um), dtmp[...,0], bounds_error=False,kind='slinear',
@@ -128,8 +127,7 @@ def useInterp(opt):
           
       x_pix_osr = np.arange(opt.fp.shape[1]) * opt.fp_delta +  opt.fp_delta/2.0
       x_wav_osr = ld(x_pix_osr.to(u.um))*u.um # walength on each x pixel 
-      
-           
+              
       pos_y = dtmp[...,1]  
        
       x_edge = np.arange(opt.fpn[1]+1) * opt.fp_delta*3
@@ -142,18 +140,25 @@ def useInterp(opt):
           y_pos_osr = (y_pos_osr/((opt.fp_delta).to(u.um))).value
 
       else:
-          y_pos_osr = []     
-         
+          y_pos_osr = []  
+               
       return  x_wav_osr, x_pix_osr.to(u.um), y_pos_osr
       
 
-def usePoly(opt):
+def usePoly(opt): #this needs updating
     
-      opt.channel.camera.dispersion.val = opt.fpn[1]*opt.channel.detector_pixel.pixel_size()/2.0  
-       
+      offset = opt.fpn[1]*opt.channel.detector_pixel.pixel_size()/2.0 
+      
+      if opt.channel.name == 'NIRSpec_BOTS_G140H_F100LP' or opt.channel.name == 'NIRSpec_BOTS_G235H_F170LP'\
+          or opt.channel.name == 'NIRSpec_BOTS_G395H_F290LP':
+          offset = 1024*opt.channel.detector_pixel.pixel_size.val #centre the designated central wavelength at the boundary between subarray1024A and 1024b on NRS1
+     
+      dtmp=np.loadtxt(opt.channel.camera.dispersion.path.replace(
+	  '__path__', opt.__path__), delimiter=',')  
+      
       dtmp=np.loadtxt(opt.channel.camera.dispersion.path.replace(
 	  '__path__', opt.__path__), delimiter=',')   
-      pos = dtmp[...,2]*u.um + (opt.channel.camera.dispersion() ).to(u.um)
+      pos = (dtmp[...,2]*u.um  + offset.to(u.um)) + (opt.channel.camera.dispersion() ).to(u.um)
       wav = dtmp[...,0]
       pos_y = dtmp[...,1] 
       r = 7 # degree 7 works well

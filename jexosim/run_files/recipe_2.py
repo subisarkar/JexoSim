@@ -193,7 +193,11 @@ class recipe_2(object):
                       
                time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
                    
-               self.results_dict ['time_tag'] =  time_tag
+               self.results_dict['time_tag'] =  time_tag
+               self.results_dict['bad_map'] = opt.bad_map
+               self.results_dict['example_exposure_image'] = opt.exp_image
+               self.results_dict['pixel wavelengths'] = opt.x_wav_osr[1::3].value
+                                 
     
                if j != start:
                    os.remove(filename)  # delete previous temp file

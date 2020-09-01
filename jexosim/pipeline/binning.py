@@ -679,6 +679,7 @@ class extractSpec():
 #        1) find the bin sizes in wavelength space
         if self.opt.pipeline.pipeline_binning.val == 'R-bin':
             jexosim_msg ('binning spectra into R-bins...',  self.opt.diagnostics)
+            # a) REMOVE ZEROS FROM EACH END OF WL SOLUTION
             for i in range (len(wl)):
                 if wl[i]>0:
                     idx0 = i
@@ -688,53 +689,68 @@ class extractSpec():
                     idx1 = i
                     break
             wl0 = wl[idx0:idx1]
+            # b) find w0, the starting wavelength  
             if wl0[-1] < wl0[0]:
                 w0 = wl0[-1] 
             else:
                 w0 = wl0[0]
-            dw = w0/(R-1)       
-            bin_sizes=[dw]
-            
-            for i in range(500):
-                dw2 = (1+1/(R-1))*dw
+                
+            # c) calculate the sizes of each bin in microns of wavelength    
+            dw = w0/(R-0.5)       
+            bin_sizes=[dw]        
+            for i in range(1000):
+                dw2 = (1+1/(R-0.5))*dw
                 bin_sizes.append(dw2)
                 dw = dw2
                 if np.sum(bin_sizes) > wavrange[1]-w0:
                     break
             bin_sizes = np.array(bin_sizes)   
             
-#            2) find the edges of each bin in wavelength space
-            wavcen = w0+np.cumsum(bin_sizes)
- 
-            wavedge1 = wavcen-bin_sizes/2.
-            wavedge2 =  wavcen+bin_sizes/2.
-            wavedge = np.hstack((wavedge1[0],((wavedge1[1:]+wavedge2[:-1])/2.)))
-            
-#            3)  find the edges in spatial space, in microns where 0 is at the left edge and centre of pixel is pixsize/2
-#            # a) relate wl to x (microns)            
+#         2) find the edges of each bin in wavelength units
+            wavcen = w0+np.cumsum(bin_sizes)  # the central wavelength of each bin
+            wavedge1 = wavcen-bin_sizes/2.   #  front edges
+            wavedge2 =  wavcen+bin_sizes/2.  #  back edges
+            wavedge = np.hstack((wavedge1[0],((wavedge1[1:]+wavedge2[:-1])/2.), wavedge1[-1])) # obtain an average value for each edge 
+            # length of wavedge = length of wavcen +1 
+            # print (len(wavedge), len(wavcen))
+            # print (wavedge)
+         
+#         3)  find the bin edges in spatial units, in microns where 0 is at the left edge and centre of pixel is pixsize/2
+#           # a) translate wl to x (microns)            
             wl_osr = x_wav_osr
             x_osr =  np.arange(pixSize/3./2., (pixSize/3.)*(len(x_wav_osr)), pixSize/3.)
             # this is the same as x_pix_osr but need the above if using cropped fp   
-             # b) now interpolate this to find the spatial positions of edges of the bins
-            xedge = interpolate.interp1d(wl_osr,x_osr, kind ='linear', bounds_error = False)(wavedge)            
-            # positions of edges of bins in microns
             
-#            4) remove nans
-
+            # b) convert wavedge to xedge
+            xedge = interpolate.interp1d(wl_osr,x_osr, kind ='linear', bounds_error = False)(wavedge)            
+       
+            
+#           c) lay out pixel edge positions 
             x = np.arange(pixSize, pixSize*(len(wl)+1), pixSize)  # position of EDGES of pixels in microns starting at 0 on left side
+                   
+#           d) invert depending on wavelength solution 
+            if wl0[-1]<wl0[0]:          
+                xedge = xedge[::-1]  
+                wavcen = wavcen[::-1]
+                
+            print (len(wavcen), len(xedge))
+         
+            xedge = xedge[1:] #make len(xedge) = len(wavcen)
+            print (len(wavcen), len(xedge))     
+ 
+         # d) remove nans
             idx  =  np.argwhere(np.isnan(xedge))
             xedge0 = np.delete(xedge, idx)           
-            wavcen0 = np.delete(wavcen, idx)
+            wavcen0 = np.delete(wavcen, idx) 
             
-#            So now we have A) edges of bins in wavelength, B) edges of bins in x microns:xedge0
-#            C) edges of pixels in x microns:x 
+            # print (len(wavcen0), len(xedge0))  
             
-#            5) invert depending on wavelength solution 
-            if wl0[-1]<wl0[0]:          
-                xedge0 = xedge0[::-1]  
-                wavcen0 = wavcen0[::-1]
-            else:
-                xedge0 = xedge0[1:]            
+            # xxxx
+
+#            So now we have A) edges of bins in wavelength units, B) edges of bins distance units : xedge0
+#            C) edges of pixels in distance units : x 
+            
+            
  
 
 #==============================================================================
@@ -863,6 +879,7 @@ class extractSpec():
                     
                     
                     wavcen_list0 = wavcen0[:-1] 
+    
                     
                     jexosim_plot('binned spectrum', self.opt.diagnostics,
                                 xdata = wavcen_list0, ydata = count, marker = 'bo') 
@@ -956,6 +973,9 @@ class extractSpec():
    
             self.binnedLC = count_array
             self.binnedWav = wavcen_list0
+            
+            jexosim_msg('R-power obtained %s'%(self.binnedWav/np.gradient(self.binnedWav)),self.opt.diagnostics)
+           
             
          
         elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin':

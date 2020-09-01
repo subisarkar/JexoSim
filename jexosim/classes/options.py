@@ -89,13 +89,35 @@ class Options(object):
                 bb.append([x,y])
             self.opt.channel.detector_array.subarray_geometry_list.val = bb
         if hasattr(self.opt.channel.detector_array, "subarray_t_f_list"):
-            string =  self.opt.channel.detector_array.subarray_t_f_list.val
+            print (self.opt.channel.detector_array.subarray_t_f_list.val)
+            string =  str(self.opt.channel.detector_array.subarray_t_f_list.val)
             aa = list(string.split(" "))
             bb = []
             for i in range(len(aa)):
                 bb.append(np.float(aa[i])*u.s)
             self.opt.channel.detector_array.subarray_t_f_list.val = bb
-         
+        if hasattr(self.opt.channel.detector_readout, "pattern_list"):
+            string =  self.opt.channel.detector_readout.pattern_list.val
+            self.opt.channel.detector_readout.pattern_list.val = list(string.split(" "))
+        if hasattr(self.opt.channel.detector_readout, "pattern_params_list"):
+            string =  self.opt.channel.detector_readout.pattern_params_list.val
+            aa = list(string.split(" "))
+            bb = []
+            for i in range(len(aa)):
+                idx = aa[i].find(',')
+                x = np.int(aa[i][:idx]); y =np.int(aa[i][idx+1:])
+                bb.append([x,y])
+            self.opt.channel.detector_readout.pattern_params_list.val = bb           
+        if hasattr(self.opt.channel.detector_array, "subarray_gap_list"):
+            string =  self.opt.channel.detector_array.subarray_gap_list.val
+            aa = list(string.split(" "))
+            for i in range(len(aa)):
+                aa[i] = aa[i].split(',')
+                for j in range(len(aa[i])):
+                    aa[i][j] = np.float(aa[i][j])
+            self.opt.channel.detector_array.subarray_gap_list.val = aa 
+            
+
 
   def parser(self, root):
    

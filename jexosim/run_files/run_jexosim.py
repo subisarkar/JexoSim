@@ -11,6 +11,7 @@ from jexosim.run_files.recipe_1 import recipe_1
 from jexosim.run_files.recipe_2 import recipe_2
 from jexosim.run_files.recipe_2a import recipe_2a
 from jexosim.run_files.recipe_3 import recipe_3
+from jexosim.run_files.recipe_4 import recipe_4
 from jexosim.run_files import results
 from jexosim.generate.gen_planet_xml_file import make_planet_xml_file
 from jexosim.lib.jexosim_lib import jexosim_msg
@@ -23,7 +24,7 @@ import os
 def run(params_file):
     
 # for a in [0]:
-    # params_file = 'jexosim_input_params_ex2.txt'
+#     params_file = 'jexosim_input_params_ex1 copy 2.txt'
     
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
@@ -44,7 +45,6 @@ def run(params_file):
     paths = params_to_opt.params
     opt = params_to_opt.opt # adjust default values to user defined ones
  
-    
     # read in input parameters for this simulation
     params_to_opt = Params(opt, params_file, 1)  
     input_params = params_to_opt.params
@@ -52,8 +52,12 @@ def run(params_file):
           
     jexosim_msg('Instrument mode %s \n'%(opt.observation.obs_channel.val), 1)    
     jexosim_msg('Reading default instrument mode configuration file \n', 1)
-    ch = opt.observation.obs_channel.val
-    ch_file = '%s/xml_files/%s.xml'%(opt.__path__, ch)
+    idx =  opt.observation.obs_channel.val.find('_')
+    ch_folder = opt.observation.obs_channel.val[:idx]
+    mode = opt.observation.obs_channel.val[idx+1:]
+
+    ch_file = '%s/xml_files/%s/%s.xml'%(opt.__path__, ch_folder, mode)
+    
     opt2 = Options(ch_file).opt
     for key in opt2.__dict__:
           setattr(opt, str(key), opt2.__dict__[key])
@@ -63,7 +67,6 @@ def run(params_file):
     params_to_opt = Params(opt, params_file, 2)
     input_params = params_to_opt.params
     opt = params_to_opt.opt # adjust defaulf values to user defined ones 
-    
  
     pl = opt.exosystem_params.planet_name.val
     # an XML file is made for the planet (if one exists code will use that unless planet_file_renew =1 )
@@ -77,8 +80,7 @@ def run(params_file):
     opt3 = Options(ex_file).opt
     for key in opt3.__dict__:
         setattr(opt, str(key), opt3.__dict__[key])
-        
- 
+
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
     #==============================================================================      
@@ -114,7 +116,7 @@ def run(params_file):
     #==============================================================================
     #  Run with right recipe
     #==============================================================================
-    opt.lab = '%s_%s'%(ch, pl)
+    opt.lab = '%s_%s'%(opt.observation.obs_channel.val, pl)
     opt.no_real = opt.simulation.sim_realisations.val
     opt.diagnostics = opt.simulation.sim_diagnostics.val
     opt.input_params = input_params
@@ -131,7 +133,9 @@ def run(params_file):
        elif opt.simulation.sim_output_type.val == 2: # fits only
            recipe  = recipe_2a(opt)   
     if opt.simulation.sim_mode.val == 3:
-          recipe  = recipe_3(opt)          
+          recipe  = recipe_3(opt) 
+    if opt.simulation.sim_mode.val == 4:
+          recipe  = recipe_4(opt)     
           
     if recipe.feasibility ==1:    
         if opt.simulation.sim_output_type.val == 1:
@@ -146,4 +150,4 @@ def run(params_file):
    
 if __name__ == "__main__":     
     
-    run('jexosim_input_params_ex1.txt')      
+    run('jexosim_input_params_ex3.txt')      

@@ -12,16 +12,11 @@ from jexosim.lib import jexosim_lib
 from astropy import units as u
 import copy
 import time
-from numba import jit
-
- 
-from astropy.convolution import convolve, Gaussian2DKernel 
- 
+from numba import jit 
 
 #==============================================================================
 # Jitter code
 #==============================================================================
-
 
 @jit(nopython=True) 
 def create_jitter_noise(fp, osf, frames_per_ndr, frame_osf, jitter_x, jitter_y):		
@@ -44,19 +39,19 @@ def create_jitter_noise(fp, osf, frames_per_ndr, frame_osf, jitter_x, jitter_y):
     return ndr_count
 
     
-# @jit(nopython=True) 
-def create_jitter_noise2(fp, osf, jitter_x, jitter_y,  n_ndr):		
-    fp_whole = fp[int(osf/2.)::osf, int(osf/2.)::osf]
-    print (fp_whole.shape[0], fp_whole.shape[1], n_ndr)
-    ndr_count = np.zeros((fp_whole.shape[0], fp_whole.shape[1], n_ndr)) 
-    ct = 0
-    for j in range(n_ndr):        
-        off_x = jitter_x[ct]
-        off_y = jitter_y[ct]
-        ndr_count[...,j] = fp[int(osf/2.)+off_y::osf, int(osf/2.)+off_x::osf]                     
-        ct=ct+1                
+# # @jit(nopython=True) 
+# def create_jitter_noise2(fp, osf, jitter_x, jitter_y,  n_ndr):		
+#     fp_whole = fp[int(osf/2.)::osf, int(osf/2.)::osf]
+#     print (fp_whole.shape[0], fp_whole.shape[1], n_ndr)
+#     ndr_count = np.zeros((fp_whole.shape[0], fp_whole.shape[1], n_ndr)) 
+#     ct = 0
+#     for j in range(n_ndr):        
+#         off_x = jitter_x[ct]
+#         off_y = jitter_y[ct]
+#         ndr_count[...,j] = fp[int(osf/2.)+off_y::osf, int(osf/2.)+off_x::osf]                     
+#         ct=ct+1                
                 
-    return ndr_count 
+#     return ndr_count 
 
 
 def simulate_jitter(opt):
@@ -166,6 +161,8 @@ def simulate_jitter(opt):
      # noise =noise0
      
      # noise = noise* opt.frames_per_ndr*opt.frame_time *u.electron/u.s
+     
+     
   jexosim_msg('Time to run jitter code %s'%(time.time() - aa), opt.diagnostics)  
   
   return  noise 
@@ -245,10 +242,6 @@ def fast_method(opt):
  
   idx = np.argwhere((wav_sol>=opt.channel.pipeline_params.start_wav.val-0.5)& (wav_sol<=opt.channel.pipeline_params.end_wav.val+0.5))
   idx = [idx[0].item(), idx[-1].item()] 
-
-  if opt.channel.instrument.val == 'MIRI': # keep - shift seems to give a smoother noise distribution
-      idx[0] =idx[0] +3
-      idx[-1]=idx[-1] +3 # shifts to match Pandexo points   
 
   #apply x crop to various arrays that need it:   
   opt.x_wav_osr = opt.x_wav_osr[idx[0]*3:idx[-1]*3]
@@ -348,7 +341,8 @@ def noise_simulator(opt):
     #==============================================================================
 
   if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
-      opt.fp[1::3,1::3].shape[0]>20:
+       opt.fp[1::3,1::3].shape[0]>20:
+
   #fast method not suitable for NIRISS due to curved spectrum or if the width is small
       opt = fast_method(opt)
       fp = opt.fp[1::3,1::3]
@@ -357,7 +351,8 @@ def noise_simulator(opt):
       
   if (opt.noise.EnableSpatialJitter.val  ==1 or opt.noise.EnableSpectralJitter.val  ==1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
           jexosim_msg ("using jittered array" , opt.diagnostics)
-          opt.jitter_psd_file = opt.pointing_model.PointingModel().replace("__path__", opt.__path__) 
+          opt.jitter_psd_file = '%s/jexosim/data/Pointing/%s_pointing_model_psd.csv'%(opt.jexosim_path,opt.simulation.sim_pointing_psd.val)
+          jexosim_msg ("psd file %s"%(opt.jitter_psd_file), opt.diagnostics)
           jexosim_msg ("running jitter code", opt.diagnostics)
           try:
               opt.use_external_jitter
@@ -374,7 +369,7 @@ def noise_simulator(opt):
           jexosim_msg ("RMS jitter %s %s"%(np.std(opt.yaw_jitter), np.std(opt.pitch_jitter)  ) , opt.diagnostics)     
           pointing_timeline = create_pointing_timeline(opt)
           noise = simulate_jitter(opt)
-           
+            
   else:
      jexosim_msg ("using jitterless array", opt.diagnostics)
      jitterless = np.ones((fp.shape[0], fp.shape[1], len(opt.frames_per_ndr)))
@@ -384,6 +379,7 @@ def noise_simulator(opt):
      jitterless = jitterless*opt.frames_per_ndr*opt.frame_time      
      noise = jitterless
      pointing_timeline= np.zeros((opt.ndr_end_frame_number[-1], 3))
+     
     
   if opt.timeline.apply_lc.val ==0:
       jexosim_msg ("OMITTING LIGHT CURVE...", opt.diagnostics)
@@ -396,7 +392,7 @@ def noise_simulator(opt):
     #==============================================================================
     
   if (opt.background.EnableZodi.val == 1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1:
-          jexosim_msg ("APPLYING ZODI..." , opt.diagnostics)
+          jexosim_msg ("APPLYING ZODI..." , opt.diagnostics) 
           noise += opt.zodi.sed[opt.offs::opt.osf].reshape(-1,1) *\
         opt.frame_time * opt.frames_per_ndr   
   else:
@@ -419,28 +415,28 @@ def noise_simulator(opt):
     #==============================================================================
     # add PRNU
     #==============================================================================
+  if opt.noise.sim_prnu_rms.val ==0:
+      opt.noise.ApplyPRNU.val =0
   
-
-  opt.qe_grid = opt.qe # used for flat field
+  if  (opt.noise.ApplyPRNU.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
   
-  jexosim_msg ("mean and standard deviation of flat field: should match applied flat in data reduction %s %s"%(opt.qe.mean(), opt.qe.std()),  opt.diagnostics  )
-  jexosim_msg ("standard deviation of flat field uncertainty %s"%(opt.qe_uncert.std()), opt.diagnostics  )
-  
-  applied_qe= opt.qe*opt.qe_uncert 
-  
-#  qe_expand  = qe.repeat(3,axis=0)
-#  qe_expand  = qe_expand.repeat(3,axis=1)
-#  qe_expand /=9.0
-#  c_qe_expand = jexosim_lib.fast_convolution(qe_expand, 6e-06*pq.m, opt.kernel, opt.kernel_delta) 
-#  qe_cross_talk = c_qe_expand[1::3,1::3]
-  
-  jexosim_msg ("Applied QE (PRNU) grid std (includes uncertainty) %s"%(applied_qe.std()), opt.diagnostics)
-  
-  if (opt.noise.ApplyPRNU.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
-          jexosim_msg ("APPLYING PRNU GRID...", opt.diagnostics  )
-          noise =  np.rollaxis(noise,2,0)
-          noise = noise*applied_qe
-          noise =  np.rollaxis(noise,0,3)
+      opt.qe_grid = opt.qe # used for flat field     
+      jexosim_msg ("mean and standard deviation of flat field: should match applied flat in data reduction %s %s"%(opt.qe.mean(), opt.qe.std()),  opt.diagnostics  )
+      jexosim_msg ("standard deviation of flat field uncertainty %s"%(opt.qe_uncert.std()), opt.diagnostics  )     
+      applied_qe= opt.qe*opt.qe_uncert 
+      
+    #  qe_expand  = qe.repeat(3,axis=0)
+    #  qe_expand  = qe_expand.repeat(3,axis=1)
+    #  qe_expand /=9.0
+    #  c_qe_expand = jexosim_lib.fast_convolution(qe_expand, 6e-06*pq.m, opt.kernel, opt.kernel_delta) 
+    #  qe_cross_talk = c_qe_expand[1::3,1::3]
+      
+      jexosim_msg ("Applied QE (PRNU) grid std (includes uncertainty) %s"%(applied_qe.std()), opt.diagnostics)
+      jexosim_msg ("APPLYING PRNU GRID...", opt.diagnostics  )
+      noise =  np.rollaxis(noise,2,0)
+      noise = noise*applied_qe
+      noise =  np.rollaxis(noise,0,3)
+         
   else:
       jexosim_msg ("PRNU GRID NOT APPLIED...", opt.diagnostics  )
 
@@ -466,17 +462,19 @@ def noise_simulator(opt):
         noise_plus_pn =  np.random.poisson(noise.value)
         
         if opt.simulation.sim_full_ramps.val == 0:
-            jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
-            n = opt.projected_multiaccum
-            alpha = 6.0*(n**2+1)/(5.0*n*(n+1))
-            noise_only = noise_plus_pn - noise.value 
-            # correction for utr: pn increased 
-            noise_only = noise_only*np.sqrt(alpha) #scale the noise
-            noise = noise.value + noise_only # add back noise to signal
-            
+            if opt.simulation.sim_use_UTR_noise_correction.val == 1:
+                jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
+                n = opt.projected_multiaccum
+                alpha = 6.0*(n**2+1)/(5.0*n*(n+1))
+                noise_only = noise_plus_pn - noise.value 
+                # correction for utr: pn increased 
+                noise_only = noise_only*np.sqrt(alpha) #scale the noise
+                noise = noise.value + noise_only # add back noise to signal
+            else:
+                noise = noise_plus_pn
         else:
             noise = noise_plus_pn
-
+                
         noise = noise*u.electron  
  
   else:  
@@ -578,7 +576,28 @@ def run(opt):
         opt.pointing_timeline[:,1] = opt.pointing_timeline[:,1]*0 
         opt.pointing_timeline[:,2] = opt.pointing_timeline[:,2]*0       
        
+#========Apply gaps to Hi res NIRSpec arrays=================================== 
+  if opt.channel.name == 'NIRSpec_BOTS_G140H_F100LP' or \
+      opt.channel.name == 'NIRSpec_BOTS_G235H_F170LP'\
+        or opt.channel.name == 'NIRSpec_BOTS_G395H_F290LP':   
+     
+      wav = opt.x_wav_osr[1::3]     
+      idx0 = np.argwhere(wav==opt.wav_gap_start)[0].item() #recover the start of the gap
+      idx1 = idx0 + opt.gap_len # gap of 172 pix works well for G1H and G2H, but a little off (by 0.01 microns for the other in some cases from published values)
+      opt.data[:,idx0:idx1,:] = 0
+      if opt.pipeline.useSignal.val == 1:
+           opt.data_signal_only[:,idx0:idx1,:] = 0 
+      if opt.diagnostics ==1:     
+          import matplotlib.pyplot as plt
+          plt.figure('show gap in focal plane image on an NDR')
+          plt.imshow(opt.data[...,1].value,aspect='auto', interpolation = None)
+          wl = opt.x_wav_osr.value[1::3]
+          wl[idx0:idx1] = 0
+          plt.figure('show gap in wl solution')
+          plt.plot(wl, 'ro')
+      
 #==============================================================================    
+
   jexosim_plot('focal plane check1', opt.diagnostics, image=True, 
                   image_data=opt.fp_signal[1::3,1::3], aspect='auto', interpolation = None,
                   xlabel = 'x \'spectral\' pixel', ylabel = 'y \'spatial\' pixel')
@@ -587,7 +606,7 @@ def run(opt):
                image=True,  image_data = opt.data[...,0])
   jexosim_plot('test - check NDR1', opt.diagnostics,
                image=True,  image_data = opt.data[...,1])
-  
+
   return opt
    
   

@@ -15,13 +15,24 @@
       <sim_realisations  val="1" comment=""/>
       <sim_output_type val = "1" units="" comment="1 = process through pipeline and store as pickle file, 2 = do not process through pipeline and store image stack as a FITS file"/>
       <sim_full_ramps  val="0" comment=""/>
+      <sim_use_UTR_noise_correction  val="1" comment=""/>
+      <sim_t_sim val="1.0" comment="simulation frame time as a fraction of the detector frame time.  Currently not used."/>
+      <sim_pointing_psd val="flat" comment="flat or non-flat" />
+      <sim_adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
+      <sim_pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter if adjust_rms is True " />
   </simulation>
   
   <observation>
     <obs_type val = "1" units="" comment="1= primary transit, 2= secondary eclipse"/>
-    <obs_channel val="NIRSpec_G395M_F290LP" />
+    <obs_channel val="MIRI_LRS_slitless" />
+    <obs_auto_subarray val="1" />
+    <obs_user_subarray val="MIRI + LRS_slitless + SLITLESSPRISM + FAST" />
     <obs_use_sat val = "1" units="" comment="sets use of saturation time"/>
+    <obs_fw_percent val = "80" units="" comment=""/>
     <obs_n_groups val = "2" units="" comment="sets number of groups"/>
+    <obs_frac_t14_pre_transit val="0.5" units="" comment="fraction of T14 for pre-transit observation" />
+    <obs_frac_t14_post_transit val="0.5"  units="" comment="fraction of T14 for post-transit observation" />
+    
   </observation>
   
   <pipeline>
@@ -38,13 +49,10 @@
       <useSignal val="1" units="" comment=""/>
       <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
       <pipeline_auto_ap val="1" units="" comment=""/>
+      <pipeline_bad_corr val="1" units="" comment=""/>
   </pipeline>
 
-  <pointing_model>
-      <PointingModel val="__path__/data/Pointing/JWST_pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
-      <adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
-      <pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter if adjust_rms is True " />
-  </pointing_model>
+
 
  <exosystem_params>
     <star_spectrum_model val = "complex" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
@@ -72,8 +80,8 @@
       <DisableAll val="0" units="" comment="disables all noise sources and does not apply PRNU, overides enable all"/>
       <ApplyPRNU val="1" units="" comment="If 1 uses a matrix of QE variations"/>
       <ApplyRandomPRNU val="1" units="" comment="If 1 generates a random grid of QE variations"/>
-      <QErms val="0.03" units="" comment="if ApplyRandomPRNU is true, this is the rms variation applied"/>
-      <QErms_uncert val="0.005" units="" comment="if ApplyRandomPRNU is true, this is the uncertainty applied"/>
+      <sim_prnu_rms val="3" units="" comment="in percent; if ApplyRandomPRNU is true, this is the rms variation applied"/>
+      <sim_flat_field_uncert val="0.5" units="" comment="in percent; if ApplyRandomPRNU is true, this is the uncertainty applied"/>
       <sim_noise_source  val="0" units=""/>
   </noise>
   
@@ -91,8 +99,6 @@
       <useLDC val="2" units="" comment="activate use of limb darkening code" />
       <apply_lo_dens_LC  val="1" units="" comment="if 0 uses instantaneous light curve, if 1 uses intergrated light curve" />
       <use_T14 val="0" units="" comment="if true uses T14 as the basis for the total observation time; if false uses obs_time or n_exp" />
-      <before_transit val="0.5" units="" comment="fraction of T14 for pre-transit observation" />
-      <after_transit val="0.5"  units="" comment="fraction of T14 for post-transit observation" />
       <obs_time val="0" units="hr" comment="in hrs; total observing time if OOT chosen, and if > 0 overides n_exp; set to 0 to use n_exp" />
       <n_exp val="1000" units="" comment="number of exposures that sets the total observation time if use_T14 is false" />
   </timeline>

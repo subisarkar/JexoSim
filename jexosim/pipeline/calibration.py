@@ -25,33 +25,45 @@ def dqInit(data, opt):
     
 
 def satFlag(data, opt): 
-    jexosim_msg ("flagging staurated pixels...", opt.diagnostics)
-    sat_limit = opt.channel.detector_pixel.full_well.val
-    idx = np.argwhere(data > sat_limit)
+    jexosim_msg ("flagging pixels more than 1% above saturation limit...", opt.diagnostics)
+    # margin accounts for fact that noise may increase the counts to above the designated sat limit
+    margin = 0.01* opt.sat_limit.value
+    sat_limit = opt.sat_limit.value + margin
+
+    idx = np.argwhere(data.value > sat_limit)
+
     dq_array = opt.dq_array
     for i in range (len(idx)):
         dq_array[idx[i][0]][idx[i][1]][idx[i][2]] = 2      
-    # flag 2 = 'saturated pixels' (overmaps flag 1)    
-#    plt.figure('dq array')
-#    plt.imshow(dq_array[...,0])
-    jexosim_msg ("number of saturated pixels over all NDRs %s"%(len(idx) ),  opt.diagnostics)
-    opt.dq_array = dq_array           
+    # flag 2 = 'saturated pixels' (overmaps flag 1)
+
+    jexosim_msg ("number of saturated pixels over all NDRs %s"%(len(idx)),  opt.diagnostics)
+    opt.dq_array = dq_array      
+     
     return opt.dq_array     
  
 
 def badCorr(data, opt): 
-    jexosim_msg ("correcting bad pixels...", opt.diagnostics)
+    # jexosim_msg ("correcting bad pixels...", opt.diagnostics)
+    jexosim_msg ("applying zero value to saturated pixel timelines...", opt.diagnostics)
+    opt.data_pre_flag = data*1
     dq_array = opt.dq_array
-#    plt.figure('data 00')
-#    plt.imshow(data[...,0])   
-    idx = np.argwhere(dq_array > 0)
- 
-    for i in range (len(idx)):
-        data[idx[i][0]][idx[i][1]][idx[i][2]] = 0   
-#    plt.figure('data 01')
-#    plt.imshow(data[...,0], interpolation ='None')    
-        
-    return data      
+    bad_map = dq_array.sum(axis=2)
+    idx = np.argwhere(bad_map > 0)
+  
+    jexosim_msg('number of saturated pixels per image %s'%(len(idx )), opt.diagnostics)
+
+    bad_map = np.where(bad_map == 0, 0, 1)  
+    if opt.pipeline.pipeline_bad_corr.val == 1:
+        for i in range (len(idx)):
+            data[idx[i][0]][idx[i][1]] = 0  # make the entire time series of a saturated pixel = 0   
+    
+    opt.exp_image = data[...,0]
+    opt.bad_map = bad_map
+    opt.no_sat = len(idx)
+    opt.data = data
+    
+    return opt      
     
       
 def subZero(opt):

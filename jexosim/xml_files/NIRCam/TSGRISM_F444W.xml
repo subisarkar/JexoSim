@@ -1,13 +1,13 @@
 <root>
-    <title> NIRCam_F322W2 </title>
+    <title> TSGRISM_F444W </title>
     <type name="channel configuration"> </type>
 
-<channel name="NIRCam_F322W2" comment="NIRCam_F322W2">
+<channel name="TSGRISM_F444W" comment="TSGRISM_F444W">
     <instrument val = "NIRCam"/>
 
   <transmissions>
       <optical_surface type="internal optics" transmission="__path__/data/JWST/NIRCam/Transmissions/NIRCam_internal_trans.csv"  val="60" units="K" comment=""/>
-      <optical_surface type="filter" transmission="__path__/data/JWST/NIRCam/Transmissions/NIRCam_F322W2_trans.csv"  val="60" units="K" comment=""/>
+      <optical_surface type="filter" transmission="__path__/data/JWST/NIRCam/Transmissions/NIRCam_F444W_trans.csv"  val="60" units="K" comment=""/>
       <optical_surface type="grism" transmission="__path__/data/JWST/NIRCam/Transmissions/NIRCam_grism_trans.csv"  val="60" units="K" comment=""/>
       <optical_surface type="?" transmission="__path__/data/JWST/NIRCam/Transmissions/NIRCam_LW_DBS_trans.csv"  val="60" units="K" comment=""/>
   </transmissions>
@@ -18,9 +18,9 @@
 
   <camera>
     <slit_width val="4096" units="" comment="Size of slit image in units of detector pixels - if set to 0 then assumes no slit used"/>
-    <dispersion path="__path__/data/JWST/NIRCam/Wavelengths/NIRCam_F322W2_GRISM_dispersion.csv" val="4680" units="micron" comment="Dispersion law. Val is the reference pixel, i.e. the centre of the array"/>
-    <wfno_x val="9.41" units="" comment="Image space f/# based on average of FHWM/lambda/1.02 above 2.4 microns Table1 https://jwst-docs.stsci.edu/display/JTI/NIRCam+Point+Spread+Functions" />
-    <wfno_y val="9.41" units="" comment="as above" />
+    <dispersion path="__path__/data/JWST/NIRCam/Wavelengths/NIRCam_F444W_GRISM_dispersion.csv" val="4680" units="micron" comment="Dispersion law. Val is the reference pixel, i.e. the centre of the array"/>
+    <wfno_x val="9.29" units="" comment="Image space f/# based on average of FHWM/lambda/1.02 above 2.4 microns Table1 https://jwst-docs.stsci.edu/display/JTI/NIRCam+Point+Spread+Functions" />
+    <wfno_y val="9.29" units="" comment="as above" />
   </camera>
 
   <simulation_factors>
@@ -32,41 +32,39 @@
     <subarray_list val="SUBGRISM_64_1_output SUBGRISM_64_4_output SUBGRISM_128_1_output SUBGRISM_128_4_output SUBGRISM_256_1_output SUBGRISM_256_4_output FULL_1_output FULL_4_output" units= "" comment=""/>
     <subarray_geometry_list val="64,2048 64,2048 128,2048 128,2048 256,2048 256,2048 2048,2048 2048,2048" units= "" comment=""/>
     <subarray_t_f_list val="1.35960 0.34061 2.67800 0.67597 5.31480 1.34669 42.23000 10.73677" units= "s" comment=""/>
-    <array_geometry val="2048,2048" units= "dimensionless" comment="FULL subarray mode"/>
+    <array_geometry val="64,2048" units= "dimensionless" comment="Default SUBGRISM_64 subarray mode"/>
     <qe val="__path__/data/JWST/NIRCam/Transmissions/NIRCam_LW_QE.csv" comment="" />
     <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
     <PRNU val="3.0" comment="flat field variation % rms" />
     <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
   </detector_array>
 
-  <detector_pixel>
+<detector_pixel>
     <pixel_size val="18" units="micron" />
     <plate_scale_x val="0.0000175" units="deg" comment="based on published 0.063 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/NIRCam+Detectors" />
     <plate_scale_y val="0.0000175" units="deg" comment="based on published 0.063 arcsec/pix https://jwst-docs.stsci.edu/display/JTI/NIRCam+Detectors" />
-    <Idc val="0.027" units="electron/s" comment="e/s https://jwst-docs.stsci.edu/display/JTI/NIRCam+Detector+Performance"/>
-    <sigma_ro val="9.546" units="" comment="e https://jwst-docs.stsci.edu/display/JTI/NIRCam+Detector+Performance"/>
+    <Idc val="0.04" units="electron/s" comment=""/>
+    <sigma_ro val="9.545" units="" comment=""/>
     <pixel_diffusion_length val="1e-30" units="micron" />
-    <full_well val="83300" units="" comment="https://jwst-docs.stsci.edu/display/JTI/NIRCam+Detector+Performance"/>
+    <full_well val="72000" units="" comment=""/>
     <pedestal_drift val="" units="" />
     <kTC_noise val="35" units="" comment="https://jwst-docs.stsci.edu/display/JTI/NIRCam+Detector+Performance"/>
-  </detector_pixel>
+</detector_pixel>
   
   <detector_readout>
-    <t_f val="10.73677" units= "s" comment="integration time of a single frame"/>
-    <t_g val="10.73677" units= "s" comment="integration time of a single group"/>
-    <t_sim val="10.73677" units= "s" comment="integration time of a single group"/>
-    <pc_fw val="80.0" units="" comment="maximum percent of full well to which any pixel can reach" />
+    <pattern_list val="RAPID" comment=""/>
+    <pattern_params_list val="1,0" comment="n_frame, n_skip"/>
     <nGND val='0' units="" comment="duration of reset event in units of frame time" />
     <nNDR0 val='1' units="" comment="Integration time of zeroth NDR in units of frame time" />
     <nRST val = '1' units="" comment="Time lapse between last NDR and reset in units of frame time" />
   </detector_readout>
   
   <pipeline_params>
-      <start_wav val="2.3" units="" />
-      <end_wav val="4.5" units="" />
+      <start_wav val="3.8" units="" />
+      <end_wav val="5.1" units="" />
       <extra_pix val="0" units="" />
-      <wavrange_lo val="2.4" units="" />
-      <wavrange_hi val="4.0" units="" />
+      <wavrange_lo val="3.9" units="" />
+      <wavrange_hi val="5.0" units="" />
   </pipeline_params>
 </channel>
 

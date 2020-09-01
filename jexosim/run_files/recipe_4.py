@@ -1,7 +1,7 @@
 '''
 Jexosim 
 2.0
-Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin
+Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin - no Allen analysis
 
 '''
 from jexosim.modules import exosystem, telescope, channel, backgrounds
@@ -13,7 +13,7 @@ from datetime import datetime
 import pickle, os
 import numpy as np
 
-class recipe_1(object):
+class recipe_4(object):
     def __init__(self, opt):
         
         output_directory = opt.common.output_directory.val
@@ -28,14 +28,14 @@ class recipe_1(object):
         opt.pipeline.useSignal.val=0
         opt.pipeline.use_fast.val =1
         opt.pipeline.split  = 0
-        opt.noise.ApplyRandomPRNU.val=1
-             
+        opt.noise.ApplyRandomPRNU.val=1           
          
         opt.timeline.apply_lc.val = 0
         opt.timeline.useLDC.val = 0
-        opt.pipeline.useAllen.val =1
+        opt.pipeline.useAllen.val =0
         
-        opt.timeline.obs_time.val = 3.0*u.hr
+        opt.timeline.obs_time.val = 0*u.hr
+        opt.timeline.n_exp.val = 1000
     
         
         noise_type = int(opt.noise.sim_noise_source.val)
@@ -102,7 +102,6 @@ class recipe_1(object):
                         self.noise_dict[opt.noise_tag]['signal_mean_std'] = np.zeros(len(self.pipeline.binnedWav))
                         if opt.pipeline.useAllen.val == 1:
                             self.noise_dict[opt.noise_tag]['fracNoT14_std'] = np.zeros(len(self.pipeline.binnedWav))
-                       
 
                     else:
                         self.noise_dict[opt.noise_tag]['signal_std_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_std_stack'], self.pipeline.ootNoise))
@@ -123,7 +122,7 @@ class recipe_1(object):
                     self.noise_dict[opt.noise_tag]['bad_map'] = opt.bad_map
                     self.noise_dict[opt.noise_tag]['example_exposure_image'] = opt.exp_image
                     self.noise_dict[opt.noise_tag]['pixel wavelengths'] = opt.x_wav_osr[1::3].value
-
+                        
                     self.results_dict['noise_dic'] = self.noise_dict
     
                     time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
@@ -137,14 +136,14 @@ class recipe_1(object):
                        
                     if j == end-1:
                         os.remove(filename)  # delete previous temp file
+                        
                         filename = '%s/OOT_SNR_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
                         with open(filename, 'wb') as handle:
                             pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
                         
                         jexosim_msg('Results in %s'%(filename), 1)
                         self.filename = 'OOT_SNR_%s_%s.pickle'%(opt.lab, time_tag)
-                                
-                
+                                                
                 elif opt.simulation.sim_output_type.val == 2:
                      
                     output.run(opt)

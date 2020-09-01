@@ -50,6 +50,7 @@ def run(database_path):
         'jwst/nirspec/optical/jwst_nirspec_mos_internaloptics_throughput_20160902193401.fits',
         'jwst/nirspec/filters/jwst_nirspec_f290lp_trans_20160902193401.fits',
         'jwst/nirspec/blaze/jwst_nirspec_g395m_speceff_20160902193401.fits',
+        'jwst/nirspec/blaze/jwst_nirspec_g395h_speceff_20160902193401.fits',
             
         'jwst/nirspec/filters/jwst_nirspec_f070lp_trans_20160902193401.fits',    
         'jwst/nirspec/filters/jwst_nirspec_f100lp_trans_20160902193401.fits',   
@@ -65,7 +66,8 @@ def run(database_path):
         'NIRSpec_MOS_internal_optics_trans',
         'NIRSpec_QE',
         'NIRSpec_F290LP_trans',
-        'NIRSpec_G395M_trans',   
+        'NIRSpec_G395M_trans', 
+        'NIRSpec_G395H_trans', 
             
         'NIRSpec_F070LP_trans',
         'NIRSpec_F100LP_trans',

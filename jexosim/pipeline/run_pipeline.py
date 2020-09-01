@@ -19,8 +19,8 @@ class pipeline_stage_1():
         
         self.opt.data_raw = opt.data*1
         
-        self.ApFactor = opt.pipeline.pipeline_ap_factor.val   
-        
+        self.ApFactor = opt.pipeline.pipeline_ap_factor.val
+
         if opt.background.EnableSource.val == 1:
             self.opt.diff =0
         else:
@@ -28,11 +28,11 @@ class pipeline_stage_1():
            
         self.loadData()  
         opt.init_pix = np.zeros(opt.data[...,0].shape) # placeholder - replace with initial bad pixel map 
-#        self.dqInit()  
-#        self.satFlag()         
-#        self.subZero()
-        # print (opt.diff)
-        # sss
+        
+        self.dqInit()  
+        
+        self.satFlag() 
+                      
         if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1: 
             if opt.diff==0:
                 self.subDark()             
@@ -52,8 +52,9 @@ class pipeline_stage_1():
       
         jexosim_plot('sample exposure image', opt.diagnostics,
                      image =True, image_data=self.opt.data[...,1])       
-               
-#        self.badCorr()         
+        
+         # currently this applies zero values to saturated pixels
+        self.badCorr()         
    
         if (opt.noise.EnableSpatialJitter.val  ==1 or opt.noise.EnableSpectralJitter.val  ==1  or opt.noise.EnableAll.val ==1) and opt.noise.DisableAll.val != 1:
             jexosim_msg ("Decorrelating pointing jitter...", opt.diagnostics)
@@ -65,7 +66,6 @@ class pipeline_stage_1():
             
         self.extractSpec()
         
-
 
 #==============================================================================
 #    Pipeline steps - add satflag, dq array       
@@ -100,7 +100,7 @@ class pipeline_stage_1():
             self.opt.data_signal_only = calibration.doUTR(self.opt.data_signal_only, self.opt)
             
     def badCorr(self):   
-        self.data = calibration.badCorr(self.data, self.opt)              
+        self.opt = calibration.badCorr(self.opt.data, self.opt)              
                     
     def jitterDecorr(self):  
          
@@ -128,23 +128,20 @@ class pipeline_stage_1():
             sample = np.dstack((sample1,sample2))
             
         jexosim_msg("SAMPLE SHAPE %s %s"%(sample.shape[0], sample.shape[1]), self.opt.diagnostics)
-        y_width = self.opt.data.shape[0] * (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
+        pix_size = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
+        y_width = self.opt.data.shape[0] * pix_size
         testApFactorMax = int(int(y_width/2.) / (F*wl_max))
+        if (testApFactorMax*F*wl_max/pix_size) + 1 >= self.opt.data.shape[0]/2:
+            testApFactorMax = int( ((self.opt.data.shape[0]/2)-1)*pix_size/(F*wl_max) )
 
-#        testApFactorMax2 = self.ApFactor
-#        testApFactorMax = np.min([testApFactorMax1,testApFactorMax2])
-           
-#        jexosim_msg y_width, self.opt.data[...,0].shape[0], F, wl_max
-#        jexosim_msg testApFactorMax
         ApList = np.arange(1.0,testApFactorMax+1,1.0)
-#        ApList = np.arange(1.0,5.0,1.0)
         if self.opt.channel.instrument.val =='NIRISS':
             testApFactorMax = 18.0 # set empirically
             ApList = np.arange(7.0,testApFactorMax+1,1.0)            
         jexosim_msg ("maximum test ap factor %s"%(testApFactorMax), self.opt.diagnostics)
         for i in ApList:
             testApFactor = 1.0*i  
-#            jexosim_msg "test ApFactor", testApFactor, 2= test ap
+            jexosim_msg("test ApFactor %s"%(testApFactor), self.opt.diagnostics)
             self.extractSample = binning.extractSpec(sample, self.opt, self.opt.diff, testApFactor, 2) 
             if self.opt.channel.instrument.val =='NIRISS':
                     self.extractSample.applyMask_extract_1D_NIRISS()
@@ -156,32 +153,27 @@ class pipeline_stage_1():
             wl =  self.extractSample.binnedWav 
     
             SNR = binnedLC.mean(axis =0)/binnedLC .std(axis =0)
-            
- 
+             
             if i == ApList[0] :
                 SNR_stack = SNR
             else:
                 SNR_stack = np.vstack((SNR_stack, SNR))
             
             jexosim_plot('test aperture SNR', self.opt.diagnostics, 
-                        xdata=wl,ydata=SNR, label = testApFactor)
-       
+                        xdata=wl,ydata=SNR, label = testApFactor)   
         
         idx = np.argwhere( (wl>=wl_min) & (wl<= wl_max))
         SNR_stack = SNR_stack[:,idx][...,0]
         
-
         best=[]
         for i in range(SNR_stack.shape[1]):
             aa = SNR_stack[:,i]
 #            jexosim_msg i, np.argmax(aa), ApList[np.argmax(aa)]
             best.append(ApList[np.argmax(aa)])          
         wl=  wl[idx].T[0]
-#        jexosim_msg wl.shape, len(best)
- 
+
         jexosim_plot('highest SNR aperture vs wavelength', self.opt.diagnostics,
-                     xdata=wl, ydata=best, marker='bo-')
-      
+                     xdata=wl, ydata=best, marker='bo-')      
         
         AvBest = np.round(np.mean(best),0)
         jexosim_msg ("average best aperture factor %s"%(AvBest), self.opt.diagnostics)
@@ -206,7 +198,7 @@ class pipeline_stage_1():
         self.extractSpec_nPix = binning.extractSpec(self.opt.data[...,0:3]*0+1, self.opt, 1, self.ApFactor, 0)
          
         #==============================================================================
-        # 2) apply mask and extract 1D spectrumif apply mask selected      # special case for NIRISS 
+        # 2) apply mask and extract 1D spectrum if apply mask selected      # special case for NIRISS 
         #==============================================================================
             
         if self.opt.pipeline.pipeline_apply_mask.val==1:             
@@ -257,7 +249,6 @@ class pipeline_stage_1():
         jexosim_plot('n_pix per pixel column', self.opt.diagnostics, 
                      xdata=self.opt.cr_wl.value, ydata=self.nPix_1, marker='bo')
 
-#        jexosim_msg self.nPix_1
 
         #==============================================================================
         # 4) Now bin into spectral bins
@@ -275,9 +266,8 @@ class pipeline_stage_1():
         jexosim_msg ("binning 1D spectra into spectral bins... to find n_pix per bin", self.opt.diagnostics)
         self.extractSpec_nPix.binSpectra() 
 
-
         #==============================================================================
-        # 4) Define objects from binning process
+        # 5) Define objects from binning process
         #==============================================================================              
         self.binnedLC =  self.extractSpec.binnedLC  
         self.binnedWav =  self.extractSpec.binnedWav 

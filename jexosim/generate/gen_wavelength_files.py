@@ -19,8 +19,7 @@ def run(database_path):
 
     dfp = '%s/jexosim/data/JWST'%(jexosim_path)
     if not os.path.exists(dfp):
-            os.makedirs(dfp) 
-   
+            os.makedirs(dfp)   
     
     NIRSpec = {
             'ch':'NIRSpec',
@@ -30,7 +29,8 @@ def run(database_path):
             'jwst_nirspec_g395h_disp_20160902193401.fits', 'jwst_nirspec_g235h_disp_20160902193401.fits',
             'jwst_nirspec_g235m_disp_20160902193401.fits','jwst_nirspec_g140h_disp_20160902193401.fits',
             'jwst_nirspec_g140m_disp_20160902193401.fits','jwst_nirspec_prism_disp_20160902193401.fits'],
-            'wav_limits': [[2.87,5.1], [2.87,5.14], [1.66,3.05], [1.66,3.07], [0.97,1.82], [0.97,1.84], [0.6,5.6]],
+            'wav_limits': [[2.87,3.83], [3.03,3.03], [1.79,1.79], [1.66, 2.4], [1.07,1.07], [0.7,1.74], [0.5,0.5]],
+            # for H and prism simply finding the middle wavlength in NRS1 detector to place spectrum in right place
             'pix_size':18.0
             }
     
@@ -40,7 +40,7 @@ def run(database_path):
             'ch0': 'miri',
             'grism':['prism'],
             'file': ['jwst_miri_p750l_disp_20170404135013.fits'],
-            'wav_limits': [[4.0,18.0]],
+            'wav_limits': [[4.0,12.0]],
             'pix_size':25.0
             }
             
@@ -62,17 +62,13 @@ def run(database_path):
             'wav_limits': [[0.9, 2.8]],
             'pix_size':18.0
             }    
-    
-    # wavelength ranges from Lustig-Yeager et al. (2019)   
+
     #==============================================================================
     # Compile the files into JexoSim compatible .csv files and put in right folder
     #==============================================================================
     
     # choose which channels to compile
     dic_list = [MIRI, NIRSpec, NIRISS, NIRCam]
-    
-    # dic_list = [NIRCam]
-
 
     for dic in dic_list:
         for i in range(len(dic['file']))   :
@@ -83,13 +79,9 @@ def run(database_path):
                 wav_min = dic['wav_limits'][i][0]
                  
                 filepath = '%s/jwst/%s/dispersion/%s'%(database_path, dic['ch0'], dic['file'][i])
-                # hdul = fits.open(filepath)
-              
-                try:
-                    hdul = fits.open(filepath)
-                except IOError:
-                    hdul = fits.open(filepath.lower())          
-            
+                
+                hdul = fits.open(filepath)      
+           
                 wl = hdul[1].data['WAVELENGTH']
                 dlds = hdul[1].data['DLDS']
                 
@@ -102,8 +94,7 @@ def run(database_path):
                     wl0 = wl0+ dlds0           
                                                           
                 x = np.arange(0,len(wlpix)*dic['pix_size'],dic['pix_size']) 
-                x= x[::-1]
-                
+
                 wl_mid = (wav_max+ wav_min)/2.0
                 x_mid  = np.interp(wl_mid, wlpix, x)
                 x = x - x_mid
@@ -126,11 +117,9 @@ def run(database_path):
                 
                 x = x_pix*dic['pix_size']
                 x = x - (x.max()-x.min())/2. 
-                x= x[::-1]
                 
                 y = y_pix*dic['pix_size']
                 y = y - (y.max()-y.min())/2. 
-                y= y[::-1]
                 
                 wlpix = wl
 
