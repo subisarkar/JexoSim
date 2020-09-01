@@ -5,7 +5,7 @@ Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin
 
 '''
 from jexosim.modules import exosystem, telescope, channel, backgrounds
-from jexosim.modules import detector, timeline, light_curve, systematics, noise, output, detector_2
+from jexosim.modules import detector, timeline, light_curve, systematics, noise, output
 from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 from astropy import units as u
@@ -162,7 +162,6 @@ class recipe_1(object):
       backgrounds.run(opt) 
       jexosim_msg('Detector', 1)
       detector.run(opt)
-      # detector_2.run(opt)
 
       
       if opt.observation_feasibility ==1: # if detector does not saturate continue
