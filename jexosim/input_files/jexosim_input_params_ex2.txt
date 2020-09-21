@@ -1,6 +1,6 @@
 ######################### SIMULATION ################################################
 
-sim_diagnostics      0
+sim_diagnostics      1
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
 sim_mode              2 
@@ -88,13 +88,13 @@ obs_n_reset_groups     default
 
 ######################### PIPELINE #################################################
 
-pipeline_binning	 R
+pipeline_binning	 fixed-bin
 # Enter R-bin for R-binning. Enter fixed-bin for bins of given pixel width. 
 
 pipeline_R	       100 
 # Enter binned R power (only applied if pipeline_binning = R-bin)
 
-pipeline_bin_size		 	
+pipeline_bin_size	10	 	
 # Enter width of bin in pixels (only applied if pipeline_binning = fixed-bin)
 
 pipeline_ap_shape	 rect
@@ -114,7 +114,7 @@ pipeline_bad_corr	 1
 
 ######################### EXOSYSTEM #################################################
 
-planet_name		GJ 1214 b
+planet_name		HAT-P-2 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database	  1
@@ -122,7 +122,7 @@ planet_use_database	  1
 
 planet_spectrum_model	complex	 
 # Enter simple for flat transmission spectrum or blackbody based emission spectrum. 
-# Enter complex to use a planet spectrum from the database
+# Enter complex to use a planet spectrum from the database (only pick for gas giant)
 # Enter file to use a planet spectrum from a specific file  
 
 planet_spectrum_file	 
@@ -156,9 +156,6 @@ planet_spectrum_params_cloud   0
 
 planet_spectrum_params_met   0
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
-
-planet_spectrum_mmw    18.0
-# Enter mean molecular weight in amu 
 
 
 ############## Following only needed if planet_use_database = 0 #####################

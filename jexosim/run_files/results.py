@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import jexosim
 from jexosim.classes.params import Params
 from jexosim.classes.options import Options
+from scipy import interpolate
 import os
 
 def run(results_file):
@@ -80,7 +81,6 @@ def run(results_file):
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
                    
-
             r = 4 
             if ch== 'NIRCam_F444W' or ch== 'NIRCam_F322W2':
                 r=2
@@ -113,6 +113,48 @@ def run(results_file):
             plt.plot(wav, y, '-', color='r', linewidth=2) 
             plt.grid(True)
             
+            plt.figure('sample spectrum for 1 transit %s'%(res_dict['time_tag'])) 
+            f = interpolate.interp1d(cr_wl,cr)
+            rand_spec = np.array(f(wav))
+            plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+            for i in range(len(wav)):
+                rand_spec[i] = np.random.normal(rand_spec[i], y[i]/1e6)
+            plt.plot(wav, rand_spec, 'o-', color='b', label = 'randomized spectrum')
+            plt.errorbar(wav, rand_spec, y/1e6, ecolor='b')
+            plt.legend()
+            plt.ylabel('Contrast ratio (ppm)')
+            plt.xlabel('Wavelength ($\mu m$)')
+            plt.grid(True)  
+            
+            plt.figure('sample spectrum for 10 transits %s'%(res_dict['time_tag'])) 
+            ntransits = 10
+            f = interpolate.interp1d(cr_wl,cr)
+            rand_spec = np.array(f(wav))
+            plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+            for i in range(len(wav)):
+                rand_spec[i] = np.random.normal(rand_spec[i], y[i]/1e6/np.sqrt(ntransits))
+            plt.plot(wav, rand_spec, 'o-', color='b', label = 'randomized spectrum')
+            plt.errorbar(wav, rand_spec, y/1e6/np.sqrt(ntransits), ecolor='b')
+            plt.legend()
+            plt.ylabel('Contrast ratio (ppm)')
+            plt.xlabel('Wavelength ($\mu m$)')
+            plt.grid(True)          
+            
+            plt.figure('sample spectrum for 100 transits %s'%(res_dict['time_tag'])) 
+            ntransits = 100
+            f = interpolate.interp1d(cr_wl,cr)
+            rand_spec = np.array(f(wav))
+            plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+            for i in range(len(wav)):
+                rand_spec[i] = np.random.normal(rand_spec[i], y[i]/1e6/np.sqrt(ntransits))
+            plt.plot(wav, rand_spec, 'o-', color='b', label = 'randomized spectrum')
+            plt.errorbar(wav, rand_spec, y/1e6/np.sqrt(ntransits), ecolor='b')
+            plt.legend()
+            plt.ylabel('Contrast ratio (ppm)')
+            plt.xlabel('Wavelength ($\mu m$)')
+            plt.grid(True)  
+            
+
             plt.figure('bad pixels %s'%(res_dict['time_tag']))          
             plt.imshow(res_dict['bad_map'], interpolation='none', aspect='auto')
             ticks = np.arange(res_dict['bad_map'].shape[1])[0::50]  
@@ -183,7 +225,6 @@ def run(results_file):
                 for i in range(no_stack.shape[0]):
                     plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
       
-
             
             if 'fracNoT14_mean' in no_dict[key].keys():
                 plt.figure('fractional noise %s'%(res_dict['time_tag']))
@@ -195,6 +236,47 @@ def run(results_file):
                 plt.ylabel('Fractional noise at T14 (ppm)')
                 plt.xlabel('Wavelength ($\mu m$)')
                 plt.grid(True)
+                
+                plt.figure('precision %s'%(res_dict['time_tag']))
+                plt.semilogy(wl,fracNoT14_mean*np.sqrt(2), 'o', color = col, label = noise_type, alpha=0.5)
+ 
+                plt.ylabel('1 sigma error on transit depth (ppm)')
+                plt.xlabel('Wavelength ($\mu m$)')
+    
+                r = 4 
+                if ch== 'NIRCam_F444W' or ch== 'NIRCam_F322W2':
+                    r=2
+                if ch== 'NIRSpec_G140M_F100LP' or ch == 'NIRSpec_G235M_F170LP' or ch == 'NIRSpec_G395M_F290LP':
+                    r = 4
+                z = np.polyfit(wl, fracNoT14_mean*np.sqrt(2), r)
+                p= np.poly1d(z)
+                # yhat = p(wav)
+                # ybar = sum(p_std)/len(p_std)
+                # SST = sum((p_std - ybar)**2)
+                # SSreg = sum((yhat - ybar)**2)
+                # R2 = SSreg/SST  
+                y =0
+                for i in range (0,r+1):
+                    y = y + z[i]*wl**(r-i) 
+                
+                plt.plot(wl, y, '-', color='r', linewidth=2) 
+                plt.grid(True)
+                
+            
+                # plt.figure('sample spectrum for 1 transit %s'%(res_dict['time_tag'])) 
+                # f = interpolate.interp1d(cr_wl,cr)
+                # rand_spec = np.array(f(wl))
+                # plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+                # for i in range(len(wav)):
+                #     rand_spec[i] = np.random.normal(rand_spec[i], y[i]/1e6)
+                # plt.plot(wav, rand_spec, 'o-', color='b', label = 'randomized spectrum')
+                # plt.errorbar(wav, rand_spec, y/1e6, ecolor='b')
+                # plt.legend()
+                # plt.ylabel('Contrast ratio (ppm)')
+                # plt.xlabel('Wavelength ($\mu m$)')
+                # plt.grid(True) 
+            
+
                 
 
             plt.figure('bad pixels %s'%(res_dict['time_tag']))          
@@ -212,14 +294,10 @@ def run(results_file):
             plt.xticks(ticks=ticks, labels = ticklabels)
             plt.ylabel('Spatial pixel')
             plt.xlabel('Wavelength ($\mu m$)')           
-                
-                
-    
-
-
+            
                    
     plt.show()
 
 if __name__ == "__main__":     
 
-    run('OOT_SNR_NIRSpec_BOTS_PRISM_K2-18 b_2020_09_01_0818_39.pickle')
+    run('OOT_SNR_NIRISS_SOSS_GR700XD_GJ 1214 b_2020_09_21_1840_25.pickle')

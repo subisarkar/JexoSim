@@ -79,17 +79,20 @@ class recipe_2(object):
                pp = time.time()
                # split simulation into chunks to permit computation - makes no difference to final results    
                if opt.pipeline.split ==1:
+                   
                    jexosim_msg('Splitting data series into chunks', opt.diagnostics)
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
-                   ndrs_per_round = opt.multiaccum*int(1000/opt.multiaccum)   
+                   ndrs_per_round = opt.multiaccum*int(10000/opt.multiaccum)   
                    # ndrs_per_round = opt.multiaccum*int(60/opt.multiaccum)      
 
                    idx_list =[]
+                   total_chunks = len(np.arange(0, n_ndr0, ndrs_per_round))
+
                    for i in range(0, n_ndr0, ndrs_per_round):
                        idx_list.append(i)        
     
                    for i in range(len(idx_list)):
-                       jexosim_msg('=== Chunk %s ====='%(i), opt.diagnostics)
+                       jexosim_msg('=== Chunk %s / %s====='%(i+1, total_chunks), opt.diagnostics)
                        if idx_list[i] == idx_list[-1]:
                            opt.n_ndr = n_ndr0 - idx_list[i]
                            opt.lc_original = lc0[:,idx_list[i]:]
@@ -108,6 +111,7 @@ class recipe_2(object):
                        if i == 0:
                            opt.pipeline.pipeline_auto_ap.val= 1
                            opt.use_external_jitter = 0
+                            
                        else:
                            opt.pipeline.pipeline_auto_ap.val = 0
                            opt.use_external_jitter = 1 # uses the jitter timeline from the first realization
@@ -139,7 +143,7 @@ class recipe_2(object):
                                         ydata=aa)                            
                                            
                elif opt.pipeline.split ==0:
-   
+
                    opt  = self.run_JexoSimB(opt)
                    opt  = self.run_pipeline_stage_1(opt)
                    if j==start:  # first realization sets the ap, then the other use the same one

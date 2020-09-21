@@ -66,6 +66,12 @@ class Planet(object):
           Rs =  self.planet.star.R # in Rsol units
           Rp =  self.planet.R # in Rjup units
           Mp =  self.planet.M
+
+          # Tp = 1500*u.K
+          # Rs=1*u.Rsun
+          # Rp=1*u.Rjup
+          # Mp =1*u.Mjup
+        
           Gp =  self.calc_gravity(Mp,Rp)
           
           met = self.opt.exosystem_params.planet_spectrum_params_met.val
@@ -112,6 +118,7 @@ class Planet(object):
           haze_str_list = ['1100', '0150', '0010', '0001']
           cloud_list = [1.0, 0.2, 0.06, 0.0]
           cloud_str_list = ['1.00', '0.20', '0.06', '0.00']
+          mmw_list = [5.5, 4.0, 3.2, 2.5, 2.3, 2.3] 
 
           def input_val(val, list0, str_list):
              diff =[]
@@ -127,8 +134,13 @@ class Planet(object):
           haze0= (input_val(haze, haze_list, haze_str_list))
           cloud0=  (input_val(cloud, cloud_list, cloud_str_list))
 
-          filename_root = 'trans-iso-generic_%s_%s_%s_%s_%s_%s_model'%(t0,g0,met0,co0,haze0,cloud0)
-        
+          filename_root = 'trans-iso-generic_%s_%s_%s_%s_%s_%s_model'%(t0,g0,met0,co0,haze0,cloud0)         
+          # filename_root = 'trans-iso-generic_1500_10_+0.0_1.00_0001_0.00_model'
+          print (filename_root)
+          
+          idx = np.argwhere(np.array(met_str_list) == met0)[0].item()
+          mmw = mmw_list[idx]
+
           wl, cr = self.spectrum_rescale(folder, filename_root, Rs, Rp, Gp, Tp, mmw)
           wl = wl*u.um
           cr = cr*u.dimensionless_unscaled
@@ -136,8 +148,8 @@ class Planet(object):
           # import matplotlib.pyplot as plt
           # plt.figure(4)
           # plt.plot(wl, cr)
-          # xxxx
-            
+          # xxx
+       
       elif self.opt.observation.obs_type.val == 2: # currently no grid for this
           wl = np.arange(0.3,30,0.1)*u.um
           star_flux =  np.pi*planck(wl, self.planet.star.T)*(  (self.planet.star.R).to(u.m) / (self.planet.star.d).to(u.m))**2
@@ -204,8 +216,13 @@ class Planet(object):
     g1 = 100*float(filename.split('_')[2]) 
     h1 = (kb * t1) / (mu * g1) 
 
-    rp1 = np.sqrt(model_rp) * rsun  
-    z1 = rp1 - (np.sqrt(model_rp[2000])*rsun)  
+    # rp1 = np.sqrt(model_rp) * rsun  
+    # z1 = rp1 - (np.sqrt(model_rp[2000])*rsun)  
+    
+    r1 = np.sqrt(model_rp) * rsun
+    rp1 = (1*u.Rjup).to(u.cm).value #cm
+    z1 = r1 - rp1 #cm
+    
     epsig1 = tau * np.sqrt((kb * t1 * mu * g1) / (2. * np.pi * rp1)) * np.exp(z1 / h1)
     h2 = (kb * Tp.value) / (mu * Gp.to(u.cm/u.s**2).value)
 

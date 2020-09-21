@@ -1,0 +1,27 @@
+<root>
+    <title> JexoSim exosystem file </title>
+    <type name="exosystem parameters"> </type>
+
+    <fake_exosystem>
+        <planet_name val="WASP-13 b" comment=""/>
+        <R_p val="1.528" units="Rjup" comment=""/>
+        <M_p val="0.525" units="Mjup" comment=""/>
+        <T_p val="1531.0" units="K" comment=""/>
+        <i val="84.88" units="deg" comment=""/>
+        <e val="0.016" units="" comment=""/>
+        <a val="0.0558" units="au" comment=""/>
+        <P val="4.353011" units="day" comment=""/>
+        <albedo val="0.3" units="" comment=""/>
+        <R_s val="1.66" units="Rsun" comment=""/>
+        <M_s val="1.22" units="Msun" comment=""/>
+        <T_s val="5830.0" units="K" comment=""/>
+        <d val="227.537" units="pc" comment=""/>
+        <logg val="4.084211281897772" units="" comment=""/>
+        <Z val="0.0" units="" comment=""/>
+        <star_name val="WASP-13" comment=""/>
+        <ecliptic_lat val="17.43815" units="deg" comment=""/>
+     
+    </fake_exosystem>
+    
+    
+</root>

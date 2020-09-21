@@ -660,7 +660,7 @@ class extractSpec():
     # Binning of 1-D spectra into R- or fixed bins  
     #==============================================================================
         
-    def binSpectra(self):
+    def binSpectra(self):    
         
         wl = self.opt.cr_wl.value
         R = self.opt.pipeline.pipeline_R.val
@@ -674,10 +674,9 @@ class extractSpec():
 
         cond=1 #directs to new method
 #       cond=0 # previous method
-            
-        
+
 #        1) find the bin sizes in wavelength space
-        if self.opt.pipeline.pipeline_binning.val == 'R-bin':
+        if self.opt.pipeline.pipeline_binning.val == 'R-bin' or  self.opt.pipeline.pipeline_binning.val == 'R':
             jexosim_msg ('binning spectra into R-bins...',  self.opt.diagnostics)
             # a) REMOVE ZEROS FROM EACH END OF WL SOLUTION
             for i in range (len(wl)):
@@ -733,10 +732,10 @@ class extractSpec():
                 xedge = xedge[::-1]  
                 wavcen = wavcen[::-1]
                 
-            print (len(wavcen), len(xedge))
+            # print (len(wavcen), len(xedge))
          
             xedge = xedge[1:] #make len(xedge) = len(wavcen)
-            print (len(wavcen), len(xedge))     
+            # print (len(wavcen), len(xedge))     
  
          # d) remove nans
             idx  =  np.argwhere(np.isnan(xedge))
@@ -744,8 +743,6 @@ class extractSpec():
             wavcen0 = np.delete(wavcen, idx) 
             
             # print (len(wavcen0), len(xedge0))  
-            
-            # xxxx
 
 #            So now we have A) edges of bins in wavelength units, B) edges of bins distance units : xedge0
 #            C) edges of pixels in distance units : x 
@@ -978,7 +975,7 @@ class extractSpec():
            
             
          
-        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin':
+        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin' or self.opt.pipeline.pipeline_binning.val  == 'fixed' :
             jexosim_msg ('binning spectra into fixed-bins of size %s pixel columns'%(bin_size), self.opt.diagnostics)
             
             offs=0          
@@ -1035,37 +1032,35 @@ class extractSpec():
                 w0 = wl0[-1] 
             else:
                 w0 = wl0[0]
-            dw = w0/(R-1)       
+                
+            dw = w0/(R-0.5)       
             bin_sizes=[dw]
-            for i in range(500):
-                dw2 = (1+1/(R-1))*dw
+            for i in range(1000):
+                dw2 = (1+1/(R-0.5))*dw
                 bin_sizes.append(dw2)
                 dw = dw2
                 if np.sum(bin_sizes) > wavrange[1]-w0:
                     break
             bin_sizes = np.array(bin_sizes)    
-            wavcen = w0+np.cumsum(bin_sizes)
- 
-                       
-            #positions in wavelength of bin edges        
+            
+            wavcen = w0+np.cumsum(bin_sizes)    
             wavedge1 = wavcen-bin_sizes/2.
             wavedge2 =  wavcen+bin_sizes/2.
-            wavedge = np.hstack((wavedge1[0],((wavedge1[1:]+wavedge2[:-1])/2.)))
-            #positions in spatial microns of bin edges
+            wavedge = np.hstack((wavedge1[0],((wavedge1[1:]+wavedge2[:-1])/2.), wavedge1[-1]))
+     
             wl_osr = x_wav_osr
             x_osr =  np.arange(pixSize/3./2., (pixSize/3.)*(len(x_wav_osr)), pixSize/3.)
             xedge = interpolate.interp1d(wl_osr,x_osr, kind ='linear', bounds_error = False)(wavedge)            
             x = np.arange(pixSize, pixSize*(len(wl)+1), pixSize)   
-            idx  =  np.argwhere(np.isnan(xedge))
-            xedge0 = np.delete(xedge, idx)           
-            wavcen0 = np.delete(wavcen, idx)
+  
             
             if wl0[-1]<wl0[0]:          
-                xedge0 = xedge0[::-1]  
-                wavcen0 = wavcen0[::-1]
-            else:
-                xedge0 = xedge0[1:]            
-
+                xedge = xedge[::-1]  
+                wavcen = wavcen[::-1]
+            xedge = xedge[1:]   
+            idx  =  np.argwhere(np.isnan(xedge))
+            xedge0 = np.delete(xedge, idx)           
+            wavcen0 = np.delete(wavcen, idx) 
         
             self.gamma = self.opt.ldc[1:]
             for jj in range(self.gamma.shape[0]):  
@@ -1100,6 +1095,8 @@ class extractSpec():
                                 S= S/binsize
                             elif useWeightedAv ==1:  #weights each coeff by the flux in that pixel column
                                 # Weighted average
+                                fracLeft = 1-(xedgepix[ct]-int(xedgepix[ct]))
+                                fracRight = xedgepix[ct+1]-int(xedgepix[ct+1])
                                 SLeft_flux = spec_flux[int(xedgepix[ct])]*fracLeft
                                 SRight_flux = spec_flux[int(xedgepix[ct])]*fracRight
                                 SLeft =  spec[int(xedgepix[ct])]
@@ -1188,7 +1185,8 @@ class extractSpec():
             
          
         elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin':
-            jexosim_msg ('binning gamma into fixed-bins of size %s pixel columns...%s'%(bin_size), self.opt.diagnostics)
+            bin_size = int(bin_size)
+            jexosim_msg ('binning gamma into fixed-bins of size %s pixel columns...'%(bin_size), self.opt.diagnostics)
             self.gamma = self.opt.ldc[1:]
             for jj in range(self.gamma.shape[0]):            
                 spec  = self.gamma[jj]           

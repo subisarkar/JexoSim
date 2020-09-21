@@ -117,17 +117,38 @@ class pipeline_stage_1():
             if self.opt.data.shape[2] <x: # has to use the noisy data
                 x= self.opt.data.shape[2]
             sample = self.opt.data[...,0:x]
-#         
+        
         elif self.opt.timeline.apply_lc.val ==1 :     # must use OOT portions else the transit will contribute falsely to the stand dev
-            x0 = int(self.opt.n_exp/4.) # no of exposures in each OOT section
-            x = 20 # 
-            if x0 < x:
-                x = x0
-            sample1 =  self.opt.data[...,0:x]
-            sample2 =  self.opt.data[...,-x:]
-            sample = np.dstack((sample1,sample2))
+            if self.opt.pipeline.split ==0: # can only use the pre-transit values     
+                total_obs_time =  self.opt.exposure_time*self.opt.n_exp
+                pre_transit_time= self.opt.observation.obs_frac_t14_pre_transit.val * self.opt.T14   
+                post_transit_time= self.opt.observation.obs_frac_t14_post_transit.val * self.opt.T14   
+                pre_transit_exp = self.opt.n_exp*pre_transit_time/total_obs_time
+                post_transit_exp = self.opt.n_exp*post_transit_time/total_obs_time
+                x0 = int(pre_transit_exp*0.75)
+                if x0 >20:
+                    x0=20
+                x1 = int(post_transit_exp*0.75)
+                if x1 >20:
+                    x1=20 
+                sample1 =  self.opt.data[...,0:x0]
+                sample2 =  self.opt.data[...,-x1:]
+                sample = np.dstack((sample1,sample2))   
+             
+            if self.opt.pipeline.split ==1: # can only use the pre-transit values
+                total_obs_time =  self.opt.exposure_time*self.opt.n_exp
+                pre_transit_time= self.opt.observation.obs_frac_t14_pre_transit.val * self.opt.T14   
+                pre_transit_exp = pre_transit_time/self.opt.exposure_time
+                if self.opt.n_exp < pre_transit_exp:
+                    x0 = int(self.opt.n_exp*0.75)
+                else:
+                    x0 = int(pre_transit_exp*0.75)
+                if x0 > 40:
+                    x0=40
+                sample =  self.opt.data[...,0:x0]
+                
             
-        jexosim_msg("SAMPLE SHAPE %s %s"%(sample.shape[0], sample.shape[1]), self.opt.diagnostics)
+        jexosim_msg("SAMPLE SHAPE %s %s %s"%(sample.shape), self.opt.diagnostics)
         pix_size = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
         y_width = self.opt.data.shape[0] * pix_size
         testApFactorMax = int(int(y_width/2.) / (F*wl_max))
@@ -150,8 +171,7 @@ class pipeline_stage_1():
             spectra = self.extractSample.spectra
             self.extractSample.binSpectra()   
             binnedLC = self.extractSample.binnedLC   
-            wl =  self.extractSample.binnedWav 
-    
+            wl =  self.extractSample.binnedWav
             SNR = binnedLC.mean(axis =0)/binnedLC .std(axis =0)
              
             if i == ApList[0] :

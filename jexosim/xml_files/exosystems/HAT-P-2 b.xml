@@ -1,0 +1,27 @@
+<root>
+    <title> JexoSim exosystem file </title>
+    <type name="exosystem parameters"> </type>
+
+    <fake_exosystem>
+        <planet_name val="HAT-P-2 b" comment=""/>
+        <R_p val="1.157" units="Rjup" comment=""/>
+        <M_p val="9.09" units="Mjup" comment=""/>
+        <T_p val="1540.0" units="K" comment=""/>
+        <i val="86.72" units="deg" comment=""/>
+        <e val="0.5171" units="" comment=""/>
+        <a val="0.06878" units="au" comment=""/>
+        <P val="5.6334729" units="day" comment=""/>
+        <albedo val="0.3" units="" comment=""/>
+        <R_s val="1.64" units="Rsun" comment=""/>
+        <M_s val="1.36" units="Msun" comment=""/>
+        <T_s val="6290.0" units="K" comment=""/>
+        <d val="127.774" units="pc" comment=""/>
+        <logg val="4.141918839577955" units="" comment=""/>
+        <Z val="0.14" units="" comment=""/>
+        <star_name val="HAT-P-2" comment=""/>
+        <ecliptic_lat val="61.01164" units="deg" comment=""/>
+     
+    </fake_exosystem>
+    
+    
+</root>

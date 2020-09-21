@@ -99,8 +99,15 @@ In addition a .txt with the same name as the dictionary file will be generated c
 
 Examples
 ------
-In the folder `JexoSim/jexosim/input_files` there are example input parameter text files, which can be run using the 'Running a simulation' routine above.    
+In the folder `JexoSim/jexosim/input_files` there are example input parameter text files, which can be run using the 'Running a simulation' routine above.    Example 1 (`jexosim_input_params_ex1.txt`) runs a single OOT simulation with Allan deviation analysis for the planet GJ 1214 b using the NIRISS SOSS SUBSTRIP96 mode with all noise sources activated, and returns signal, standard deviation of the signal, fractional noise at T14, and estimated precision on the transit depth. 
+Example 2 (`jexosim_input_params_ex2.txt`) runs a Monte Carlo simulation with 25 realizations using a full transit simulation of HAT-P-2 b observed in MIRI LRS, returning precison on the transit depth, and final reconstructed spectra with error bars.  Example 3 (`jexosim_input_params_ex2.txt`) is an OOT noise budget simulation of K2-18 b observed by  MIRI LRS which returns a noise breakdown of the constribution of different noise sources.
 
+Use of code
+------
+
+ JexoSim is currently available for use on a collaborative basis.  Please contact the JexoSim team to discuss uing the code. 
+ JexoSim does not contain all known systematics for the various instruments, but is a good starting point to investigate the effects of systematics, and has the framework to incorporate more systematics in the future.
+ 
 Citing
 ------
 

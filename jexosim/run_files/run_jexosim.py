@@ -21,11 +21,12 @@ import os
  
 #====Load defauls from XML files and load input text file with user-defined adjustments==========================================================================
 # 
-# def run(params_file):
+def run(params_file):
     
-for a in [0]:
-    params_file = 'jexosim_input_params_ex7 copy.txt'
-    
+# for a in [0]:
+#     params_file = 'jexosim_input_params_ex7 copy.txt'
+#     params_file = 'jexosim_input_params_ex3.txt'
+   
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
@@ -143,7 +144,7 @@ for a in [0]:
             results.run(results_file)
     else:
         jexosim_msg('No results', 1)
-
+           
     #==============================================================================
     #      Store results
     #==============================================================================
