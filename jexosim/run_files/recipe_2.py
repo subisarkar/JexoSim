@@ -39,7 +39,7 @@ class recipe_2(object):
         opt.timeline.useLDC.val = 1
         opt.pipeline.useAllen.val =0
         opt.pipeline.fit_gamma.val  =0 #keep zero for uncert on p
-       
+    
         start = 0 
         end = int(start + opt.no_real)
         
@@ -173,13 +173,7 @@ class recipe_2(object):
                    p_stack = np.vstack((p_stack,p))
                                       
                jexosim_msg ("time to complete realization %s %s"%(j, time.time()-pp ) ,opt.diagnostics)
-                             
-               # write_record(opt, folder, opt.lab)
-               
-               # if j==start:
-               #      np.save('%s/%s_wav'%(folder,opt.lab), pipeline.binnedWav ) 
-               
-               # np.save('%s/%s_p_sim_%s'%(folder,opt.lab,j),p)             
+        
 
                self.results_dict['wl'] = pipeline.binnedWav   
                self.results_dict['input_spec'] = opt.cr

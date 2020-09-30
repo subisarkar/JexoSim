@@ -1,7 +1,7 @@
 '''
 Jexosim 
 2.0
-Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin
+Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin with Allan analysis
 
 '''
 from jexosim.modules import exosystem, telescope, channel, backgrounds
@@ -25,31 +25,31 @@ class recipe_1(object):
         self.results_dict['ch'] =  opt.observation.obs_channel.val 
         self.noise_dict ={}    
    
-        opt.pipeline.useSignal.val=0
+        opt.pipeline.useSignal.val=1
         opt.pipeline.use_fast.val =1
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
-             
-         
+                      
         opt.timeline.apply_lc.val = 0
         opt.timeline.useLDC.val = 0
         opt.pipeline.useAllen.val =1
+        opt.timeline.use_T14.val=0
+        opt.timeline.obs_time.val = 0*u.hr # 0 means n_exp overides obs_time
+        opt.timeline.n_exp.val = 1000.0 # uses 1000 exposures 
         
-        opt.timeline.obs_time.val = 3.0*u.hr
-    
-        
+     
         noise_type = int(opt.noise.sim_noise_source.val)
                
         nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-               'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-               'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
-               'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
-               'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
-               'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
-               'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-               'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-               'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-               'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+               'sn'               :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+               'spat'             :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
+               'spec'             :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
+               'emm_switch'       :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
+               'zodi_switch'      :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
+               'dc_switch'        :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+               'source_switch'    :[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+               'diff'             :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+               'jitter_switch'    :[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
                'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
                         'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'],  
@@ -86,6 +86,9 @@ class recipe_1(object):
                     self.pipeline = opt.pipeline_stage_2
                     
                     self.noise_dict[opt.noise_tag]['wl'] = self.pipeline.binnedWav
+                    self.results_dict['input_spec'] = opt.cr
+                    self.results_dict['input_spec_wl'] = opt.cr_wl            
+                    
                              
                     if j == start:                    
                         self.noise_dict[opt.noise_tag]['signal_std_stack'] = self.pipeline.ootNoise

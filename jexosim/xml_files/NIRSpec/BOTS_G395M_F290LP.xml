@@ -32,7 +32,7 @@
       <subarray_geometry_list val="16,512 32,512 32,1024 32,1024 32,2048" units="" comment=""/>
       <subarray_t_f_list val="0.14392 0.22616 0.45144 0.45144 0.902" units="s" comment=""/>
       <subarray_gap_list val="0,0,3.35,4.27 0,0,3.35,4.27 0,0,2.87,3.35 0,0,3.35,5.17871 0,0,2.87,5.17871" units="" comment=""/>
-      <array_geometry val="32, 2048" units="dimensionless" comment="SUB2048 2048x32 subarray mode needed for full spectrum"/>
+      <array_geometry val="32, 2048" units="dimensionless" comment="must be maximum array size"/>
       <qe val="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_QE.csv" comment=""/>
       <qe_rms_matrix_file val="None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
       <PRNU val="3.0" comment="flat field variation % rms"/>

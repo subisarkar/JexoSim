@@ -14,6 +14,9 @@ from pytransit import QuadraticModel
  
 
 def run(opt):
+    
+  opt.cr    =  opt.planet.sed.sed[opt.offs::opt.osf]
+  opt.cr_wl =  opt.planet.sed.wl[opt.offs::opt.osf]
         
   if opt.timeline.apply_lc.val ==1:  
                        
@@ -52,8 +55,6 @@ def run(opt):
         opt.lc = lc0
             
   else:
-      opt.cr_wl = opt.x_wav_osr[opt.offs::opt.osf]    
-      opt.cr = np.ones((opt.cr_wl.shape))
       opt.lc = 0
       opt.z = 0
       opt.ldc = 0
@@ -62,8 +63,7 @@ def run(opt):
   opt.cr_original = copy.deepcopy(opt.cr)
   opt.lc_original = copy.deepcopy(opt.lc)
   opt.ldc_original = copy.deepcopy(opt.ldc)
- 
-        
+     
   return opt        
  
 

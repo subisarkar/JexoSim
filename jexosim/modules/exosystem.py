@@ -8,7 +8,7 @@ v1.0
 
 from jexosim.classes.star    import Star
 from jexosim.classes.planet  import Planet
-from jexosim.lib.jexosim_lib import jexosim_msg
+from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 from astropy import units as u
  
 class fake_star_class():
@@ -42,7 +42,7 @@ def run(opt):
   
   opt.cr_path = opt.exosystem_params.planet_spectrum_file().replace('__path__', opt.__path__)
      
-  if opt.input_params['planet_use_database'] == 0: # override data base with user defined inputs
+  if opt.exosystem_params.planet_use_database.val == 0: # override data base with user defined inputs
           
         opt.fake_exosystem.i.val = opt.input_params['user_defined_i']*u.deg
         opt.fake_exosystem.P.val = opt.input_params['user_defined_P']*u.day
@@ -91,21 +91,16 @@ def run(opt):
       
   star = Star(opt)
   
-  jexosim_msg('exosystem check 1 %s'%(star.sed.sed.max()), opt.diagnostics)
+  jexosim_msg('exosystem check 1 %s'%(star.sed.sed.max()), opt.diagnostics)  
   
-  star.sed.rebin(opt.common.common_wl)
-  jexosim_msg('exosystem check 2 %s'%(star.sed.sed.max()), opt.diagnostics)
   planet = Planet(opt, opt.exosystem)
   planet.calc_T14((planet.planet.i).to(u.rad),
 		 (planet.planet.a).to(u.m), 
 		 (planet.planet.P).to(u.s), 
 		 (planet.planet.R).to(u.m), 
 		 (planet.planet.star.R).to(u.m))             
-                   
-  if opt.timeline.apply_lc.val ==1:  
-      planet.sed.rebin(opt.common.common_wl) 
-
-
+  
+ 
   opt.star = star
   opt.planet = planet
   

@@ -16,7 +16,7 @@
 </emissions>
 
   <camera>
-      <slit_width val="4096" units="" comment="Size of slit image in units of detector pixels - if set to 0 then assumes no slit used"/>
+      <slit_width val="0" units="" comment="Size of slit image in units of detector pixels - if no slit this is set to twice the x dimension of maximum array size"/>
       <dispersion path="__path__/data/JWST/NIRISS/Wavelengths/NIRISS_SOSS_GRISM_dispersion.csv" val="4680" units="micron" comment="Dispersion law. Val is the reference pixel, i.e. the centre of the array"/>
       <wfno_x val="9.07" units="" comment="Image space f/# based on average of FWHM/lambda/1.02 for PSF for lambda from 1.114 to 2.744 https://jwst-docs.stsci.edu/display/JTI/NIRISS+Point+Spread+Functions#NIRISSPointSpreadFunctions-tab1" />
       <wfno_y val="294.1" units="" comment="Image space f/# based on 25 pix FWHM assuming lambda of 1.5 microns https://blogs.stsci.edu/newsletter/files/2015/02/SOSS.pdf vol 32 iss 1. Note this is used only for generating a PSF if WebbPSF PSF not used" />
@@ -31,7 +31,7 @@
       <subarray_list val="SUBSTRIP96 SUBSTRIP256" units= "" comment=""/>
       <subarray_geometry_list val="96,2048 256,2048" units= "" comment=""/>
       <subarray_t_f_list val="2.214 5.494" units= "s" comment=""/>
-      <array_geometry val="256,2048" units= "dimensionless" comment="defulat gr700xd substrip256 subarray mode"/>
+      <array_geometry val="256,2048" units= "dimensionless" comment="must be maximum array size"/>
       <qe val="__path__/data/JWST/NIRISS/Transmissions/NIRISS_QE.csv" comment="this is the wavelength dependent QE per pixel; note this is null file for this mode, since it is subsumed in the PCE file" />
       <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
       <PRNU val="3.0" comment="flat field variation % rms" />

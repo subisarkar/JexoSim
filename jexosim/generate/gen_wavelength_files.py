@@ -40,7 +40,7 @@ def run(database_path):
             'ch0': 'miri',
             'grism':['prism'],
             'file': ['jwst_miri_p750l_disp_20170404135013.fits'],
-            'wav_limits': [[4.0,12.0]],
+            'wav_limits': [[4.5,17.0]], # range matters to place whole of filter band on detector - important for proper simulation of backgrounds
             'pix_size':25.0
             }
             
@@ -69,6 +69,8 @@ def run(database_path):
     
     # choose which channels to compile
     dic_list = [MIRI, NIRSpec, NIRISS, NIRCam]
+    # dic_list = [MIRI]
+   
 
     for dic in dic_list:
         for i in range(len(dic['file']))   :

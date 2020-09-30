@@ -94,7 +94,8 @@ class Options(object):
             aa = list(string.split(" "))
             bb = []
             for i in range(len(aa)):
-                bb.append(np.float(aa[i])*u.s)
+                if aa[i] != 's':
+                    bb.append(np.float(aa[i])*u.s)
             self.opt.channel.detector_array.subarray_t_f_list.val = bb
         if hasattr(self.opt.channel.detector_readout, "pattern_list"):
             string =  self.opt.channel.detector_readout.pattern_list.val

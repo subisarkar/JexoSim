@@ -72,7 +72,7 @@ def run(opt):
       i1 = i0 + psf.shape[0]
       
       # SPECIAL CASE: fix if airy psfs used     
-      if opt.channel.name == 'NIRISS_SOSS_ORDER_1':
+      if opt.channel.name == 'NIRISS_SOSS_GR700XD':
           # fix if airy psfs used
           if opt.psf_type == 'airy':
               original_fp = copy.deepcopy(opt.fp)
@@ -93,7 +93,7 @@ def run(opt):
               opt.fp_signal[i0[k]:i1[k], j0[k]:j1[k]] += psf[...,k] * opt.star.sed.sed[k].value                
        
       # SPECIAL CASE: fix if airy psfs used      
-      if opt.channel.name == 'NIRISS_SOSS_ORDER_1': 
+      if opt.channel.name == 'NIRISS_SOSS_GR700XD': 
           if opt.psf_type == 'airy':  # now return fp to original size
               if i1.max() > original_fp.shape[0]: 
                   diff = i1.max()- original_fp.shape[0]         
@@ -106,7 +106,7 @@ def run(opt):
 #==============================================================================
 #     Now deal with the planet
 #==============================================================================
-      if opt.channel.name == 'NIRISS_SOSS_ORDER_1':  # Niriss curved spectrum means code below will not work
+      if opt.channel.name == 'NIRISS_SOSS_GR700XD':  # Niriss curved spectrum means code below will not work
           opt.planet.sed =  Sed(opt.x_wav_osr, opt.planet_sed_original)
       else:              
           i0p = np.unravel_index(np.argmax(opt.psf.sum(axis=2)), opt.psf[...,0].shape)[0]
@@ -193,7 +193,7 @@ def run(opt):
       
       opt.sat_time = ((FW / FPCOUNT.max()).value *opt.observation.obs_fw_percent.val/100.0 )*u.s
       opt.sat_limit = FW*opt.observation.obs_fw_percent.val/100.0  
-      
+      opt.sat_limit_fw = FW
         
       jexosim_msg ("saturation time adjusted for maximum full well percentage %s"%(opt.sat_time), opt.diagnostics)     
       jexosim_msg ("saturation time with no backgrounds or dc %s"%( (FW/(opt.fp_signal[1::3,1::3].max()))*opt.observation.obs_fw_percent.val/100.0), opt.diagnostics)
@@ -230,7 +230,7 @@ def run(opt):
       opt.t_int =  (n_groups-1)*opt.t_g   
       opt.t_cycle = n_groups*opt.t_g+ opt.dead_time
         
-      if opt.t_cycle > opt.sat_time:
+      if n_groups*opt.t_g > opt.sat_time:
           jexosim_msg ("Warning: some pixels will exceed saturation limit", opt.diagnostics  )
           opt.sat_flag = 1
       else:
@@ -315,9 +315,6 @@ def run(opt):
              
       sanity_check(opt)
       
-
-
-      
       return opt
 # =============================================================================
 #       
@@ -327,7 +324,7 @@ def sanity_check(opt):
     import scipy.constants as spc
     
     wl = opt.x_wav_osr[1::3]
-    del_wl = -np.gradient(wl)
+    del_wl = abs(np.gradient(wl))
 #    del_wl = opt.d_x_wav_osr[1::3]*3
     star_spec = opt.star_sed
     star_spec.rebin(wl)
@@ -340,6 +337,7 @@ def sanity_check(opt):
     Rs = (opt.planet.planet.star.R).to(u.m)
     D = (opt.planet.planet.star.d).to(u.m)
     n= trans.sed*del_wl*np.pi*planck(wl,T)*(Rs/D)**2*opt.Aeff*QE.sed/(spc.h*spc.c/(wl*1e-6))
+
     n2= trans.sed*del_wl*star_spec.sed*opt.Aeff*QE.sed/(spc.h*spc.c/(wl*1e-6))
     
     jex_sig = opt.fp_signal[1::3,1::3].sum(axis=0)
@@ -362,7 +360,8 @@ def sanity_check(opt):
             
         plt.figure('sanity check 3 - expected photon noise (sd) in R bin of %s'%((R)))
         plt.plot(wl, opt.exp_sig**0.5)    
-        plt.ylabel('e/bin'); plt.xlabel('Wavelength (microns)')    
+        plt.ylabel('e/bin'); plt.xlabel('Wavelength (microns)')  
+       
 
 def user_subarray(opt):
     
@@ -417,7 +416,7 @@ def optimal_subarray(opt):
             t_g = (nframes+nskip)*t_f
             dead_time = (opt.channel.detector_readout.nGND.val+ opt.channel.detector_readout.nRST.val)* t_g
             zero_time = opt.channel.detector_readout.nNDR0.val* t_g
-                        
+
             if opt.observation.obs_use_sat.val == 1:            
              
                 n_groups =  int(opt.sat_time/t_g) # does not include reset group
@@ -480,7 +479,7 @@ def optimal_subarray(opt):
     opt.nskip = nskip_list[idx]
     opt.fp_x = fp_x_list[idx]
     opt.fp_y = fp_y_list[idx]
-    
+
     if opt.channel.instrument.val =='NIRSpec': 
         opt.gap = gap_list[idx]
         
@@ -488,6 +487,7 @@ def optimal_subarray(opt):
     return opt
    
 def crop_to_subarray(opt):
+
     opt.fpn[0] = opt.fp_y*u.dimensionless_unscaled
     opt.fpn[1] = opt.fp_x*u.dimensionless_unscaled
             
@@ -497,6 +497,12 @@ def crop_to_subarray(opt):
     xcrop = int(((opt.fp_signal.shape[1]-opt.fpn[1]*3)/2).value)
     xcrop0 = -int(((opt.fp_signal.shape[1]-opt.fpn[1]*3)/2).value)
     
+    if opt.fpn[0] == opt.fp_signal.shape[0]/3:
+        ycrop=0; ycrop0=None
+  
+    if opt.fpn[1] == opt.fp_signal.shape[1]/3:
+        xcrop=0; xcrop0=None 
+ 
     cond=0    
     # special case for NIRSpec subarrays
     if opt.channel.instrument.val =='NIRSpec':
@@ -574,9 +580,9 @@ def crop_to_subarray(opt):
               xcrop =0
               xcrop0 = None
               
-    if ycrop > 0 or ycrop0 >0: 
-        opt.fp_signal = opt.fp_signal[ycrop:ycrop0] # crop the oversampled FP array to 96 x 3 in y axis
-        opt.fp = opt.fp[ycrop:ycrop0]
+    # if ycrop > 0 or ycrop0 >0: 
+    opt.fp_signal = opt.fp_signal[ycrop:ycrop0] # crop the oversampled FP array to 96 x 3 in y axis
+    opt.fp = opt.fp[ycrop:ycrop0]
        
     opt.fp_signal = opt.fp_signal[:,xcrop:xcrop0] # crop the oversampled FP array to 96 x 3 in y axis
     opt.fp = opt.fp[:,xcrop:xcrop0]
@@ -592,8 +598,8 @@ def crop_to_subarray(opt):
     
     if cond==1: #fix for resized NIRSpec Hi-res arrays with gaps
         opt.fpn[0] = opt.fp_signal.shape[0]/3 
-        opt.fpn[1] = opt.fp_signal.shape[1]/3     
-                
+        opt.fpn[1] = opt.fp_signal.shape[1]/3  
+    print     (opt.fp_signal.shape[1]/3, opt.fpn[1] )   
     if opt.fp_signal.shape[0]/3 != opt.fpn[0]:
         jexosim_msg('Error: detector 1 - check code', 1)
         sys.exit()

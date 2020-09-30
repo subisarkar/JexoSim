@@ -25,10 +25,12 @@ def dqInit(data, opt):
     
 
 def satFlag(data, opt): 
-    jexosim_msg ("flagging pixels more than 1% above saturation limit...", opt.diagnostics)
+    
+    margin = 0.1
+    jexosim_msg ("flagging pixels more than %s percent above saturation limit..."%(margin*100), opt.diagnostics)
     # margin accounts for fact that noise may increase the counts to above the designated sat limit
-    margin = 0.01* opt.sat_limit.value
-    sat_limit = opt.sat_limit.value + margin
+
+    sat_limit = opt.sat_limit.value + margin* opt.sat_limit.value
 
     idx = np.argwhere(data.value > sat_limit)
 

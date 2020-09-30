@@ -132,6 +132,7 @@ def rebin(x, xp, fp):
     jexosim_error('Units mismatch')
   
   idx = np.where(np.logical_and(xp > 0.9*x.min(), xp < 1.1*x.max()))[0]
+
   xp = xp[idx]
   fp = fp[idx]
   
@@ -562,15 +563,21 @@ def pointing_jitter(opt):
   yaw_jit = norm*np.fft.irfft(yaw_jit_re + 1j * yaw_jit_im)*u.deg
   pitch_jit = norm*np.fft.irfft(pitch_jit_re + 1j * pitch_jit_im)*u.deg
   jexosim_msg ("completed.....", opt.diagnostics)
-
+  
   if opt.simulation.sim_adjust_rms.val ==1:
-    norm = (rms**2/(yaw_jit.var()+ pitch_jit.var())).simplified
+      
+    norm = ((rms/3600.0/1000.0)**2/((yaw_jit.value).var()+ (pitch_jit.value).var()))
     yaw_jit *= np.sqrt(norm)
     pitch_jit *= np.sqrt(norm)
  
   if len(yaw_jit) > N0:
       yaw_jit = yaw_jit[0:N0]
-      pitch_jit = pitch_jit[0:N0]  
+      pitch_jit = pitch_jit[0:N0] 
+      
+  plt.figure('yaw_jit')    
+  plt.plot(yaw_jit)
+  plt.figure('pitch_jit')    
+  plt.plot(pitch_jit)
  
   jexosim_msg ("jitter RMS in mas %s %s"%(np.std (yaw_jit.value)*3600*1000, np.std(pitch_jit.value)*3600*1000) , opt.diagnostics)
     
@@ -612,7 +619,10 @@ def write_record(opt, path, lab, input_text_file):
         f1.write('\n ')
         f1.write('\nPlanet:  %s'%(opt.planet.planet.name))
         f1.write('\nChannel:  %s'%(opt.channel.name))
-        f1.write('\n\nNoise option:  %s'%(opt.noise_tag))     
+        if opt.simulation.sim_mode.val == 3:
+            f1.write('\n\nNoise option:  noise budget')          
+        else:
+            f1.write('\n\nNoise option:  %s'%(opt.noise_tag))     
         f1.write('\n ')
 
         f1.write('\nUse saturation time?:  %s'%(opt.observation.obs_use_sat.val))
@@ -641,7 +651,7 @@ def write_record(opt, path, lab, input_text_file):
             if opt.pipeline.pipeline_binning.val == 'R-bin':
                         f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_R.val) )
             else:
-                      f1.write('\nBinned R power:  %s '%(opt.pipeline.pipeline_bin_size.val) )
+                      f1.write('\nBin size (pixels):  %s '%(opt.pipeline.pipeline_bin_size.val) )
         f1.write('\nWavelength: %s %s'%(opt.channel.pipeline_params.wavrange_lo.val, opt.channel.pipeline_params.wavrange_hi.val) )
     
     with open(textfile, "a") as f1:

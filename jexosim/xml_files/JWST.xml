@@ -57,6 +57,7 @@
  <exosystem_params>
     <star_spectrum_model val = "complex" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
     <planet_name val = 'GJ 1214 b' />
+    <planet_use_database val = "1" />
     <planet_spectrum_model val = "simple" comment="" />
     <planet_spectrum_file val="__path__" comment="planet/star contrast ratio"/>
     <star_spectrum_mag_norm  val="0" units="" comment="0 or 1: use a star spectrum normalized to given magnitude"/>
@@ -105,7 +106,7 @@
 
 <common_optics>
   <transmissions>
-    <optical_surface type="mirror" transmission="__path__/data/JWST/OTE/Transmissions/OTE_trans.csv" val="50" units="K" comment=""/>
+    <optical_surface type="mirror" transmission="__path__/data/JWST/OTE/Transmissions/OTE_trans.csv" comment=""/>
   </transmissions>
 
   <emissions>

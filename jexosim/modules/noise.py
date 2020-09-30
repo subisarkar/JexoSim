@@ -12,46 +12,122 @@ from jexosim.lib import jexosim_lib
 from astropy import units as u
 import copy
 import time
-from numba import jit 
+import sys
+from numba import jit, prange
 
-#==============================================================================
-# Jitter code
-#==============================================================================
+def poission_noise (noise):    
+    noise = np.random.poisson(noise)    
+    return noise
 
+def poission_noise_UTR_correction (n, noise):    
+    noise_plus_pn =  np.random.poisson(noise)
+    alpha = 6.0*(n**2+1)/(5.0*n*(n+1))
+    noise_only = noise_plus_pn - noise
+    # correction for utr: pn increased 
+    noise_only = noise_only*np.sqrt(alpha) #scale the noise
+    noise = noise + noise_only # add back noise to signal    
+    return noise
+
+def read_noise (noise, sigma_ro):    
+    noise = noise + np.random.normal(scale = sigma_ro, size = noise.shape)  
+    return noise
+
+def read_noise_UTR_correction (n, noise, sigma_ro):   
+    # correction for utr noise: achieves same noise ar utr but using cds      
+    sigma_ro_prime = np.sqrt(12.0*(n-1)/(n*(n+1)))*sigma_ro /np.sqrt(2)  
+    noise = noise + np.random.normal(scale = sigma_ro_prime, size = noise.shape)
+    return noise     
+ 
 @jit(nopython=True) 
 def create_jitter_noise(fp, osf, frames_per_ndr, frame_osf, jitter_x, jitter_y):		
     n_ndr = len(frames_per_ndr)
     fp_whole = fp[int(osf/2.)::osf, int(osf/2.)::osf]
     ndr_count = np.zeros((fp_whole.shape[0], fp_whole.shape[1], n_ndr)) 
     ct = 0
-    for j in range(n_ndr):        
+    prog0 = 0        
+    for j in range(n_ndr):
+        prog =  float(j)/float(n_ndr) 
+        a =int(prog*10)  
+        if a>prog0:
+            print (int(prog*100), '% complete')
+        prog0=int(prog*10)
 
         count = np.zeros_like(fp[int(osf/2.)::osf, int(osf/2.)::osf])   
+        
+        print ('ccc', count.size)
         for i in range(frames_per_ndr[j]): # frames per ndr
             for k in range(frame_osf): # jitter subframes per frame
       
                 off_x = jitter_x[ct]
                 off_y = jitter_y[ct]
                 count0 = fp[int(osf/2.)+off_y::osf, int(osf/2.)+off_x::osf]
+                print ('ccc0', count0.size)
                 count += count0      
                 ct=ct+1                
         ndr_count[...,j] = count /  (frames_per_ndr[j]*frame_osf)         
     return ndr_count
-
+  
+@jit(nopython=True, parallel=True)
+def jitter(fp0,  osf, frames_per_ndr, frame_osf, jitter_x , jitter_y, start_list, buffer, fp):
     
-# # @jit(nopython=True) 
-# def create_jitter_noise2(fp, osf, jitter_x, jitter_y,  n_ndr):		
-#     fp_whole = fp[int(osf/2.)::osf, int(osf/2.)::osf]
-#     print (fp_whole.shape[0], fp_whole.shape[1], n_ndr)
-#     ndr_count = np.zeros((fp_whole.shape[0], fp_whole.shape[1], n_ndr)) 
-#     ct = 0
-#     for j in range(n_ndr):        
-#         off_x = jitter_x[ct]
-#         off_y = jitter_y[ct]
-#         ndr_count[...,j] = fp[int(osf/2.)+off_y::osf, int(osf/2.)+off_x::osf]                     
-#         ct=ct+1                
+    buffer_offset = buffer*osf
+
+    n_ndr = len(frames_per_ndr)
+    fp_whole = fp[int(osf/2.)::osf, int(osf/2.)::osf]
+    ndr_count = np.zeros((fp_whole.shape[0], fp_whole.shape[1], n_ndr)) 
+   
+    for j in prange(n_ndr):
+
+        count = np.zeros_like(fp[int(osf/2.)::osf, int(osf/2.)::osf])   
+        for i in prange(frames_per_ndr[j]): # frames per ndr
+            for k in prange(frame_osf): # jitter subframes per frame                                              
+                start = start_list[j] 
+                ct = start + i*frame_osf + k # for accurate parallelisation ct must be defined in terms of j, k and i
+                off_x = jitter_x[ct] 
+                off_y = jitter_y[ct] 
+                start_x = buffer_offset + int(osf/2.)+ off_x 
+                start_y = buffer_offset + int(osf/2.)+ off_y
+                end_x = start_x + fp_whole.shape[1]*osf 
+                end_y = start_y + fp_whole.shape[0]*osf 
                 
-#     return ndr_count 
+                count0 = fp0[start_y: end_y: osf, start_x: end_x : osf]
+                count += count0      
+                ct=ct+1                
+        ndr_count[...,j] = count /  (frames_per_ndr[j]*frame_osf)                
+
+    return ndr_count
+
+ 
+def jitter2(fp0,  osf, frames_per_ndr, frame_osf, jitter_x , jitter_y, start_list, buffer, fp):
+      
+    buffer_offset = buffer*osf
+
+    n_ndr = len(frames_per_ndr)
+    fp_whole = fp[int(osf/2.)::osf, int(osf/2.)::osf]
+    ndr_count = np.zeros((fp_whole.shape[0], fp_whole.shape[1], n_ndr)) 
+   
+    for j in range(n_ndr):
+
+        count = np.zeros_like(fp[int(osf/2.)::osf, int(osf/2.)::osf])   
+        for i in range(frames_per_ndr[j]): # frames per ndr
+            for k in range(frame_osf): # jitter subframes per frame                                              
+                start = start_list[j] 
+                ct = start + i*frame_osf + k # for accurate parallelisation ct must be defined in terms of j, k and i
+                off_x = jitter_x[ct] 
+                off_y = jitter_y[ct] 
+                start_x = buffer_offset + int(osf/2.)+ off_x 
+                start_y = buffer_offset + int(osf/2.)+ off_y
+                
+                end_x = start_x + fp_whole.shape[1]*osf 
+                end_y = start_y + fp_whole.shape[0]*osf 
+                
+                count0 = fp0[start_y: end_y: osf, start_x: end_x : osf]
+                # print (off_x, off_y, count0.shape)
+                count += count0      
+                ct=ct+1                
+        ndr_count[...,j] = count /  (frames_per_ndr[j]*frame_osf)                
+
+    return ndr_count
 
 
 def simulate_jitter(opt):
@@ -62,22 +138,18 @@ def simulate_jitter(opt):
   jexosim_msg ("RMS jitter in pixel units x axis %s"%(np.std(jitter_x)/opt.osf), opt.diagnostics)
   jexosim_msg ("RMS jitter in pixel units y axis %s"%(np.std(jitter_y)/opt.osf), opt.diagnostics)
 
-
   fp_units = opt.fp.unit
   fp  	   = opt.fp.value
   osf      = np.int32(opt.osf)
   offs     = np.int32(opt.offs)
     
   magnification_factor = np.ceil( max(3.0/jitter_x.std(), 3.0/jitter_y.std()) )
-      
-  # magnification_factor /=3
-      
+           
   if (magnification_factor > 1):
         try:
           mag = np.int(magnification_factor.item()) | 1
         except:
-          mag = np.int(magnification_factor) | 1
-         
+          mag = np.int(magnification_factor) | 1        
         
   jexosim_msg ("mag %s"%(mag) , opt.diagnostics) 
   fp = jexosim_lib.oversample(fp, mag)
@@ -86,7 +158,8 @@ def simulate_jitter(opt):
   jitter_x *= mag
   jitter_y *= mag
   
-  
+  jexosim_msg ("spatial osf %s"%(osf) , opt.diagnostics) 
+    
   if opt.noise.EnableSpatialJitter.val ==0 or opt.noise.DisableAll.val == 1: 
           jitter_y *= 0.0
   if opt.noise.EnableSpectralJitter.val ==0 or opt.noise.DisableAll.val == 1:
@@ -94,76 +167,133 @@ def simulate_jitter(opt):
     
   jitter_x = np.round(jitter_x)
   jitter_y = np.round(jitter_y) 
-  
+    
   #important for speed of jitter module that these not have units
   jitter_x = jitter_x.value
   jitter_y = jitter_y.value
-  
+    
   jexosim_msg('Applying jitter', 1)
+     
+  n_ndr = len(opt.frames_per_ndr)
+  start_list =[]
+  for j in range(n_ndr):
+        if j ==0:
+            start_list.append(0)
+        else:            
+            start_list.append(np.cumsum(opt.frames_per_ndr[0:j])[-1]*opt.frame_osf)
+  start_list = np.array(start_list)   
+    
   aa = time.time()
   
-  cond =1
-  if cond == 1:   
-    #   fp = np.where(fp >= 0.0, fp, 1e-10)
-            
-      noise = np.zeros(( int(fp.shape[0]/osf), int(fp.shape[1]/osf), 0)).astype(np.float32)
-          
-      noise =   create_jitter_noise(fp.astype(np.float32), 
-          				osf.astype(np.int32),
-          				opt.frames_per_ndr.astype(np.int32), 
-          				opt.frame_osf.astype(np.int32),
-          				jitter_x.astype(np.int32), 
-          				jitter_y.astype(np.int32)).astype(np.float32)   
-                  
-      qq = opt.frames_per_ndr* fp_units*opt.frame_time
-      noise = noise*qq 
+  # cond =0
+  # if int(fp.shape[0]/osf)*int(fp.shape[1]/osf) > 30000:
+  #     print (int(fp.shape[0]/osf)*int(fp.shape[1]/osf))
+  #     cond = 1 # splits array for jitter if above a certain size
+ 
+  cond =1 # default to splitting as improved speed even for smaller arrays
+  
+  # edge buffer in whole pixels: needed to protect from errors arising when where jitter offset > half a pixel causing sampling to fall outside image area
+  if jitter_y.max() > jitter_x.max():        
+      buffer = int(np.ceil(jitter_y.max()/osf))    
   else:
-      pass
-     #new method - but do not use... needs work
-     # n_ndr = len(opt.ndr_end_frame_number)
-     # idx = [0]+ np.cumsum(opt.frames_per_ndr*opt.frame_osf).tolist()
-     # idx =np.array(idx).astype(int)  
-     # # av_x = np.add.reduceat(jitter_x, idx)[:-1] /(opt.frames_per_ndr*opt.frame_osf)
-     # # av_y = np.add.reduceat(jitter_x, idx)[:-1] /(opt.frames_per_ndr*opt.frame_osf)
-     # # noise =   create_jitter_noise2(fp.astype(np.float32), 
-     # #    				int(osf.astype(np.int32)),
-     # #    				av_x.astype(np.int32), 
-     # #    				av_y.astype(np.int32),  n_ndr).astype(np.float32)  
+      buffer = int(np.ceil(jitter_x.max()/osf)) 
+  
+  if cond == 0: # no spitting                   
+      fp0 = np.zeros((fp.shape[0] + 2* buffer*osf, fp.shape[1] + 2* buffer*osf))
+      fp0[buffer*osf: buffer*osf + fp.shape[0], buffer*osf: buffer*osf + fp.shape[1] ] = fp
+                            
+      noise =   jitter(fp0.astype(np.float32), 
+        		 		osf.astype(np.int32),
+        		 		opt.frames_per_ndr.astype(np.int32), 
+        		 		opt.frame_osf.astype(np.int32),
+        		 		jitter_x.astype(np.int32), 
+        		 		jitter_y.astype(np.int32),
+                        start_list.astype(np.int32),
+                        buffer, 
+                        fp.astype(np.float32)
+                        ).astype(np.float32)  
+ 
+       # noise =   create_jitter_noise(fp.astype(np.float32), 
+       #     				osf.astype(np.int32),
+       #     				opt.frames_per_ndr.astype(np.int32), 
+       #     				opt.frame_osf.astype(np.int32),
+       #     				jitter_x.astype(np.int32), 
+       #     				jitter_y.astype(np.int32)).astype(np.float32)   
+      
+  if cond == 1: 
+      jexosim_msg('Splitting array for jitter code', 1)
 
-     # kernel = np.zeros((osf, osf, len(jitter_x)))
-     # for i in range(len(jitter_x)):
-     #      kernel[...,i][int(offs+jitter_y[i])][int(offs+jitter_x[i])]= 1
-     # kernel = np.add.reduceat(kernel, idx, axis=2)[...,:-1]
-     # for i in range (kernel.shape[2]):
-     #      kernel[...,i]= kernel[...,i]*osf**2/kernel[...,i].sum()  
-        
-     
-     # fp0 = fp[offs::osf, offs::osf]
-     # fp0 = opt.fp.value
-     # fp_delta = opt.channel.detector_pixel.pixel_size.val.value /3.
-     # kernel_delta = opt.channel.detector_pixel.pixel_size.val.value/osf
-     # noise = np.zeros((fp0.shape[0], fp0.shape[1], n_ndr))
-     
-     # for i in range(n_ndr):     
-     #      noise[...,i] = jexosim_lib.fast_convolution(fp0, fp_delta, kernel[...,i], kernel_delta )
-    
-     # print (noise[...,1].sum())
-     # print (fp0.sum())
-    
-     # import matplotlib.pyplot as plt
-     # plt.imshow(noise[...,0])
-     
-     # noise0 = np.zeros((int(noise.shape[0]/3), int(noise.shape[1]/3), n_ndr))
-     
-     # for i in range(n_ndr):
-     #      noise0[...,i] = noise[...,i][1::3,1::3]
+      overlap = 5*osf
+      x_size= int(5000/ (fp.shape[0]/osf) ) *osf
+  
+      n_div = int(fp.shape[1]/x_size)
+      jexosim_msg(f'Number of divisions {n_div}', opt.diagnostics)
+      ct = 0
+      
+      # jexosim_msg(f'x_size {x_size} osf {osf} fp shape {fp.shape}', opt.diagnostics)
+      
+      for i in range(n_div): 
+          bb = time.time()
+          
+          ct = i*x_size
+          
+          if i == 0 and i == n_div-1:
+             x0 = 0
+             x1 = None
+          elif i == 0:        
+             x0 = ct
+             x1 = ct + x_size + overlap
+          elif i == n_div-1:
+             x0 = ct - overlap
+             x1 = None     
+          else:
+             x0 = ct - overlap
+             x1 = ct + x_size + overlap
+             
+          # jexosim_msg(f'x0 {x0} x1 {x1}', opt.diagnostics)
+
+          div_fp= fp[:, x0:x1]
+          
+          # jexosim_msg(f'div_fp shape {div_fp.shape}', opt.diagnostics)
+          
+          div_fp0 = np.zeros((div_fp.shape[0] + 2* buffer*osf, div_fp.shape[1] + 2* buffer*osf))
+          div_fp0[buffer*osf: buffer*osf + div_fp.shape[0], buffer*osf: buffer*osf + div_fp.shape[1] ] = div_fp
+
+          div_noise =   jitter(div_fp0.astype(np.float32), 
+        		 		osf.astype(np.int32),
+        		 		opt.frames_per_ndr.astype(np.int32), 
+        		 		opt.frame_osf.astype(np.int32),
+        		 		jitter_x.astype(np.int32), 
+        		 		jitter_y.astype(np.int32),
+                        start_list.astype(np.int32),
+                        buffer, 
+                        div_fp.astype(np.float32)
+                        ).astype(np.float32)  
+ 
+          if i == 0 and i == n_div-1:
+              div_noise_stack = div_noise  
+          elif i==0:
+              div_noise = div_noise[:, 0:-int(overlap/osf), : ]
+              div_noise_stack = div_noise
+          elif i == n_div-1:
+              div_noise = div_noise[:, int(overlap/osf): , : ]
+              div_noise_stack = np.hstack((div_noise_stack,div_noise)) 
+          else:
+              div_noise = div_noise[:, int(overlap/osf):-int(overlap/osf), : ]
+              div_noise_stack = np.hstack((div_noise_stack,div_noise))  
          
-     # noise =noise0
-     
-     # noise = noise* opt.frames_per_ndr*opt.frame_time *u.electron/u.s
-     
-     
-  jexosim_msg('Time to run jitter code %s'%(time.time() - aa), opt.diagnostics)  
+          # jexosim_msg(f'div_noise_stack shape {div_noise_stack.shape}', opt.diagnostics)
+          
+          cc = time.time() -bb
+          print(f'time remaining to complete jitter code {np.round((cc*(n_div-i)),2)} seconds', flush=True)
+ 
+      jexosim_msg(f'noise stack shape after split jitter code {div_noise_stack.shape}', opt.diagnostics)  
+      noise  = div_noise_stack
+                  
+  qq = opt.frames_per_ndr* fp_units*opt.frame_time
+  noise = noise*qq 
+
+  jexosim_msg('Time to run jitter code %s'%(time.time() - aa), opt.diagnostics) 
   
   return  noise 
 
@@ -332,6 +462,7 @@ def fast_method(opt):
         
 
 def noise_simulator(opt): 
+
 #==============================================================================
 # Generates noisy image stack and returns pointing timeline   
 #============================================================================== 
@@ -368,6 +499,7 @@ def noise_simulator(opt):
                             
           jexosim_msg ("RMS jitter %s %s"%(np.std(opt.yaw_jitter), np.std(opt.pitch_jitter)  ) , opt.diagnostics)     
           pointing_timeline = create_pointing_timeline(opt)
+          
           noise = simulate_jitter(opt)
             
   else:
@@ -379,8 +511,7 @@ def noise_simulator(opt):
      jitterless = jitterless*opt.frames_per_ndr*opt.frame_time      
      noise = jitterless
      pointing_timeline= np.zeros((opt.ndr_end_frame_number[-1], 3))
-     
-    
+
   if opt.timeline.apply_lc.val ==0:
       jexosim_msg ("OMITTING LIGHT CURVE...", opt.diagnostics)
   else:
@@ -458,25 +589,46 @@ def noise_simulator(opt):
     #==============================================================================
  
   if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
-        jexosim_msg ("PHOTON NOISE... being added...",  opt.diagnostics  )
-        noise_plus_pn =  np.random.poisson(noise.value)
-        
-        if opt.simulation.sim_full_ramps.val == 0:
-            if opt.simulation.sim_use_UTR_noise_correction.val == 1:
+        jexosim_msg ("PHOTON NOISE... being added...",  opt.diagnostics)
+        aa =  time.time()
+        cond =0 # keep this set to 0 until future possible parralelisation for large array sizes
+        if cond ==0:       
+            if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
                 jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
                 n = opt.projected_multiaccum
-                alpha = 6.0*(n**2+1)/(5.0*n*(n+1))
-                noise_only = noise_plus_pn - noise.value 
-                # correction for utr: pn increased 
-                noise_only = noise_only*np.sqrt(alpha) #scale the noise
-                noise = noise.value + noise_only # add back noise to signal
+                noise =  poission_noise_UTR_correction(n, noise.value)
             else:
-                noise = noise_plus_pn
-        else:
-            noise = noise_plus_pn
-                
-        noise = noise*u.electron  
- 
+                noise = poission_noise(noise.value)
+            noise = noise*u.electron  
+            
+        elif cond ==1: # for future possible parralelization
+            pass
+            # jexosim_msg('Splitting array for photon noise', opt.diagnostics)
+            # z_size = int(1e7/(noise.shape[0]*noise.shape[1]))
+            # n_div = int(noise.shape[2]/z_size)
+            # for i in range(n_div):
+            #     z0 = i*z_size
+            #     if i == n_div-1:
+            #         z1 = None
+            #     else:
+            #         z1 = z0+z_size
+            #     div_noise = noise[...,z0:z1]
+            #     if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
+            #         jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
+            #         n = opt.projected_multiaccum
+            #         div_noise =  poission_noise_UTR_correction(n, div_noise.value)
+            #     else:
+            #         div_noise = poission_noise(div_noise.value)
+                    
+            #     if i ==0:
+            #         div_noise_stack = div_noise
+            #     else:
+            #         div_noise_stack = np.dstack((div_noise_stack,div_noise))  
+            # noise = div_noise_stack 
+            # noise = noise*u.electron     
+            
+        jexosim_msg(f'Time to complete photon noise {time.time()-aa}', opt.diagnostics)
+        
   else:  
        jexosim_msg ("PHOTON NOISE...NOT... being added...",  opt.diagnostics  )
 
@@ -494,18 +646,15 @@ def noise_simulator(opt):
     #==============================================================================
 
   if (opt.noise.EnableReadoutNoise.val == 1  or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:  
-        jexosim_msg ("READ NOISE... being added...", opt.diagnostics  )
-#        useShape = (noise.shape[0], noise.shape[1], noise.shape[2])
-        if opt.simulation.sim_full_ramps.val == 0:
-            
+        jexosim_msg ("READ NOISE... being added...", opt.diagnostics)
+        if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:             
             n = opt.projected_multiaccum
-            sigma_ro = opt.channel.detector_pixel.sigma_ro.val
             jexosim_msg ("applying correction to read noise for UTR read", opt.diagnostics  )
-            # correction for utr noise: achieves same noise ar utr but using cds      
-            sigma_ro_prime = np.sqrt(12.0*(n-1)/(n*(n+1)))*sigma_ro /np.sqrt(2)  
-            noise = noise + np.random.normal(scale = sigma_ro_prime, size = noise.shape)* fp.unit*opt.frame_time.unit  
+            noise = read_noise_UTR_correction(n, noise.value , opt.channel.detector_pixel.sigma_ro.val)
+            noise = noise*u.electron    
         else:    
-            noise = noise + np.random.normal(scale = opt.channel.detector_pixel.sigma_ro.val, size = noise.shape)* fp.unit*opt.frame_time.unit  
+            noise = read_noise(noise.value, opt.channel.detector_pixel.sigma_ro.val)
+            noise = noise*u.electron    
 
   else:
        jexosim_msg ("READ NOISE...not... being added..." , opt.diagnostics  )
@@ -553,6 +702,7 @@ def run(opt):
   
   opt.zodi.sed =  opt.zodi_sed_original # "
   opt.emission.sed =  opt.emission_sed_original # "
+
   opt.lc = opt.lc_original
   opt.ldc = opt.ldc_original
   opt.cr_wl = opt.cr_wl_original 
@@ -606,7 +756,15 @@ def run(opt):
                image=True,  image_data = opt.data[...,0])
   jexosim_plot('test - check NDR1', opt.diagnostics,
                image=True,  image_data = opt.data[...,1])
-
+  
+  # sig =[]
+  # for i in range(opt.data.shape[2]):
+  #     sig.append(opt.data[...,i].value.sum())
+  # import matplotlib.pyplot as plt
+  # plt.figure(111111)
+  # plt.plot(sig)
+  
+  
   return opt
    
   

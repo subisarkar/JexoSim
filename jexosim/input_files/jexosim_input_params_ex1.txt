@@ -4,7 +4,7 @@ sim_diagnostics      1
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
 sim_mode              1 
-# 1 = OOT(with Allan) 2 = full transit. 3 = noise budget. 4 = OOT(no Allan)
+# 1 = OOT(with Allan). 2 = full transit. 3 = noise budget. 4 = OOT(no Allan).
 
 sim_output_type         1     
 # 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format.
@@ -53,10 +53,12 @@ obs_frac_t14_pre_transit
 obs_frac_t14_post_transit 
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 	 
 
-obs_auto_subarray    0
+obs_auto_subarray    1
+
 # Enter 1 to allow code to select an optimal subarray and readout pattern.  Enter 0 to select these manually (see below).
 
-obs_channel 	   
+obs_channel 	NIRISS_SOSS_GR700XD
+    
 # Enter instrument channel from following choices (only applied if obs_auto_subarray = 1):
 # NIRSpec_BOTS_G395M_F290LP
 # NIRSpec_BOTS_G235M_F170LP
@@ -114,13 +116,13 @@ pipeline_bad_corr	 1
 
 ######################### EXOSYSTEM #################################################
 
-planet_name		GJ 1214 b
+planet_name		K2-18 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database	  1
 # Enter 1 to obtain all exosystem parameters from the database automatically. Enter 0 to use user-defined exosystem parameters(see below).
 
-planet_spectrum_model		 
+planet_spectrum_model	simple	 
 # Enter simple for flat transmission spectrum or blackbody based emission spectrum. 
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
@@ -217,7 +219,7 @@ user_defined_ecliptic_lat
 
 ############## Following only needed if obs_auto_subarray = 0 #####################
 
-obs_user_subarray   NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
+obs_user_subarray    
  
 # available combinations: copy and paste a choice
 # channel + mode + subarray + readout_pattern
@@ -276,20 +278,20 @@ obs_user_subarray   NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
 # NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
 # NIRISS + SOSS_GR700XD  + SUBSTRIP256 + NISRAPID
      
-# NIRCam + TSGRISM_F444W + SUBGRISM_64_1_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM_64_4_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM_128_1_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM_128_4_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM_256_1_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM_256_4_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM64_1_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM64_4_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM128_1_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM128_4_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM256_1_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM256_4_output + RAPID
 # NIRCam + TSGRISM_F444W + FULL_1_output + RAPID
 # NIRCam + TSGRISM_F444W + FULL_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM_64_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM_64_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM_128_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM_128_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM_256_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM_256_4_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM64_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM64_4_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM128_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM128_4_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM256_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM256_4_output + RAPID
 # NIRCam + TSGRISM_F322W2 + FULL_1_output + RAPID
 # NIRCam + TSGRISM_F322W2 + FULL_4_output + RAPID
 

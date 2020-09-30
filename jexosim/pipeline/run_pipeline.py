@@ -51,10 +51,12 @@ class pipeline_stage_1():
         self.doUTR() # lose astropy units at this step
       
         jexosim_plot('sample exposure image', opt.diagnostics,
-                     image =True, image_data=self.opt.data[...,1])       
+                     image =True, image_data=self.opt.data[...,1]) 
+        
+        
         
          # currently this applies zero values to saturated pixels
-        self.badCorr()         
+        self.badCorr()    # exp image obtained here     
    
         if (opt.noise.EnableSpatialJitter.val  ==1 or opt.noise.EnableSpectralJitter.val  ==1  or opt.noise.EnableAll.val ==1) and opt.noise.DisableAll.val != 1:
             jexosim_msg ("Decorrelating pointing jitter...", opt.diagnostics)

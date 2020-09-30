@@ -675,8 +675,9 @@ class extractSpec():
         cond=1 #directs to new method
 #       cond=0 # previous method
 
+
 #        1) find the bin sizes in wavelength space
-        if self.opt.pipeline.pipeline_binning.val == 'R-bin' or  self.opt.pipeline.pipeline_binning.val == 'R':
+        if self.opt.pipeline.pipeline_binning.val == 'R-bin' or  self.opt.pipeline.pipeline_binning.val == 'R' or  self.opt.pipeline.pipeline_binning.val == 'R_bin':
             jexosim_msg ('binning spectra into R-bins...',  self.opt.diagnostics)
             # a) REMOVE ZEROS FROM EACH END OF WL SOLUTION
             for i in range (len(wl)):
@@ -971,11 +972,11 @@ class extractSpec():
             self.binnedLC = count_array
             self.binnedWav = wavcen_list0
             
-            jexosim_msg('R-power obtained %s'%(self.binnedWav/np.gradient(self.binnedWav)),self.opt.diagnostics)
+            jexosim_msg('R-power obtained %s'%(np.mean(self.binnedWav/np.gradient(self.binnedWav))),self.opt.diagnostics)
            
             
          
-        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin' or self.opt.pipeline.pipeline_binning.val  == 'fixed' :
+        elif self.opt.pipeline.pipeline_binning.val  == 'fixed-bin' or self.opt.pipeline.pipeline_binning.val  == 'fixed' or self.opt.pipeline.pipeline_binning.val  == 'fixed_bin':
             jexosim_msg ('binning spectra into fixed-bins of size %s pixel columns'%(bin_size), self.opt.diagnostics)
             
             offs=0          
@@ -1371,31 +1372,30 @@ class processOOT():
           
         if self.opt.pipeline.useAllen.val ==1:
             for i in [0]:
-                self.obtainAllen() 
-
+                self.obtainAllen()
                                 
                 time_target = self.opt.T14.value
 #                time_target = 3600               
-                idx = 0
-                if self.ootAllen[0].max() > time_target:
-                    idx = np.argwhere(self.ootAllen[0] > time_target)[0].item()
-                    idx = idx-50 # how many indicies from the end for fit
-                    if idx < 0:
-                        idx = 0
-                t1 = self.ootAllen[0][idx]
+                # idx = 0
+                # if self.ootAllen[0].max() > time_target:
+                #     idx = np.argwhere(self.ootAllen[0] > time_target)[0].item()
+                #     idx = idx-50 # how many indicies from the end for fit
+                #     if idx < 0:
+                #         idx = 0
+                # t1 = self.ootAllen[0][idx]
                                
                 #  starting point
                 idx = int(len(self.ootAllen[0])*0.25)
                 t1 = self.ootAllen[0][idx]                                
                                                 
-                x_fit = np.log10(self.ootAllen[0][idx:])
-                y_fit = np.log10(self.ootAllen[3][idx:])      
-                init = [-2.2,-0.5]
-                res_lsq = optimize.leastsq(self.linear2, init, args=(x_fit, y_fit))
-                c =  res_lsq[0][0]
-                m = res_lsq[0][1]
-                fit_time = np.arange(t1,time_target,10)
-                fit_y= 10**(c)*(fit_time)**(m)
+                # x_fit = np.log10(self.ootAllen[0][idx:])
+                # y_fit = np.log10(self.ootAllen[3][idx:])      
+                # init = [-2.2,-0.5]
+                # res_lsq = optimize.leastsq(self.linear2, init, args=(x_fit, y_fit))
+                # c =  res_lsq[0][0]
+                # m = res_lsq[0][1]
+                # fit_time = np.arange(t1,time_target,10)
+                # fit_y= 10**(c)*(fit_time)**(m)
 
                 
                 no= []
@@ -1414,6 +1414,15 @@ class processOOT():
                     fit_y_= 10**(c)*(fit_time)**(m)
     
                     no.append(fit_y)
+                    
+                    if self.opt.diagnostics == 1:
+                        plt.figure('Allan plots')
+                        plt.loglog(self.ootAllen[0], self.ootAllen[2][:,ii] , 'o')
+                        plt.plot(fit_time, fit_y_ , '--')
+                        plt.ylabel('noise (ppm)')
+                        plt.xlabel('binned time')
+                        plt.grid(True)
+                        
                     
                 self.noiseAt1hr = np.array(no)
            

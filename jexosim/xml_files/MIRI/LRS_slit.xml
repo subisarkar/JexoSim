@@ -6,9 +6,9 @@
     <instrument val = "MIRI"/>
     
   <transmissions>
-    <optical_surface type="prism" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_prism_trans.csv"  val="60" units="K" comment="prism"/>
-    <optical_surface type="combined optics" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_internal_trans.csv"  val="60" units="K" comment="internal optics, assumed 7 optical surfaces of 0.982 = 0.982^7"/>
-    <optical_surface type="contamination" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_contamination.csv"  val="60" units="K" comment="contamination factor 0.8"/>
+    <optical_surface type="prism" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_prism_trans.csv"   comment="prism"/>
+    <optical_surface type="combined optics" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_internal_trans.csv"  comment="internal optics, assumed 7 optical surfaces of 0.982 = 0.982^7"/>
+    <optical_surface type="contamination" transmission="__path__/data/JWST/MIRI/Transmissions/MIRI_contamination.csv"  comment="contamination factor 0.8"/>
   </transmissions>
   
   <emissions>
@@ -31,7 +31,7 @@
     <subarray_list val="FULL" comment=""/>
     <subarray_geometry_list val="1024,1024" units= "dimensionless" comment=""/>
     <subarray_t_f_list val="2.775" units= "s" comment=""/>
-    <array_geometry val="1024,1024" units= "" comment=""/>
+    <array_geometry val="1024,1024" units= "" comment="must be maximum array size"/>
     <qe val="__path__/data/JWST/MIRI/Transmissions/MIRI_QE.csv" comment="" />
     <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
     <PRNU val="3.0" comment="flat field variation % rms" />

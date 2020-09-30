@@ -18,7 +18,7 @@ import copy
 def zodical_light(opt):
    
     deg = opt.fake_exosystem.ecliptic_lat.val.value
-    wl = opt.common.common_wl
+    wl = opt.x_wav_osr
     jexosim_msg('Zodi model initiated...\n', opt.diagnostics)
     jexosim_msg('Ecliptic latitude in deg: %s   \n'%(deg), opt.diagnostics)
     deg = abs(deg)
@@ -37,7 +37,7 @@ def zodical_light(opt):
     return zodi
     
 def emission_estimation(N, temp, emissivity, transmission):
-   
+ 
     t_i = transmission.sed**(1./N) # estimate transmission of each optical surface 
     for i in range(0,N): #loop through each surface i=0 to i = N-1
         if i == 0 :
@@ -80,15 +80,15 @@ def run(opt):
       opt.emission = optical_emission(opt)
       
       zodi_transmission.rebin(opt.star.sed.wl)
-      jexosim_lib.sed_propagation(opt.star.sed,zodi_transmission)
+      jexosim_lib.sed_propagation(opt.star.sed, zodi_transmission)
 
       ch = opt.channel
-            
+
       Omega_pix = 2.0*np.pi*(1.0-np.cos(np.arctan(0.5/ch.camera.wfno_x())))*u.sr
       Apix = ((ch.detector_pixel.pixel_size.val).to(u.m))**2           
 
       opt.zodi.sed*= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s 
-      opt.emission.sed *= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s   
+      opt.emission.sed *= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s  
       
       jexosim_lib.sed_propagation(opt.zodi, opt.total_transmission)
       
@@ -97,18 +97,23 @@ def run(opt):
 
       opt.zodi.sed     *= opt.d_x_wav_osr 
       opt.emission.sed *= opt.d_x_wav_osr
+      
+      if ch.camera.slit_width.val == 0:
+          slit_size =  opt.fpn[1]*2  # to ensure all wavelengths convolved onto all pixels in slitless case
+      else:
+          slit_size =  ch.camera.slit_width.val
        
       # need to work on this to make more accurate : filter wavelength range might not correspond to wl sol on the detector, i.e. some wavelengths not being included that should be
       opt.zodi.sed     = scipy.signal.convolve(opt.zodi.sed, 
-		      np.ones(np.int(ch.camera.slit_width()*ch.simulation_factors.osf())), 
+		      np.ones(np.int(slit_size*ch.simulation_factors.osf())), 
 		      'same') * opt.zodi.sed.unit
-      opt.emission.sed = scipy.signal.convolve(opt.emission.sed, 
-		      np.ones(np.int(ch.camera.slit_width()*ch.simulation_factors.osf())), 
+      opt.emission.sed = scipy.signal.convolve(opt.emission.sed.value, 
+		      np.ones(np.int(slit_size*ch.simulation_factors.osf())), 
 		      'same') * opt.emission.sed.unit
-        
+
       opt.zodi_sed_original = copy.deepcopy(opt.zodi.sed)
       opt.emission_sed_original = copy.deepcopy(opt.emission.sed)
-                 
+        
       return opt
       
 

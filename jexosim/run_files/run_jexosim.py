@@ -17,15 +17,17 @@ from jexosim.generate.gen_planet_xml_file import make_planet_xml_file
 from jexosim.lib.jexosim_lib import jexosim_msg
 import jexosim
 import os
+import time
 
  
 #====Load defauls from XML files and load input text file with user-defined adjustments==========================================================================
 # 
 def run(params_file):
     
+    aa = time.time()   
 # for a in [0]:
-#     params_file = 'jexosim_input_params_ex7 copy.txt'
-#     params_file = 'jexosim_input_params_ex3.txt'
+    # # params_file = 'jexosim_input_params_ex7 copy.txt'
+    # params_file = 'jexosim_input_params_ex3.txt'
    
     jexosim_msg('JexoSim is running!\n', 1)    
     jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
@@ -68,12 +70,10 @@ def run(params_file):
     params_to_opt = Params(opt, params_file, 2)
     input_params = params_to_opt.params
     opt = params_to_opt.opt # adjust defaulf values to user defined ones 
- 
+    
     pl = opt.exosystem_params.planet_name.val
     # an XML file is made for the planet (if one exists code will use that unless planet_file_renew =1 )
-    make_planet_xml_file(opt, pl)
- 
-    jexosim_msg("Planet selected: %s... \n"%(pl), 1)  
+    make_planet_xml_file(opt, pl)    
     jexosim_msg('Reading exosystem parameters file ... \n', 1)
     # overrides defaults in JWST.xml file
     ex_file = '%s/xml_files/exosystems/%s.xml'%(opt.__path__, pl)
@@ -81,6 +81,9 @@ def run(params_file):
     opt3 = Options(ex_file).opt
     for key in opt3.__dict__:
         setattr(opt, str(key), opt3.__dict__[key])
+
+    if opt.exosystem_params.planet_use_database.val == 0:
+        pl =  input_params['user_defined_planet_name']
 
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
@@ -125,6 +128,7 @@ def run(params_file):
     opt.params_file_path = params_file 
     
     jexosim_msg(('Simulation mode %s'%(int(opt.simulation.sim_mode.val))), 1)    
+    jexosim_msg(f'{opt.lab}', 1)
           
     if opt.simulation.sim_mode.val == 1:
           recipe  = recipe_1(opt)
@@ -136,7 +140,9 @@ def run(params_file):
     if opt.simulation.sim_mode.val == 3:
           recipe  = recipe_3(opt) 
     if opt.simulation.sim_mode.val == 4:
-          recipe  = recipe_4(opt)     
+          recipe  = recipe_4(opt) 
+          
+    print ('time to complete', time.time() - aa)     
           
     if recipe.feasibility ==1:    
         if opt.simulation.sim_output_type.val == 1:
@@ -144,6 +150,8 @@ def run(params_file):
             results.run(results_file)
     else:
         jexosim_msg('No results', 1)
+    
+  
            
     #==============================================================================
     #      Store results
@@ -151,4 +159,4 @@ def run(params_file):
    
 if __name__ == "__main__":     
     
-    run('jexosim_input_params_ex3.txt')      
+    run('jexosim_input_params_ex8.txt')      

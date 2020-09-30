@@ -35,25 +35,28 @@ class recipe_3(object):
         opt.timeline.useLDC.val = 0
         opt.pipeline.useAllen.val =1
         
-        opt.pipeline.pipeline_auto_ap.val = 0
+        opt.pipeline.pipeline_auto_ap.val = 0 # for noise budget keep this to a fixed value (i.e. choose 0) so same for all sims
          
-        opt.timeline.obs_time.val = 3.0*u.hr
+        opt.timeline.obs_time.val = 0*u.hr
+        opt.timeline.n_exp.val = 1000.0
          
         noise_list = [0,2,3,4,5,6,7,8,9]
+        # noise_list = [2,3,4,5]
+ 
         start = 0 
         end = int(start + opt.no_real)       
                 
         nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-               'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-               'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
-               'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
-               'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
-               'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
-               'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-               'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-               'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-               'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-               'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
+                   'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                   'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
+                   'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
+                   'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
+                   'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
+                   'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                   'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+                   'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+                   'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+                   'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
                         'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'],  
                         'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
