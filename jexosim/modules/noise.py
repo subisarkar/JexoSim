@@ -304,7 +304,8 @@ def simulate_jitter(opt):
 def create_pointing_timeline(opt):
     # frames_per_ndr gives the number of frames in each ndr in sequence
     # ndr_end_frame_number gives the number of frames that have passed by the end of each NDR: take away the frames per ndr from ndr sequence to give a start index for the ndr in terms of frames
-    maccum = int(opt.multiaccum)
+    maccum = int(opt.effective_multiaccum)
+ 
     total_frames = int(np.sum(opt.frames_per_ndr))
     pointingArray = np.zeros((total_frames*opt.frame_osf, 3))    
     ct =0
@@ -314,13 +315,17 @@ def create_pointing_timeline(opt):
         idx2 = int(idx + opt.frames_per_ndr[i]*opt.frame_osf)
         ct = idx2
     
-        pointingArray[:,0][idx:idx2] = i             
+        pointingArray[:,0][idx:idx2] = i        
+        #This bit is very important for accuracy of jitter timeline > skips frames that fall in reset time
         start = int((opt.ndr_end_frame_number[i]- opt.frames_per_ndr[i])*opt.frame_osf)
         end =  int(start + opt.frames_per_ndr[i]*opt.frame_osf ) 
-               
+ 
         pointingArray[:,1][idx:idx2] = opt.yaw_jitter[start:end]
         pointingArray[:,2][idx:idx2] = opt.pitch_jitter[start:end]
+   
     return  pointingArray
+
+ 
    
 #==============================================================================
 # Generates noisy image stack and returns pointing timeline using a cropped array  
@@ -495,10 +500,14 @@ def noise_simulator(opt):
           elif opt.use_external_jitter==1:
               jexosim_msg ("using external jitter timeline...", opt.diagnostics)
               opt.yaw_jitter, opt.pitch_jitter, opt.frame_osf = opt.input_yaw_jitter, opt.input_pitch_jitter, opt._input_frame_osf
-        
-                            
+          
+            
           jexosim_msg ("RMS jitter %s %s"%(np.std(opt.yaw_jitter), np.std(opt.pitch_jitter)  ) , opt.diagnostics)     
-          pointing_timeline = create_pointing_timeline(opt)
+          pointing_timeline = create_pointing_timeline(opt) # this is also important to skip sections of jitter timeline that fall outside NDRs
+          
+          # the following takes into account skipped sections of jitter timeline due to reset groups
+          opt.yaw_jitter = pointing_timeline[:,1]*u.deg
+          opt.pitch_jitter = pointing_timeline[:,1]*u.deg
           
           noise = simulate_jitter(opt)
             
@@ -660,7 +669,7 @@ def noise_simulator(opt):
        jexosim_msg ("READ NOISE...not... being added..." , opt.diagnostics  )
                 
   jexosim_msg ("check point 7 %s %s"%(noise.max(), noise.min()) , opt.diagnostics  )
-  
+
   return noise, pointing_timeline
 
 #==============================================================================
@@ -717,15 +726,15 @@ def run(opt):
       opt.data_signal_only = signal_simulator(opt) 
        
 #==============================================================================
-# this is very important!  
+# this is very important! 
   if opt.noise.EnableSpatialJitter.val== 0:
         opt.pointing_timeline[:,2] =  opt.pointing_timeline[:,2]*0
   if opt.noise.EnableSpectralJitter.val== 0:
         opt.pointing_timeline[:,1] =  opt.pointing_timeline[:,1]*0   
   if opt.noise.DisableAll.val == 1:   
         opt.pointing_timeline[:,1] = opt.pointing_timeline[:,1]*0 
-        opt.pointing_timeline[:,2] = opt.pointing_timeline[:,2]*0       
-       
+        opt.pointing_timeline[:,2] = opt.pointing_timeline[:,2]*0    
+             
 #========Apply gaps to Hi res NIRSpec arrays=================================== 
   if opt.channel.name == 'NIRSpec_BOTS_G140H_F100LP' or \
       opt.channel.name == 'NIRSpec_BOTS_G235H_F170LP'\
@@ -757,14 +766,7 @@ def run(opt):
   jexosim_plot('test - check NDR1', opt.diagnostics,
                image=True,  image_data = opt.data[...,1])
   
-  # sig =[]
-  # for i in range(opt.data.shape[2]):
-  #     sig.append(opt.data[...,i].value.sum())
-  # import matplotlib.pyplot as plt
-  # plt.figure(111111)
-  # plt.plot(sig)
-  
-  
+
   return opt
    
   

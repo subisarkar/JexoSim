@@ -542,10 +542,12 @@ def pointing_jitter(opt):
   npsd_pitch = 1.0e-30+np.interp(freq, psd_freq, psd_pitch, left=0.0, right=0.0)
 
   jexosim_msg ("interpolation of PSD done", opt.diagnostics)
-#  import matplotlib.pyplot as plt
-#  plt.figure(33)
-#  plt.plot(psd_freq,psd_yaw, 'rx-')
-#  plt.plot(freq,npsd_yaw,'bx-')
+  # import matplotlib.pyplot as plt
+  # plt.figure(33)
+  # plt.plot(psd_freq,psd_yaw, 'rx-')
+  # plt.plot(freq,npsd_yaw,'bx-')
+  
+  # xxxx
   npsd_yaw    = np.sqrt(npsd_yaw   * np.gradient(freq))
   npsd_pitch  = np.sqrt(npsd_pitch * np.gradient(freq))
 
@@ -573,12 +575,7 @@ def pointing_jitter(opt):
   if len(yaw_jit) > N0:
       yaw_jit = yaw_jit[0:N0]
       pitch_jit = pitch_jit[0:N0] 
-      
-  plt.figure('yaw_jit')    
-  plt.plot(yaw_jit)
-  plt.figure('pitch_jit')    
-  plt.plot(pitch_jit)
- 
+
   jexosim_msg ("jitter RMS in mas %s %s"%(np.std (yaw_jit.value)*3600*1000, np.std(pitch_jit.value)*3600*1000) , opt.diagnostics)
     
   return yaw_jit, pitch_jit, osf

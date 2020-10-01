@@ -23,7 +23,7 @@ sim_noise_source
 # 10 Noiseless no backgrounds
 # 11 Noiseless with backgrounds
 
-sim_realisations	10
+sim_realisations	1
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
 
 sim_full_ramps	0
@@ -93,7 +93,7 @@ pipeline_binning	R-bin
 pipeline_R	        58	 	
 # Enter binned R power (only applied if pipeline_binning = R-bin)
 
-pipeline_bin_size		 	
+pipeline_bin_size	 	 	
 # Enter width of bin in pixels (only applied if pipeline_binning = fixed-bin)
 
 pipeline_ap_shape	 wav

@@ -17,6 +17,9 @@ class pipeline_stage_1():
         
         self.opt = opt
         
+        self.opt.exp_time_grid = self.opt.ndr_end_time[self.opt.effective_multiaccum-1::self.opt.effective_multiaccum]
+        self.opt.ndr_time_grid = self.opt.ndr_end_time
+
         self.opt.data_raw = opt.data*1
         
         self.ApFactor = opt.pipeline.pipeline_ap_factor.val
@@ -67,7 +70,7 @@ class pipeline_stage_1():
                 self.autoSizeAp()            
             
         self.extractSpec()
-        
+              
 
 #==============================================================================
 #    Pipeline steps - add satflag, dq array       
@@ -309,7 +312,7 @@ class pipeline_stage_1():
         
         jexosim_plot('n_pix per bin', self.opt.diagnostics,
                      xdata=self.binnedWav, ydata =self.nPix_2, marker= 'ro')
-       
+  
 
 class pipeline_stage_2():
        

@@ -386,4 +386,4 @@ if __name__ == "__main__":
     
     # run('Noise_budget_MIRI_LRS_slitless_Planet_1_2020_09_29_1632_24.pickle')
     
-    run('OOT_SNR_MIRI_LRS_slitless_fake_2020_09_29_1715_37.pickle')
+    run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_09_30_1656_12.pickle')

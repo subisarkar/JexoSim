@@ -111,8 +111,7 @@ class jitterCode():
         self.opt = opt
         self.data = data
         self.jdc = JexoSimDecorr(self.data, self.opt)
-        
-                
+                    
         if method =='xcorr-interp' or method == 'xcorr-fft':         
             jiggOffsetMeasure = {'spec':np.zeros(self.jdc.nExp), 'spat':np.zeros(self.jdc.nExp)}
             for i in range(self.jdc.nExp):

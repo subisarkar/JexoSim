@@ -41,7 +41,7 @@ class recipe_3(object):
         opt.timeline.n_exp.val = 1000.0
          
         noise_list = [0,2,3,4,5,6,7,8,9]
-        # noise_list = [2,3,4,5]
+        # noise_list = [8]
  
         start = 0 
         end = int(start + opt.no_real)       
