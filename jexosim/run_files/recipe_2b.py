@@ -1,9 +1,9 @@
 '''
 JexoSim
 2.0
-Recipe 2 :
+Recipe 2 b :
 Monte Carlo full transit simulation returning transit depths and noise on transit dept per spectral bin
-
+returns intermediate data pipeline products
 Each realisation run the stage 2 JexoSim routine with a new noise randomization
 The if the pipeline_auto_ap=1, the aperture mask size may vary with each realisation
 This should not matter since final measurement is the fractional transit depth
@@ -19,7 +19,7 @@ from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 
 
-class recipe_2(object):
+class recipe_2b(object):
     def __init__(self, opt):
         
         output_directory = opt.common.output_directory.val
@@ -60,7 +60,7 @@ class recipe_2(object):
                    jexosim_msg ('number of NDRs > 20000: using split protocol', opt.diagnostics)
            else:
                opt.pipeline.split = 0 
-  
+   
            for j in range(start, end):
                
                if (opt.no_real-start) > 1:
@@ -177,10 +177,11 @@ class recipe_2(object):
                    data_stack0  = opt.pipeline_stage_1.binnedLC                   
                    jexosim_plot('testvvv', opt.diagnostics,
                                 ydata=data_stack0.sum(axis=1) )  
-                   
-                
-               opt.pipeline_stage_1.binnedLC = data_stack0     
+                                 
+               opt.pipeline_stage_1.binnedLC = data_stack0   
+               
                opt = self.run_pipeline_stage_2(opt)
+               
                pipeline = opt.pipeline_stage_2
        
                p = pipeline.transitDepths
@@ -190,7 +191,9 @@ class recipe_2(object):
                    p_stack = np.vstack((p_stack,p))
                                       
                jexosim_msg ("time to complete realization %s %s"%(j, time.time()-pp ) ,opt.diagnostics)
-        
+         
+               self.results_dict['realization_%s_binned_lc'%(j)] = pipeline.binnedLC
+               self.results_dict['exp_end_time'] = pipeline.exp_end_time_grid
 
                self.results_dict['wl'] = pipeline.binnedWav   
                self.results_dict['input_spec'] = opt.cr

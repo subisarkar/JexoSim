@@ -1,0 +1,27 @@
+<root>
+    <title> JexoSim exosystem file </title>
+    <type name="exosystem parameters"> </type>
+
+    <fake_exosystem>
+        <planet_name val="Kepler-62 f" comment=""/>
+        <R_p val="0.126" units="Rjup" comment=""/>
+        <M_p val="0.11" units="Mjup" comment=""/>
+        <T_p val="208.0" units="K" comment=""/>
+        <i val="89.9" units="deg" comment=""/>
+        <e val="0.0" units="" comment=""/>
+        <a val="0.718" units="au" comment=""/>
+        <P val="267.291" units="day" comment=""/>
+        <albedo val="0.3" units="" comment=""/>
+        <R_s val="0.64" units="Rsun" comment=""/>
+        <M_s val="0.69" units="Msun" comment=""/>
+        <T_s val="4925.0" units="K" comment=""/>
+        <d val="300.874" units="pc" comment=""/>
+        <logg val="4.664556770072614" units="" comment=""/>
+        <Z val="-0.37" units="" comment=""/>
+        <star_name val="Kepler-62" comment=""/>
+        <ecliptic_lat val="67.64649" units="deg" comment=""/>
+     
+    </fake_exosystem>
+    
+    
+</root>

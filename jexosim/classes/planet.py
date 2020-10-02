@@ -34,7 +34,7 @@ class Planet(object):
         self.file_model()  
         jexosim_msg ("filed planet spectrum chosen", 1)
     else:
-        jexosim_msg('Error1 : no compatible entry for planet_spectrum_model', 1)
+        jexosim_msg('Error1 planet class: no compatible entry for planet_spectrum_model', 1)
         sys.exit()
           
     
@@ -56,7 +56,7 @@ class Planet(object):
         # plt.plot(wl, star_flux)
         # xxxx
     else:
-        jexosim_msg("Error2 : no compatible entry for obs_type", 1)
+        jexosim_msg("Error2  planet class: no compatible entry for obs_type", 1)
         sys.exit()
 
 
@@ -86,7 +86,7 @@ class Planet(object):
           elif cond == 'rainout':
               target_folder = 'rainout'
           else:
-              jexosim_msg("Error: no compatible entry for planet_spectrum_params_cond", 1)
+              jexosim_msg("Error3 planet class: no compatible entry for planet_spectrum_params_cond", 1)
               sys.exit()
     
           databases_dir = '%s/archive'%(self.opt.jexosim_path)
@@ -98,7 +98,7 @@ class Planet(object):
                     cond=1
                     break
           if cond==0:
-              print ('Error: planet spectrum database not found')    
+              print ('Error4  planet class: planet spectrum database not found')    
           folder = '%s/%s'%(databases_dir, dirc_name)
           
           t = str(int(np.round(Tp.value/100.)*100))
@@ -159,7 +159,7 @@ class Planet(object):
           cr = planet_flux / star_flux
           self.sed = sed.Sed(wl,cr)    
       else:
-          jexosim_msg("Error3: no compatible entry for obs_type", 1)       
+          jexosim_msg("Error5  planet class: no compatible entry for obs_type", 1)       
   
    
   def file_model(self):
@@ -167,7 +167,7 @@ class Planet(object):
       try:
           aa = np.loadtxt(filename)
       except IOError:
-          jexosim_msg("Error: No spectrum file found",  1) 
+          jexosim_msg("Error6  planet class: No spectrum file found",  1) 
       wl=  aa[:,0]*u.um, 
       cr = aa[:,1]
       self.sed = sed.Sed(wl,cr)   
@@ -193,12 +193,14 @@ class Planet(object):
     """Code adapted from J. Goyal https://drive.google.com/drive/folders/14TX4WlcoayUMHeX-LV9hz-CHkkr0q9F7 
 	(Goyal J. et al. (2019) MNRAS 482, 4503–4513) """ 
     
+    jexosim_msg(f'planet spectrum file root {filename_root}', self.opt.diagnostics)
+    
     if os.path.exists('%s/%s.txt'%(folder, filename_root)):
         filename = '%s.txt'%(filename_root)
     elif os.path.exists('%s/%s.txt.gz'%(folder, filename_root)):
         filename = '%s.txt.gz'%(filename_root)
     else:
-        jexosim_msg('Error: no planet spectrum file found', 1)
+        jexosim_msg('Error7 planet class: no matching planet spectrum file found in database \nChoose "simple" or "file" for planet_spectrum_model', 1)
         sys.exit()      
     jexosim_msg('Planets spectrum file selected: %s'%(filename), 1)   
       

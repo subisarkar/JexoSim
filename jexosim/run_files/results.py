@@ -149,7 +149,20 @@ def run(results_file):
             plt.xlabel('Wavelength ($\mu m$)')           
             cbar = plt.colorbar() 
             cbar.set_label('Count (e$^-$)',size=12)
-            plt.xlabel('Wavelength ($\mu m$)')           
+            plt.xlabel('Wavelength ($\mu m$)')
+            
+            if 'realization_0_binned_lc' in res_dict.keys():
+                plt.figure('example light curve  from first realisation')          
+                lc = res_dict['realization_0_binned_lc'][:, int(res_dict['realization_0_binned_lc'].shape[1]/2)]
+                wav = res_dict['wl'][int(res_dict['realization_0_binned_lc'].shape[1]/2)]
+                time = res_dict['exp_end_time'] 
+                plt.plot(time, lc, label = f'{np.round(wav,2)} microns')
+                plt.legend(loc='best')
+                plt.grid()
+                plt.xlabel('Time (sec)')
+                plt.ylabel('Signal (e$^-$)')   
+                            
+     
                 
     elif res_dict['simulation_mode'] == 1:
         no_dict =  res_dict['noise_dic']  
@@ -185,7 +198,7 @@ def run(results_file):
             if res_dict['simulation_realisations'] > 1:    
                 for i in range(sig_stack.shape[0]):
                     plt.plot(wl,sig_stack[i], ':', color = col, alpha=0.5)           
-            plt.legend()
+            plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
             plt.ylabel('Signal (e$^-$)')
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
@@ -195,7 +208,7 @@ def run(results_file):
             if res_dict['simulation_realisations'] > 1:
                 for i in range(no_stack.shape[0]):
                     plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
-            plt.legend()
+            plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
             plt.ylabel('Noise (e$^-$)')
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
@@ -210,7 +223,7 @@ def run(results_file):
                 if res_dict['simulation_realisations'] > 1:
                     for i in range(fracNoT14_stack.shape[0]):
                         plt.plot(wl,fracNoT14_stack[i], '.', color = col, alpha=0.5)           
-                plt.legend(loc='best')
+                plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
                 plt.ylabel('Fractional noise at T14 (ppm)')
                 plt.xlabel('Wavelength ($\mu m$)')
                 plt.grid(True)
@@ -220,7 +233,7 @@ def run(results_file):
                             
                 plt.figure('precision %s'%(res_dict['time_tag']))
                 plt.plot(wl,fracNoT14_mean*np.sqrt(2), 'o', color = col, label = noise_type, alpha=0.5)
-                plt.legend(loc='best')
+                plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
                 plt.ylabel('1$\sigma$ error on transit depth (ppm)')
                 plt.xlabel('Wavelength ($\mu m$)')
                 plt.ylim(fracNoT14_mean.min()*np.sqrt(2) - fracNoT14_mean.min()*np.sqrt(2)*0.2
@@ -321,7 +334,7 @@ def run(results_file):
             if res_dict['simulation_realisations'] > 1:    
                 for i in range(sig_stack.shape[0]):
                     plt.plot(wl,sig_stack[i], ':', color = col, alpha=0.5)           
-            plt.legend()
+            plt.legend(loc='best', ncol = 2, borderpad =0.3, fontsize=10)
             plt.ylabel('Signal (e$^-$)')
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
@@ -330,8 +343,8 @@ def run(results_file):
             plt.plot(wl,no_mean, 'o-', color = col, label = noise_type)
             if res_dict['simulation_realisations'] > 1:
                 for i in range(no_stack.shape[0]):
-                    plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)           
-            plt.legend()
+                    plt.semilogy(wl,no_stack[i], '.', color = col, alpha=0.5)           
+            plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
             plt.ylabel('Noise (e$^-$)')
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
@@ -342,11 +355,11 @@ def run(results_file):
             
             if 'fracNoT14_mean' in no_dict[key].keys():
                 plt.figure('fractional noise %s'%(res_dict['time_tag']))
-                plt.plot(wl,fracNoT14_mean, 'o-', color = col, label = noise_type)
+                plt.semilogy(wl,fracNoT14_mean, 'o-', color = col, label = noise_type)
                 if res_dict['simulation_realisations'] > 1:
                     for i in range(fracNoT14_stack.shape[0]):
                         plt.plot(wl,fracNoT14_stack[i], '.', color = col, alpha=0.5)           
-                plt.legend(loc='best')
+                plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
                 plt.ylabel('Fractional noise at T14 (ppm)')
                 plt.xlabel('Wavelength ($\mu m$)')
                 plt.grid(True)
@@ -376,14 +389,4 @@ def run(results_file):
 
 if __name__ == "__main__":     
 
-    # run('Full_transit_NIRCam_TSGRISM_F444W_HAT-P-1 b_2020_09_28_2257_18.pickle')
-    # run('OOT_SNR_NIRCam_TSGRISM_F444W_HAT-P-1 b_2020_09_29_0719_02.pickle')
-    # run('OOT_SNR_NIRISS_SOSS_GR700XD_K2-18 b_2020_09_29_1052_22.pickle')
-    # run('OOT_SNR_NIRISS_SOSS_GR700XD_K2-18 b_2020_09_29_0936_59.pickle')
-    
-    # run('Full_transit_NIRCam_TSGRISM_F444W_HAT-P-1 b_2020_09_29_0846_27.pickle')
-    # run('Full_transit_NIRCam_TSGRISM_F444W_HAT-P-1 b_2020_09_29_1205_49.pickle')
-    
-    # run('Noise_budget_MIRI_LRS_slitless_Planet_1_2020_09_29_1632_24.pickle')
-    
-    run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_09_30_1656_12.pickle')
+    run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_10_01_1530_59.pickle')    

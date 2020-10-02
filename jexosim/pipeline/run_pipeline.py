@@ -17,9 +17,8 @@ class pipeline_stage_1():
         
         self.opt = opt
         
-        self.opt.exp_time_grid = self.opt.ndr_end_time[self.opt.effective_multiaccum-1::self.opt.effective_multiaccum]
-        self.opt.ndr_time_grid = self.opt.ndr_end_time
-
+        self.exp_end_time_grid = self.opt.ndr_end_time[self.opt.effective_multiaccum-1::self.opt.effective_multiaccum]
+        self.ndr_end_time_grid = self.opt.ndr_end_time
         self.opt.data_raw = opt.data*1
         
         self.ApFactor = opt.pipeline.pipeline_ap_factor.val
@@ -327,6 +326,9 @@ class pipeline_stage_2():
         self.nPix_2 =  opt.pipeline_stage_1.nPix_2
         self.nPix_1 =  opt.pipeline_stage_1.nPix_1
         self.ApFactor=  opt.pipeline_stage_1.ApFactor
+        self.exp_end_time_grid = opt.ndr_end_time[opt.effective_multiaccum-1::opt.effective_multiaccum]
+        self.ndr_end_time_grid = opt.ndr_end_time
+        self.data_raw = opt.data_raw
         
         if self.opt.timeline.apply_lc.val ==1 :
             self.fitLC()            

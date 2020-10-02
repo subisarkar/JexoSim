@@ -87,7 +87,7 @@ def run(opt):
   opt.ndr_end_frame_number = np.round(opt.ndr_end_time/opt.frame_time).astype(int).value
   opt.duration_per_ndr  = opt.frames_per_ndr*opt.frame_time 
   opt.n_ndr = number_of_exposures*opt.multiaccum
-
-         
+  opt.ndr_list = np.arange(0,opt.n_ndr,1)
+           
   return opt
 

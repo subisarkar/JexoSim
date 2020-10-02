@@ -64,29 +64,12 @@ def run(opt):
            
         opt.fake_exosystem.ecliptic_lat.val = opt.input_params['user_defined_ecliptic_lat']*u.deg
         
-
-        # print (opt.fake_exosystem.i.val)
-        # print (opt.fake_exosystem.P.val)
-        # print (opt.fake_exosystem.a.val)
-        # print (opt.fake_exosystem.e.val)
-        # print (opt.fake_exosystem.R_p.val)
-        # print (opt.fake_exosystem.M_p.val)
-        # print (opt.fake_exosystem.T_p.val)
-        # print (opt.fake_exosystem.planet_name.val)
-        # print (opt.fake_exosystem.albedo.val)
-        # print (opt.fake_exosystem.R_s.val)
-        # print (opt.fake_exosystem.M_s.val)
-        # print (opt.fake_exosystem.d.val)
-        # print (opt.fake_exosystem.T_s.val)
-        # print (opt.fake_exosystem.Z.val)
-        # print (opt.fake_exosystem.logg.val)
-        # print (opt.fake_exosystem.star_name.val)
-        # print (opt.fake_exosystem.use_norm.val)
-        # print (opt.fake_exosystem.norm_band.val)               
-        # print (opt.fake_exosystem.norm_mag.val)     
-        # print (opt.exosystem_params.ecliptic_lat.val) 
-      
-  
+  jexosim_msg('Exosystem parameters \n---------------------', 1)
+  for key in vars(opt.fake_exosystem).keys():
+        if hasattr(vars(opt.fake_exosystem)[key] , 'val'):
+            print (key, vars(opt.fake_exosystem)[key].val) 
+  jexosim_msg('---------------------', 1)
+ 
   opt.exosystem = fake_exosystem(opt) # read in the xml file values
       
   star = Star(opt)

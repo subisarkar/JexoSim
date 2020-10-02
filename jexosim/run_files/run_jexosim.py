@@ -10,6 +10,7 @@ from jexosim.classes.params import Params
 from jexosim.run_files.recipe_1 import recipe_1
 from jexosim.run_files.recipe_2 import recipe_2
 from jexosim.run_files.recipe_2a import recipe_2a
+from jexosim.run_files.recipe_2b import recipe_2b
 from jexosim.run_files.recipe_3 import recipe_3
 from jexosim.run_files.recipe_4 import recipe_4
 from jexosim.run_files import results
@@ -135,8 +136,10 @@ def run(params_file):
     if opt.simulation.sim_mode.val == 2:
        if opt.simulation.sim_output_type.val == 1:   
            recipe  = recipe_2(opt)   
-       elif opt.simulation.sim_output_type.val == 2: # fits only
+       if opt.simulation.sim_output_type.val == 2: # fits only
            recipe  = recipe_2a(opt)   
+       if opt.simulation.sim_output_type.val == 3: #  
+           recipe  = recipe_2b(opt)       
     if opt.simulation.sim_mode.val == 3:
           recipe  = recipe_3(opt) 
     if opt.simulation.sim_mode.val == 4:

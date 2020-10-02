@@ -125,9 +125,9 @@ def make_planet_xml_file(opt, pl):
                 T_s = data['st_teff'][idx] 
                 d = data['sy_dist'][idx]
                 Z = data['st_met'][idx]
-                aa = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z])
-                param_array[ct] = aa
-                nan_list.append(len(np.argwhere(np.isnan(aa))))
+                param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z])
+                param_array[ct] = param_list
+                nan_list.append(len(np.argwhere(np.isnan(param_list))))
              
             # find indexes of studies where fewest params are missing    
             study_list = np.argwhere(nan_list == np.min(nan_list)).T[0] + idx_list[0] # add this at end to keep consistent with indexing in data frame
@@ -168,7 +168,7 @@ def make_planet_xml_file(opt, pl):
             T_s = data['st_teff'][idx] 
             d = data['sy_dist'][idx]
             Z = data['st_met'][idx]
-            aa = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z])
+            param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z])
             
             dic = {'elat': ecliptic_lat,
                    'pl_radj': R_p,'pl_bmassj': M_p, 'pl_eqt':T_p,  'pl_orbincl': i, 'pl_orbeccen': e, 'pl_orbsmax': a,
@@ -178,61 +178,74 @@ def make_planet_xml_file(opt, pl):
                         'pl_orbper','st_rad','st_mass','st_teff','sy_dist','st_met']
              
             
-             
-            missing_params = np.argwhere(np.isnan(aa)).T[0]
+            print (param_list)
+           
+            missing_params = np.argwhere(np.isnan(param_list)).T[0]
             
-            # print ("missing parameters")
-            # if len(missing_params)==0:
-            #     print ('None')
-            # else:
-            #     for i in range(len(missing_params)):
-            #         print (params[missing_params[i]])
-                
-            
-            # if len(missing_params)>0:
-            #     print ("Now find most recent studies for missing params")
+            print ("missing parameters")
+            if len(missing_params)==0:
+                print ('None')
+            else:
+                for i in range(len(missing_params)):
+                    print (params[missing_params[i]])
+                          
+            if len(missing_params)>0:
+                print ("Now find most recent studies for missing params")
+               
             data0 = data[idx_list[0]: idx_list[-1]+1]
             for i in range(len(missing_params)):
-                # print (params[missing_params[i]])
                 mp = np.array( data0[params[missing_params[i]]])
                 idx = np.argwhere(np.isnan(mp)) 
                 mp[idx] = 1e30
                 has_param = np.argwhere(mp<1e30).T[0] + idx_list[0]
+                
                 if len(has_param) == 0:
                     pass
-                #     print ("no data found for parameter: enter manually")
+                    print ("no data found for parameter: enter manually")
+      
                 elif len(has_param) >= 1:
                     pub_date=[]
                     for j in range (len(has_param)):
                         date_format  = data['pl_pubdate'][has_param[j]]
-                        aa = date_format.find('-')   
-                        date_new = np.float(date_format[:aa]) + np.float(date_format[aa+1:])/12.
-                        pub_date.append([date_new][0])
+                        # print (date_format)
+                        date_format = date_format.split() # deals with cases that have time added as 00:00
+                        for possible_date in date_format:
+                            if '-' in possible_date:               
+                                date = possible_date
+                                break
+                        date_components = date.split('-')
+                        # print (date_components)
+                        if len(date_components) == 2:
+                            date_components.append('0')
+                        days_per_month = np.array([31,28,31,30,31,30,31,31,30,31,30,31])
+                        days = np.sum(days_per_month[0:int(np.float(date_components[1])-1) ]) + np.float(date_components[2])                                      
+                        date_new = np.float(date_components[0]) +  days/365.25
+                        pub_date.append(date_new)
                     # index of most recent study
                     idx = has_param[np.argwhere(pub_date == np.max(pub_date))[0].item()]
-            
                     # print (data['pl_pubdate'][idx],data['pl_refname'][idx])
                     dic[params[missing_params[i]]]   = data0[params[missing_params[i]]][idx]
-             
-         
+                    param_list[missing_params[i]] = data0[params[missing_params[i]]][idx]
+   
+            
             idx = np.argwhere(np.isnan(dic['pl_orbeccen']))
             if len(idx) ==1:
                 print ("As no e value found, setting e to 0")
                 dic['pl_orbeccen'] = 0
-                aa[5] = 0
+                param_list[5] = 0
                
-                
+            
             idx = np.argwhere(np.isnan(dic['pl_eqt']))
             if len(idx) ==1:
                 T_p = jexosim_lib.calc_EqT(T_s, R_s*u.Rsun, a*u.au, 0.3, 0)
                 print ("As no T_p value found, calculating T_p = ", T_p)
                 dic['pl_eqt'] = T_p
-                aa[3] = T_p
+                param_list[3] = T_p
             
-            
-            missing_params = np.argwhere(np.isnan(aa))
+          
+            missing_params = np.argwhere(np.isnan(param_list))
             if len(missing_params) >0:
-                missing_params = np.argwhere(np.isnan(aa)).T[0]
+                missing_params = np.argwhere(np.isnan(param_list)).T[0]
             
                 for i in range(len(missing_params)):
                     
@@ -250,11 +263,10 @@ def make_planet_xml_file(opt, pl):
             dic['hostname']= star_name
             dic['sy_jmag']= star_mag
             dic['mag_band']= mag_band
-            
+    
             
             def makeXmlFile(xmlTemplateFile, dic, pl):
-          
-        
+  
               tree = ET.parse(xmlTemplateFile)
              
               root = tree.getroot()

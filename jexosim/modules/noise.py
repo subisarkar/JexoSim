@@ -132,8 +132,8 @@ def jitter2(fp0,  osf, frames_per_ndr, frame_osf, jitter_x , jitter_y, start_lis
 
 def simulate_jitter(opt):
     
-  jitter_x = opt.osf*(opt.yaw_jitter/opt.channel.detector_pixel.plate_scale_x())
-  jitter_y = opt.osf*(opt.pitch_jitter/opt.channel.detector_pixel.plate_scale_y())
+  jitter_x = opt.osf*(opt.yaw_jitter_effective/opt.channel.detector_pixel.plate_scale_x())
+  jitter_y = opt.osf*(opt.pitch_jitter_effective/opt.channel.detector_pixel.plate_scale_y())
    
   jexosim_msg ("RMS jitter in pixel units x axis %s"%(np.std(jitter_x)/opt.osf), opt.diagnostics)
   jexosim_msg ("RMS jitter in pixel units y axis %s"%(np.std(jitter_y)/opt.osf), opt.diagnostics)
@@ -181,8 +181,8 @@ def simulate_jitter(opt):
             start_list.append(0)
         else:            
             start_list.append(np.cumsum(opt.frames_per_ndr[0:j])[-1]*opt.frame_osf)
-  start_list = np.array(start_list)   
-    
+  start_list = np.array(start_list)
+
   aa = time.time()
   
   # cond =0
@@ -304,13 +304,15 @@ def simulate_jitter(opt):
 def create_pointing_timeline(opt):
     # frames_per_ndr gives the number of frames in each ndr in sequence
     # ndr_end_frame_number gives the number of frames that have passed by the end of each NDR: take away the frames per ndr from ndr sequence to give a start index for the ndr in terms of frames
-    maccum = int(opt.effective_multiaccum)
+    # maccum = int(opt.effective_multiaccum)
  
     total_frames = int(np.sum(opt.frames_per_ndr))
+    n_ndr = len(opt.frames_per_ndr)
     pointingArray = np.zeros((total_frames*opt.frame_osf, 3))    
     ct =0
-    for i in range (0, maccum*opt.n_exp, 1 ):
-    
+    # for i in range (0, maccum*opt.n_exp, 1 ):
+    for i in range (0, n_ndr, 1 ):
+     
         idx = ct
         idx2 = int(idx + opt.frames_per_ndr[i]*opt.frame_osf)
         ct = idx2
@@ -497,17 +499,17 @@ def noise_simulator(opt):
           if opt.use_external_jitter==0:
               jexosim_msg ("generating new jitter timeline...",  opt.diagnostics)
               opt.yaw_jitter, opt.pitch_jitter, opt.frame_osf = jexosim_lib.pointing_jitter(opt)
+             
           elif opt.use_external_jitter==1:
               jexosim_msg ("using external jitter timeline...", opt.diagnostics)
               opt.yaw_jitter, opt.pitch_jitter, opt.frame_osf = opt.input_yaw_jitter, opt.input_pitch_jitter, opt._input_frame_osf
-          
-            
+       
           jexosim_msg ("RMS jitter %s %s"%(np.std(opt.yaw_jitter), np.std(opt.pitch_jitter)  ) , opt.diagnostics)     
+      
           pointing_timeline = create_pointing_timeline(opt) # this is also important to skip sections of jitter timeline that fall outside NDRs
-          
-          # the following takes into account skipped sections of jitter timeline due to reset groups
-          opt.yaw_jitter = pointing_timeline[:,1]*u.deg
-          opt.pitch_jitter = pointing_timeline[:,1]*u.deg
+              # the following takes into account skipped sections of jitter timeline due to reset groups
+          opt.yaw_jitter_effective = pointing_timeline[:,1]*u.deg
+          opt.pitch_jitter_effective = pointing_timeline[:,2]*u.deg              
           
           noise = simulate_jitter(opt)
             
