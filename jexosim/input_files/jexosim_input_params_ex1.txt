@@ -7,7 +7,7 @@ sim_mode              1
 # 1 = OOT(with Allan). 2 = full transit. 3 = noise budget. 4 = OOT(no Allan).
 
 sim_output_type         1     
-# 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format.
+# 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline processed results + intermediate data
 
 sim_noise_source	0	 
 # Pick a number from the list below. For most simulations recommend using 0 (All noise)

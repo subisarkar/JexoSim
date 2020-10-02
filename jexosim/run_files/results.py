@@ -52,7 +52,7 @@ def run(results_file):
 
         
     if res_dict['simulation_mode'] == 2:
-
+        
             wl = res_dict['wl']     
             idx = np.argwhere ((res_dict['wl']>=wavlim[0])&(res_dict['wl']<=wavlim[1])).T[0]
 
@@ -389,4 +389,4 @@ def run(results_file):
 
 if __name__ == "__main__":     
 
-    run('Noise_budget_MIRI_LRS_slitless_GJ 1214 b_2020_10_01_1530_59.pickle')    
+    run('Full_transit_NIRSpec_BOTS_PRISM_Kepler-62 f_2020_10_02_1742_53.pickle')    
