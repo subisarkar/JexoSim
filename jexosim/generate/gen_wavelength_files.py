@@ -29,8 +29,11 @@ def run(database_path):
             'jwst_nirspec_g395h_disp_20160902193401.fits', 'jwst_nirspec_g235h_disp_20160902193401.fits',
             'jwst_nirspec_g235m_disp_20160902193401.fits','jwst_nirspec_g140h_disp_20160902193401.fits',
             'jwst_nirspec_g140m_disp_20160902193401.fits','jwst_nirspec_prism_disp_20160902193401.fits'],
-            'wav_limits': [[2.87,3.83], [3.03,3.03], [1.79,1.79], [1.66, 2.4], [1.07,1.07], [0.7,1.74], [0.5,0.5]],
+            # 'wav_limits': [[2.87,3.83], [3.03,3.03], [1.79,1.79], [1.66, 2.4], [1.07,1.07], [0.7,1.74], [0.5,0.5]],
+            'wav_limits': [[3.35,3.35], [3.03,3.03], [1.79,1.79], [2.03, 2.03], [1.07,1.07], [1.22,1.22], [0.5,0.5]],
+            # for M gratings the wavelength is the central wavelength on 2048 subarray
             # for H and prism simply finding the middle wavlength in NRS1 detector to place spectrum in right place
+            #https://jwst-docs.stsci.edu/near-infrared-spectrograph/nirspec-operations/nirspec-bots-operations/nirspec-bots-wavelength-ranges-and-gaps
             'pix_size':18.0
             }
     
@@ -59,6 +62,7 @@ def run(database_path):
             'ch0': 'niriss',
             'grism':['SOSS_GRISM'],
             'file': ['jwst_niriss_soss-256-ord1_trace_20160929180722.fits'],
+            'R_file': ['jwst_niriss_gr700xd-ord1_disp_20180920125034.fits'],
             'wav_limits': [[0.9, 2.8]],
             'pix_size':18.0
             }    
@@ -86,6 +90,8 @@ def run(database_path):
            
                 wl = hdul[1].data['WAVELENGTH']
                 dlds = hdul[1].data['DLDS']
+                R = hdul[1].data['R']
+                wl_for_R = wl
                 
                 wl0=wl[0]
                 wlpix = []
@@ -124,6 +130,11 @@ def run(database_path):
                 y = y - (y.max()-y.min())/2. 
                 
                 wlpix = wl
+                
+                filepath_for_R = '%s/jwst/%s/dispersion/%s'%(database_path, dic['ch0'], dic['R_file'][i])
+                hdul2 = fits.open(filepath_for_R )            
+                wl_for_R = hdul2[1].data['WAVELENGTH']
+                R = hdul2[1].data['R']
 
             header = ["# lambda [um]","y [micron]","x [micron]"]
             label = '%s_%s_dispersion'%(dic['ch'],dic['grism'][i])
@@ -137,9 +148,23 @@ def run(database_path):
                 filewriter = csv.writer(csvfile, delimiter=',',
                                         quotechar='|', quoting=csv.QUOTE_MINIMAL)
                 filewriter.writerow(header)                        
-                for i in range(len(wlpix)):
-                    filewriter.writerow([wlpix[i], y[i], x[i]])
+                for k in range(len(wlpix)):
+                    filewriter.writerow([wlpix[k], y[k], x[k]])
+                                      
  
- 
+            header = ["# lambda [um]","R"]
+            label = '%s_%s_R'%(dic['ch'],dic['grism'][i])
+
+            a= '%s/%s/Wavelengths'%(dfp, dic['ch'])
+            if not os.path.exists(a):
+                os.makedirs(a)      
+            b= '%s/%s.csv'%(a, label)
+
+            with open(b, 'w') as csvfile:
+                filewriter = csv.writer(csvfile, delimiter=',',
+                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                filewriter.writerow(header)                        
+                for k in range(len(wl_for_R)):
+                    filewriter.writerow([wl_for_R[k], R[k]]) 
  
  

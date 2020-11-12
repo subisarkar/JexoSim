@@ -13,6 +13,7 @@ from astropy import units as u
 import copy
 import time
 import sys
+import scipy
 from numba import jit, prange
 
 def poission_noise (noise):    
@@ -20,13 +21,9 @@ def poission_noise (noise):
     return noise
 
 def poission_noise_UTR_correction (n, noise):    
-    noise_plus_pn =  np.random.poisson(noise)
     alpha = 6.0*(n**2+1)/(5.0*n*(n+1))
-    noise_only = noise_plus_pn - noise
-    # correction for utr: pn increased 
-    noise_only = noise_only*np.sqrt(alpha) #scale the noise
-    noise = noise + noise_only # add back noise to signal    
-    return noise
+    noise = noise*np.sqrt(alpha) #scale the noise
+    return noise, alpha   
 
 def read_noise (noise, sigma_ro):    
     noise = noise + np.random.normal(scale = sigma_ro, size = noise.shape)  
@@ -36,7 +33,20 @@ def read_noise_UTR_correction (n, noise, sigma_ro):
     # correction for utr noise: achieves same noise ar utr but using cds      
     sigma_ro_prime = np.sqrt(12.0*(n-1)/(n*(n+1)))*sigma_ro /np.sqrt(2)  
     noise = noise + np.random.normal(scale = sigma_ro_prime, size = noise.shape)
-    return noise     
+    return noise 
+
+def combine_noise(noise1, noise2):
+    sign = np.sign(noise1 + noise2)
+    combined_noise = sign*(abs(noise1**2 + noise2**2))**0.5
+    return combined_noise
+    
+
+def apply_ipc (data, ipc_kernel):
+    data = data.value
+    for i in range(data.shape[2]):
+        data[...,i] = scipy.signal.fftconvolve(data[...,i], ipc_kernel, 'same')
+    data = data*u.electron
+    return data  
  
 @jit(nopython=True) 
 def create_jitter_noise(fp, osf, frames_per_ndr, frame_osf, jitter_x, jitter_y):		
@@ -324,7 +334,8 @@ def create_pointing_timeline(opt):
  
         pointingArray[:,1][idx:idx2] = opt.yaw_jitter[start:end]
         pointingArray[:,2][idx:idx2] = opt.pitch_jitter[start:end]
-   
+    
+
     return  pointingArray
 
  
@@ -340,6 +351,8 @@ def fast_method(opt):
   qe_uncert =  opt.qe_uncert 
   
   fp_signal_whole = opt.fp_signal[1::3,1::3]
+  
+  
   #==============================================================================   
   #1) Calculate the maximum width (y crop) in pixels and apply crop
   #==============================================================================   
@@ -378,90 +391,173 @@ def fast_method(opt):
   wav_sol= opt.x_wav_osr[1::3].value # wav sol in whole pixels
  
   idx = np.argwhere((wav_sol>=opt.channel.pipeline_params.start_wav.val-0.5)& (wav_sol<=opt.channel.pipeline_params.end_wav.val+0.5))
-  idx = [idx[0].item(), idx[-1].item()] 
+  
+  idxA = idx[0].item()
+  idxB = idx[-1].item()
+
+  
 
   #apply x crop to various arrays that need it:   
-  opt.x_wav_osr = opt.x_wav_osr[idx[0]*3:idx[-1]*3]
-  opt.x_pix_osr = opt.x_pix_osr[idx[0]*3:idx[-1]*3]
-  opt.cr_wl = opt.cr_wl[idx[0]:idx[-1]]
-  opt.cr = opt.cr[idx[0]:idx[-1]]
+  opt.x_wav_osr = opt.x_wav_osr[idxA*3:idxB*3]
+  opt.x_pix_osr = opt.x_pix_osr[idxA*3:idxB*3]
+  opt.cr_wl = opt.cr_wl[idxA:idxB]
+  opt.cr = opt.cr[idxA:idxB]
   if opt.timeline.apply_lc.val ==1:
-      opt.ldc = opt.ldc[:,idx[0]:idx[-1]]
-      opt.lc  = opt.lc[idx[0]:idx[-1]]      
+       opt.ldc = opt.ldc[:,idxA:idxB]
+       opt.lc  = opt.lc[idxA:idxB]      
 
-  #apply x crop to fp_whole and opt.fp:            
-  fp_whole = fp_whole[:, idx[0]:idx[-1]]
-  opt.fp = opt.fp[:, idx[0]*3:idx[-1]*3]
+  # apply x crop to fp_whole and opt.fp:            
+  fp_whole = fp_whole[:, idxA:idxB]
+  opt.fp = opt.fp[:, idxA*3:idxB*3]
 
-   #==============================================================================   
-   #3) Obtain a value for the background subtraction in pipeline as if the crop did not happened
-   #==============================================================================     
-#   1) set up background array for each ndr, of 10 pixels wide vs original fp in length and add zodi and emission
+
+#==============================================================================   
+#3) Obtain a value for the background subtraction in pipeline as if the crop did not happened
+#==============================================================================        
+
+#   3a) set up background array for each ndr, of 10 pixels wide vs original fp in length 
   bkg = np.zeros((10, fp_whole0.shape[1], opt.n_ndr))
-  
+   
+#   3b) add zodi and emission photons 
+
   if (opt.background.EnableZodi.val == 1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1:
       bkg += (opt.zodi.sed[1::3].reshape(-1,1) * opt.frame_time * opt.frames_per_ndr).value 
   if (opt.background.EnableEmission.val == 1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1:
       bkg += (opt.emission.sed[1::3].reshape(-1,1) * opt.frame_time * opt.frames_per_ndr).value     
-   #  2) apply QE to this diffuse background from same part of QE grid as the background
-  
+
+#   3c) apply QE to this diffuse background from same part of QE grid as the background
+      
   qe_bkg = np.vstack((qe[0:5], qe[-5:])) # pick QE at edges of grid, where background sampled
   qe_uncert_bkg = np.vstack((qe_uncert[0:5], qe_uncert[-5:]))
   jexosim_msg ("QE std applied to background counts %s"%((qe_bkg*qe_uncert_bkg).std()) , opt.diagnostics)
   if (opt.noise.ApplyPRNU.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
        bkg =  np.rollaxis(bkg,2,0)
        bkg = bkg*qe_bkg*qe_uncert_bkg
-       bkg =  np.rollaxis(bkg,0,3)       
-         
- #  2a) apply DC to this background           
-  if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val) and opt.background.DisableAll.val != 1:
-      bkg += (opt.channel.detector_pixel.Idc() * opt.frame_time * opt.frames_per_ndr).value
- 
- #  3) apply photon noise to the bkg
-  bkg = np.where(bkg >= 0.0, bkg, 0) 
-  if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
-       bkg = np.random.poisson(bkg)
+       bkg =  np.rollaxis(bkg,0,3)    
        
- #  4) make ramps      
+#   3d) obtain the photon noise and apply quantum yield
+  bkg = np.where(bkg >= 0.0, bkg, 0)
+  bkg_pn_added  = 0
+  
+  bkg*=u.electron
+  
+  quantum_yield = opt.quantum_yield.sed[1::3]
+  quantum_yield = quantum_yield[np.newaxis, :, np.newaxis]   
+  
+  
+  bkg = bkg*quantum_yield   
+  
+  
+  if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
+
+      fano_factor = (3 * quantum_yield - quantum_yield**2 - 2) / quantum_yield
+      
+      photon_noise = np.random.poisson(bkg.value) - bkg.value
+      
+      photon_noise = photon_noise*quantum_yield
+      
+      fano_noise = np.random.poisson(bkg.value) - bkg.value #photon noise
+      fano_noise = fano_noise * np.sqrt(quantum_yield * fano_factor)
+      
+      bkg_combined_noise = combine_noise(photon_noise, fano_noise)
+      
+      # bkg_combined_noise = photon_noise
+      
+      bkg_pn_added =1
+      
+
+   
+#   3e) add dark current and noise
+      
+  if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val) and opt.background.DisableAll.val != 1: 
+      bkg_and_dc = bkg + opt.channel.detector_pixel.Idc() * opt.frame_time * opt.frames_per_ndr      
+      bkg_dc_only = bkg_and_dc -  bkg     
+      bkg = bkg_and_dc
+
+      if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
+          bkg_dc_noise = np.random.poisson(bkg_dc_only.value) - bkg_dc_only.value
+      
+          if bkg_pn_added == 1:
+              bkg_combined_noise = combine_noise(bkg_combined_noise, bkg_dc_noise)
+          else:
+              bkg_combined_noise = bkg_dc_noise      
+
+#   3f) add quantum yield to signal and shot noise
+  
+  if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
+
+       if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
+             n = opt.projected_multiaccum
+             bkg_combined_noise, scale = poission_noise_UTR_correction(n, bkg_combined_noise)
+       
+       bkg = bkg.value + bkg_combined_noise
+   
+  bkg *=u.electron         
+  bkg = np.where(bkg >= 0.0, bkg, 0)
+
+#   3g) make ramps and add read noise
   for i in range(0, opt.n_ndr, opt.effective_multiaccum):
       bkg[...,i:i+opt.effective_multiaccum] = np.cumsum(bkg[...,i:i+opt.effective_multiaccum], axis=2)
+            
+  if (opt.noise.EnableReadoutNoise.val == 1  or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:  
+        if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:             
+            n = opt.projected_multiaccum
+            bkg = read_noise_UTR_correction(n, bkg.value , opt.channel.detector_pixel.sigma_ro.val)
+            bkg = bkg*u.electron    
+        else:    
+            bkg = read_noise(bkg.value, opt.channel.detector_pixel.sigma_ro.val)
+            bkg = bkg*u.electron            
       
- #  4) flat field (but with uncertainty)
+# =============================================================================
+#       now do pipeline steps for bkg  
+# =============================================================================
+
+# 3h) subtract the dc)
+  if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val) and opt.background.DisableAll.val != 1:  
+      bkg =  bkg - opt.channel.detector_pixel.Idc.val* opt.duration_per_ndr
+  
+ #  3h) flat field (but with uncertainty)
   if (opt.noise.ApplyPRNU.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
        jexosim_msg ("APPLYING Flat field to background counts..." , opt.diagnostics)
        bkg =  np.rollaxis(bkg,2,0)
        bkg = bkg/qe_bkg
        bkg =  np.rollaxis(bkg,0,3)  
        
-#  5) crop bkg in x
-       bkg = bkg[:,idx[0]:idx[-1],:]
+ # 3i) crop bkg in x
+       bkg = bkg[:,idxA:idxB,:]
   
-  opt.bkg = bkg*u.electron
+  opt.bkg = bkg
   
   #==============================================================================
   #4) crop diffuse background spectra in x for applying to main image later 
   #==============================================================================
-  opt.zodi.sed = opt.zodi.sed[idx[0]*3:idx[-1]*3]
-  opt.emission.sed = opt.emission.sed[idx[0]*3:idx[-1]*3]
+  opt.zodi.sed = opt.zodi.sed[idxA*3:idxB*3]
+  opt.emission.sed = opt.emission.sed[idxA*3:idxB*3]
+  
+  #==============================================================================
+  #4) crop quantum yield 
+  #==============================================================================
+  
+  opt.quantum_yield.sed = opt.quantum_yield.sed[idxA*3:idxB*3]
 
   #============================================================================== 
   #5) crop qe grid in x and y  for later application
   #============================================================================== 
   qe = qe[idx0:idx1]
-  qe = qe[:, idx[0]:idx[-1]]
+  qe = qe[:, idxA:idxB]
   qe_uncert = qe_uncert[idx0:idx1]
-  qe_uncert = qe_uncert[:, idx[0]:idx[-1]]
+  qe_uncert = qe_uncert[:, idxA:idxB]
   opt.qe = qe
-  opt.qe_uncert = qe_uncert  
+  opt.qe_uncert = qe_uncert
 
   #============================================================================== 
   #6) crop signal only oversampled fp in x and y 
   #============================================================================== 
   opt.fp_signal = opt.fp_signal[idx0*3:idx1*3]
-  opt.fp_signal = opt.fp_signal[:, idx[0]*3:idx[-1]*3]
+  opt.fp_signal = opt.fp_signal[:, idxA*3:idxB*3]
   
   #(crop sanity check indicator) 
-  opt.exp_sig = opt.exp_sig[idx[0]:idx[-1]] #expected final star signal in R bin from detector module sanity check
+  opt.exp_sig = opt.exp_sig[idxA:idxB] #expected final star signal in R bin from detector module sanity check
   
   jexosim_msg ("fast method used, focal place image reduced from  %s x %s to %s x %s"%(fp_whole0.shape[0], fp_whole0.shape[1] , fp_whole.shape[0], fp_whole.shape[1]), opt.diagnostics)
  
@@ -511,7 +607,7 @@ def noise_simulator(opt):
           opt.yaw_jitter_effective = pointing_timeline[:,1]*u.deg
           opt.pitch_jitter_effective = pointing_timeline[:,2]*u.deg              
           
-          noise = simulate_jitter(opt)
+          signal = simulate_jitter(opt)
             
   else:
      jexosim_msg ("using jitterless array", opt.diagnostics)
@@ -520,14 +616,14 @@ def noise_simulator(opt):
      jitterless = jitterless*fp
      jitterless =  np.rollaxis(jitterless,0,3)  
      jitterless = jitterless*opt.frames_per_ndr*opt.frame_time      
-     noise = jitterless
+     signal = jitterless
      pointing_timeline= np.zeros((opt.ndr_end_frame_number[-1], 3))
 
   if opt.timeline.apply_lc.val ==0:
       jexosim_msg ("OMITTING LIGHT CURVE...", opt.diagnostics)
   else:
       jexosim_msg ("APPLYING LIGHT CURVE...", opt.diagnostics)
-      noise *= opt.lc 
+      signal *= opt.lc 
       
     #==============================================================================
     # add backgrounds
@@ -535,7 +631,7 @@ def noise_simulator(opt):
     
   if (opt.background.EnableZodi.val == 1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1:
           jexosim_msg ("APPLYING ZODI..." , opt.diagnostics) 
-          noise += opt.zodi.sed[opt.offs::opt.osf].reshape(-1,1) *\
+          signal += opt.zodi.sed[opt.offs::opt.osf].reshape(-1,1) *\
         opt.frame_time * opt.frames_per_ndr   
   else:
       jexosim_msg ("NOT APPLYING ZODI..." , opt.diagnostics)
@@ -543,7 +639,7 @@ def noise_simulator(opt):
     
   if (opt.background.EnableEmission.val == 1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1:
           jexosim_msg ( "APPLYING EMISSION..."  ,  opt.diagnostics  )         
-          noise += opt.emission.sed[opt.offs::opt.osf].reshape(-1,1) *\
+          signal += opt.emission.sed[opt.offs::opt.osf].reshape(-1,1) *\
             opt.frame_time * opt.frames_per_ndr        
   else:
       jexosim_msg ("NOT APPLYING EMISSION..." , opt.diagnostics)
@@ -575,83 +671,118 @@ def noise_simulator(opt):
       
       jexosim_msg ("Applied QE (PRNU) grid std (includes uncertainty) %s"%(applied_qe.std()), opt.diagnostics)
       jexosim_msg ("APPLYING PRNU GRID...", opt.diagnostics  )
-      noise =  np.rollaxis(noise,2,0)
-      noise = noise*applied_qe
-      noise =  np.rollaxis(noise,0,3)
+      signal =  np.rollaxis(signal,2,0)
+      signal = signal*applied_qe
+      signal =  np.rollaxis(signal,0,3)
          
   else:
       jexosim_msg ("PRNU GRID NOT APPLIED...", opt.diagnostics  )
+      
+     
+# ==============================================================================
+# Obtain photon noise and fano noise
+#============================================================================== 
+  pn_added = 0 
+  
+  signal = np.where(signal >= 0.0, signal, 0)
 
-    #==============================================================================
-    # add dark signal
-    #==============================================================================
+  quantum_yield = opt.quantum_yield.sed[1::3]
+  quantum_yield = quantum_yield[np.newaxis, :, np.newaxis]  
+  
+  signal = signal*quantum_yield
+
+  if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
+      jexosim_msg ("PHOTON NOISE... being added...",  opt.diagnostics)
+
+      fano_factor = (3 * quantum_yield - quantum_yield**2 - 2) / quantum_yield
+
+      photon_noise = np.random.poisson(signal.value) - signal.value
+       
+      photon_noise = photon_noise*quantum_yield
+      
+      fano_noise = np.random.poisson(signal.value) - signal.value #photon noise
+      fano_noise = fano_noise * np.sqrt(quantum_yield * fano_factor)
+      
+      combined_noise = combine_noise(photon_noise, fano_noise)
+      
+      # combined_noise = photon_noise
+      
+      pn_added =1
+       
+  else:  
+       jexosim_msg ("PHOTON NOISE...NOT... being added...",  opt.diagnostics  ) 
+  
+        
+
+    
+#==============================================================================
+# add dark current and obtain dark current noise 
+#==============================================================================
                  
   if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val) and opt.background.DisableAll.val != 1:
-      noise  += opt.channel.detector_pixel.Idc() * opt.frame_time * opt.frames_per_ndr 
-          
       jexosim_msg ("DARK CURRENT being added...%s"%(opt.channel.detector_pixel.Idc.val ), opt.diagnostics  )
+ 
+      signal_and_dc = signal + opt.channel.detector_pixel.Idc() * opt.frame_time * opt.frames_per_ndr      
+      dc_only = signal_and_dc -  signal     
+      signal = signal_and_dc
+
+      if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
+          jexosim_msg ("DARK CURRENT NOISE... being added...",  opt.diagnostics)
+
+          dc_noise = np.random.poisson(dc_only.value) - dc_only.value
+      
+          if pn_added == 1:
+              combined_noise = combine_noise(combined_noise, dc_noise)
+          else:
+              combined_noise = dc_noise
+      else:
+          jexosim_msg ("DARK CURRENT NOISE...not.. being added...",  opt.diagnostics)          
   else:
       jexosim_msg ("DARK CURRENT.. not... being added...", opt.diagnostics  )
-           
-  noise = np.where(noise >= 0.0, noise, 0)
-
-    #==============================================================================
-    # add shot noise
-    #==============================================================================
+  
+#==============================================================================
+# add combined shot noise to signal
+#============================================================================== 
  
+  
   if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
-        jexosim_msg ("PHOTON NOISE... being added...",  opt.diagnostics)
-        aa =  time.time()
-        cond =0 # keep this set to 0 until future possible parralelisation for large array sizes
-        if cond ==0:       
-            if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
-                jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
-                n = opt.projected_multiaccum
-                noise =  poission_noise_UTR_correction(n, noise.value)
-            else:
-                noise = poission_noise(noise.value)
-            noise = noise*u.electron  
-            
-        elif cond ==1: # for future possible parralelization
-            pass
-            # jexosim_msg('Splitting array for photon noise', opt.diagnostics)
-            # z_size = int(1e7/(noise.shape[0]*noise.shape[1]))
-            # n_div = int(noise.shape[2]/z_size)
-            # for i in range(n_div):
-            #     z0 = i*z_size
-            #     if i == n_div-1:
-            #         z1 = None
-            #     else:
-            #         z1 = z0+z_size
-            #     div_noise = noise[...,z0:z1]
-            #     if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
-            #         jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
-            #         n = opt.projected_multiaccum
-            #         div_noise =  poission_noise_UTR_correction(n, div_noise.value)
-            #     else:
-            #         div_noise = poission_noise(div_noise.value)
-                    
-            #     if i ==0:
-            #         div_noise_stack = div_noise
-            #     else:
-            #         div_noise_stack = np.dstack((div_noise_stack,div_noise))  
-            # noise = div_noise_stack 
-            # noise = noise*u.electron     
-            
-        jexosim_msg(f'Time to complete photon noise {time.time()-aa}', opt.diagnostics)
-        
-  else:  
-       jexosim_msg ("PHOTON NOISE...NOT... being added...",  opt.diagnostics  )
 
-  jexosim_msg ("check point 6.1 %s"%(noise.max()) , opt.diagnostics  )
- 
+       if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
+             jexosim_msg ("applying correction to photon noise for UTR read", opt.diagnostics  )
+             n = opt.projected_multiaccum
+             combined_noise, scale = poission_noise_UTR_correction(n, combined_noise)
+       
+       signal = signal.value + combined_noise
+   
+  signal *=u.electron         
+  
+  signal = np.where(signal >= 0.0, signal, 0)
+  
+  jexosim_msg ("check point 6.1 %s"%(signal.max()) , opt.diagnostics  )
+  
+
     #==============================================================================
     # make ramps
     #==============================================================================
 
   for i in range(0, opt.n_ndr, opt.effective_multiaccum):
-      noise[...,i:i+opt.effective_multiaccum] = np.cumsum(noise[...,i:i+opt.effective_multiaccum], axis=2)
+      signal[...,i:i+opt.effective_multiaccum] = np.cumsum(signal[...,i:i+opt.effective_multiaccum], axis=2)
  
+ 
+    #==============================================================================
+    # add IPC
+    #==============================================================================
+    
+  if opt.simulation.sim_use_ipc.val == 1 and opt.channel.instrument.val !='MIRI':
+      
+       jexosim_msg('Applying IPC...', opt.diagnostics)    
+       ipc_kernel = np.load(opt.channel.detector_array.ipc_kernel.val.replace('__path__', '%s/%s'%(opt.jexosim_path, 'jexosim')))
+       signal =  apply_ipc(signal, ipc_kernel)
+       # if opt.pipeline.useSignal.val == 1:
+       #     opt.data_signal_only = apply_ipc(opt.data_signal_only, ipc_kernel)
+      
+ 
+    
     #==============================================================================
     # add read noise
     #==============================================================================
@@ -661,18 +792,19 @@ def noise_simulator(opt):
         if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:             
             n = opt.projected_multiaccum
             jexosim_msg ("applying correction to read noise for UTR read", opt.diagnostics  )
-            noise = read_noise_UTR_correction(n, noise.value , opt.channel.detector_pixel.sigma_ro.val)
-            noise = noise*u.electron    
+            signal = read_noise_UTR_correction(n, signal.value , opt.channel.detector_pixel.sigma_ro.val)
+            signal = signal*u.electron    
         else:    
-            noise = read_noise(noise.value, opt.channel.detector_pixel.sigma_ro.val)
-            noise = noise*u.electron    
+            signal = read_noise(signal.value, opt.channel.detector_pixel.sigma_ro.val)
+            signal = signal*u.electron    
 
   else:
        jexosim_msg ("READ NOISE...not... being added..." , opt.diagnostics  )
                 
-  jexosim_msg ("check point 7 %s %s"%(noise.max(), noise.min()) , opt.diagnostics  )
+  jexosim_msg ("check point 7 %s %s"%(signal.max(), signal.min()) , opt.diagnostics  )
+  
 
-  return noise, pointing_timeline
+  return signal, pointing_timeline
 
 #==============================================================================
 # generates a signal only stack (containing noiseless star signal)
@@ -694,11 +826,26 @@ def signal_simulator(opt):
   signal = np.where(signal >= 0.0, signal, 0)   
    
   jexosim_msg ("generating seperate noiseless signal array",  opt.diagnostics  )
-  signal_ = np.zeros((signal.shape[0], signal.shape[1], signal.shape[2]))
-  for i in range(0, signal.shape[2], opt.effective_multiaccum):
-      for j in range(0, opt.effective_multiaccum):
-          signal_[..., i+j] =  signal[..., i:i+j+1].sum(axis=2)  
-  signal = signal_*u.electron 
+   
+    #==============================================================================
+    # make ramps
+    #==============================================================================
+
+  for i in range(0, opt.n_ndr, opt.effective_multiaccum):
+      signal[...,i:i+opt.effective_multiaccum] = np.cumsum(signal[...,i:i+opt.effective_multiaccum], axis=2)
+ 
+    #==============================================================================
+    # add IPC
+    #==============================================================================
+    
+  if opt.simulation.sim_use_ipc.val == 1 and opt.channel.instrument.val !='MIRI':
+      
+       jexosim_msg('Applying IPC...', opt.diagnostics)    
+       ipc_kernel = np.load(opt.channel.detector_array.ipc_kernel.val.replace('__path__', '%s/%s'%(opt.jexosim_path, 'jexosim')))
+       signal =  apply_ipc(signal, ipc_kernel)
+ 
+          
+  signal = signal*u.electron 
  
   return signal
 
@@ -708,25 +855,30 @@ def signal_simulator(opt):
 
 def run(opt):
  
-  opt.fp =   opt.fp_original  # needed to reuse if cropped fp is used and monte carlo mode used
-  opt.fp_signal =  opt.fp_signal_original # "
   
-  opt.zodi.sed =  opt.zodi_sed_original # "
-  opt.emission.sed =  opt.emission_sed_original # "
+  opt.fp =   copy.deepcopy(opt.fp_original) # needed to reuse if cropped fp is used and monte carlo mode used
+  opt.fp_signal =  copy.deepcopy(opt.fp_signal_original) # "
+  
+  opt.zodi.sed =  copy.deepcopy(opt.zodi_sed_original) # "
+  opt.emission.sed =  copy.deepcopy(opt.emission_sed_original) # "
 
-  opt.lc = opt.lc_original
-  opt.ldc = opt.ldc_original
-  opt.cr_wl = opt.cr_wl_original 
-  opt.cr = opt.cr_original   
-  opt.x_wav_osr = opt.x_wav_osr_original
-  opt.x_pix_osr = opt.x_pix_osr_original
-  opt.qe = opt.qe_original
-  opt.qe_uncert = opt.qe_uncert_original
+  opt.lc = copy.deepcopy(opt.lc_original)
+  opt.ldc = copy.deepcopy(opt.ldc_original)
+  opt.cr_wl = copy.deepcopy(opt.cr_wl_original) 
+  opt.cr = copy.deepcopy(opt.cr_original)  
+  opt.x_wav_osr = copy.deepcopy(opt.x_wav_osr_original)
+  opt.x_pix_osr = copy.deepcopy(opt.x_pix_osr_original)
+  opt.qe = copy.deepcopy(opt.qe_original)
+  opt.qe_uncert = copy.deepcopy(opt.qe_uncert_original)
+  
+  opt.quantum_yield = copy.deepcopy(opt.quantum_yield_original)
       
   opt.data , opt.pointing_timeline = noise_simulator(opt)
   if opt.pipeline.useSignal.val == 1:
       opt.data_signal_only = signal_simulator(opt) 
-       
+   
+
+ 
 #==============================================================================
 # this is very important! 
   if opt.noise.EnableSpatialJitter.val== 0:
@@ -742,8 +894,19 @@ def run(opt):
       opt.channel.name == 'NIRSpec_BOTS_G235H_F170LP'\
         or opt.channel.name == 'NIRSpec_BOTS_G395H_F290LP':   
      
-      wav = opt.x_wav_osr[1::3]     
+      wav = opt.x_wav_osr[1::3]*1
+      # print (wav)
+      # print (len(opt.x_wav_osr[1::3]))
+      # print (opt.wav_gap_start)
+      
+      import matplotlib.pyplot as plt
+      plt.figure('wav test ')
+      plt.plot(opt.x_wav_osr[1::3])
+   
+      
       idx0 = np.argwhere(wav==opt.wav_gap_start)[0].item() #recover the start of the gap
+  
+      
       idx1 = idx0 + opt.gap_len # gap of 172 pix works well for G1H and G2H, but a little off (by 0.01 microns for the other in some cases from published values)
       opt.data[:,idx0:idx1,:] = 0
       if opt.pipeline.useSignal.val == 1:
@@ -752,11 +915,13 @@ def run(opt):
           import matplotlib.pyplot as plt
           plt.figure('show gap in focal plane image on an NDR')
           plt.imshow(opt.data[...,1].value,aspect='auto', interpolation = None)
-          wl = opt.x_wav_osr.value[1::3]
+          wl = opt.x_wav_osr.value[1::3]*1
           wl[idx0:idx1] = 0
           plt.figure('show gap in wl solution')
           plt.plot(wl, 'ro')
       
+ 
+        
 #==============================================================================    
 
   jexosim_plot('focal plane check1', opt.diagnostics, image=True, 
@@ -767,7 +932,7 @@ def run(opt):
                image=True,  image_data = opt.data[...,0])
   jexosim_plot('test - check NDR1', opt.diagnostics,
                image=True,  image_data = opt.data[...,1])
-  
+ 
 
   return opt
    

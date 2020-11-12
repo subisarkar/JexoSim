@@ -101,6 +101,7 @@ def flatField(opt):
     
     return opt
     
+ 
 
 def subBackground(opt) : 
     jexosim_msg ("subtracting background...", opt.diagnostics)
@@ -108,6 +109,8 @@ def subBackground(opt) :
     if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
        opt.data.shape[0]>20:
            aa = opt.bkg.sum(axis=0)/opt.bkg.shape[0] #mean value per column
+           if opt.channel.instrument.val !='NIRSpec':  # overall mean - okay if no slit since no wav-dep on zodi and emission
+               aa = opt.bkg.mean()  
            opt.data = opt.data- aa                     
     else:
         border_pix = 5
@@ -117,9 +120,13 @@ def subBackground(opt) :
         background_2 = opt.data[-border_pix:]   
         background = np.vstack ( (background_1, background_2) )     
         aa = background.sum(axis=0)/background.shape[0]
+        if opt.channel.instrument.val !='NIRSpec':
+               aa =  background.mean()
         opt.data = opt.data- aa
 
     return opt
+
+
     
 def doUTR(data, opt):
        

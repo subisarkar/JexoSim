@@ -11,6 +11,7 @@ from jexosim.lib import jexosim_lib
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 import numpy           as np
 from astropy import units as u
+from astropy import constants as const
 import copy 
 import scipy
  
@@ -23,16 +24,28 @@ def run(opt):
       opt.fpn = [int(fpn[0]), int(fpn[1])]  
 
       opt.fp  = np.zeros(( int(opt.fpn[0]*opt.channel.simulation_factors.osf.val),
+                            int(opt.fpn[1]*opt.channel.simulation_factors.osf.val) ))    
+      opt.fp_signal  = np.zeros(( int(opt.fpn[0]*opt.channel.simulation_factors.osf.val),
                             int(opt.fpn[1]*opt.channel.simulation_factors.osf.val) ))      
+      
       opt.fp_delta = opt.channel.detector_pixel.pixel_size.val / opt.channel.simulation_factors.osf.val  
                      
 #      opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = usePoly(opt)
-      opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = useInterp(opt)  
-
+      opt.x_wav_osr, opt.x_pix_osr, opt.y_pos_osr = useInterp(opt)
+      opt.R = getR(opt)
+     
       jexosim_msg('tel check 1: %s'%(opt.star.sed.sed.max()), opt.diagnostics)
       opt.star_sed = copy.deepcopy(opt.star.sed) #copy of star flux at telescope
-         
+      opt.star_sed2 = copy.deepcopy(opt.star.sed) #copy of star flux at telescope
+    
+      # Jy = opt.star_sed2.sed*1e6*   (opt.star_sed2.wl/1e6)**2/(const.c * 1e-26)
+      # Jy_freq = const.c/(opt.star_sed2.wl/1e6) # freq equiv to each wavelength 
+      # np.save('/Users/user1/Desktop/Jy.npy', Jy.value)
+      # np.save('/Users/user1/Desktop/Jy_freq.npy', Jy_freq.value)
+      # np.save('/Users/user1/Desktop/Jy_wav.npy', opt.star_sed2.wl.value/1e6)  
+              
       opt.Aeff = 0.25*np.pi*opt.common_optics.telescope_effective_diameter()**2
+      
       opt.star.sed.sed*= opt.Aeff
       jexosim_msg('tel check 2: %s'%(opt.star.sed.sed.max()), opt.diagnostics)
       tr_ =np.array([1.]*len(opt.x_wav_osr))*u.dimensionless_unscaled
@@ -49,10 +62,13 @@ def run(opt):
       opt.telescope_transmission = Sed(opt.x_wav_osr, tr_)         
            
       opt.star.sed.rebin(opt.x_wav_osr) 
+           
       opt.planet.sed.rebin(opt.x_wav_osr) 
- 
+  
       jexosim_lib.sed_propagation(opt.star.sed, opt.telescope_transmission)
       jexosim_msg('tel check 3: %s'%(opt.star.sed.sed.max()), opt.diagnostics)
+      
+   
       return opt
   
 def useInterp(opt):
@@ -99,8 +115,6 @@ def usePoly(opt): #this needs updating
       dtmp=np.loadtxt(opt.channel.camera.dispersion.path.replace(
 	  '__path__', opt.__path__), delimiter=',')  
       
-      dtmp=np.loadtxt(opt.channel.camera.dispersion.path.replace(
-	  '__path__', opt.__path__), delimiter=',')   
       pos = (dtmp[...,2]*u.um  + offset.to(u.um)) + (opt.channel.camera.dispersion() ).to(u.um)
       wav = dtmp[...,0]
       pos_y = dtmp[...,1] 
@@ -137,4 +151,16 @@ def usePoly(opt): #this needs updating
           
       return x_wav_osr, x_pix_osr, y_pos_osr
             
-  
+def getR(opt): #this needs updating
+
+      disp = opt.channel.camera.dispersion.path.replace(
+	  '__path__', opt.__path__) 
+      R_file = disp.replace('dispersion', 'R') 
+      dtmp=np.loadtxt(R_file, delimiter=',') 
+      wav = dtmp[...,0]*u.um
+      R = dtmp[...,1]*u.dimensionless_unscaled 
+      R = np.interp(opt.x_wav_osr, wav, R, left=None, right=None)
+      R = Sed(opt.x_wav_osr,R)
+ 
+      return R
+

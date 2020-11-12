@@ -11,6 +11,7 @@ import time, os
 from datetime import datetime
 from jexosim.modules import exosystem, telescope, channel, backgrounds, output
 from jexosim.modules import detector, timeline, light_curve, systematics, noise
+from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 
 
@@ -48,7 +49,8 @@ class recipe_2a(object):
            ndr_end_frame_number0 = opt.ndr_end_frame_number*1
            frames_per_ndr0 = opt.frames_per_ndr*1
            duration_per_ndr0 = opt.duration_per_ndr*1
-           
+           n_exp0 = opt.n_exp     
+       
            if n_ndr0 > 20000:
                opt.pipeline.split = 1
                if opt.diagnostics ==1 :
@@ -65,54 +67,66 @@ class recipe_2a(object):
                    jexosim_msg ("", 1) 
                
                pp = time.time()
-               # split simulation into chunks to permit computation - makes no difference to final results    
+               
+# =============================================================================
+#  # split simulation into chunks to permit computation - makes no difference to final results    
+# =============================================================================            
                if opt.pipeline.split ==1:
+                   
+                   jexosim_msg('Splitting data series into chunks', opt.diagnostics)
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
                    ndrs_per_round = opt.effective_multiaccum*int(1000/opt.multiaccum)      
-                   idx_list =[]
-                   for i in range(0, n_ndr0, ndrs_per_round):
-                       idx_list.append(i)        
-    
-                   for i in range(len(idx_list)):
-                       if idx_list[i] == idx_list[-1]:
-                           opt.n_ndr = n_ndr0 - idx_list[i]
-                           opt.lc_original = lc0[:,idx_list[i]:]
-                           opt.ndr_end_frame_number = ndr_end_frame_number0[idx_list[i]:]
-                           opt.frames_per_ndr=  frames_per_ndr0[idx_list[i]:]
-                           opt.duration_per_ndr = duration_per_ndr0[idx_list[i]:]                           
-                       else:
-                           opt.n_ndr = idx_list[i+1]- idx_list[i]
-                           opt.lc_original = lc0[:,idx_list[i]:idx_list[i+1]]
-                           opt.ndr_end_frame_number = ndr_end_frame_number0[idx_list[i]: idx_list[i+1]]
-                           opt.frames_per_ndr=  frames_per_ndr0[idx_list[i]: idx_list[i+1]]
-                           opt.duration_per_ndr = duration_per_ndr0[idx_list[i]: idx_list[i+1]]
-                           
-                       opt.n_exp = int(opt.n_ndr/opt.multiaccum)
-                                   
-                       if i == 0:             
-                           opt.use_external_jitter = 0
-                       else:                     
-                           opt.use_external_jitter = 1 # uses the jitter timeline from the first realization
-                           if (opt.noise.EnableSpatialJitter.val  ==1 or opt.noise.EnableSpectralJitter.val  ==1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
-                               opt.input_yaw_jitter, opt.input_pitch_jitter, opt._input_frame_osf = opt.yaw_jitter, opt.pitch_jitter, opt.frame_osf 
-                 
-                       opt = self.run_JexoSimB(opt)
+                  
+                   total_chunks = len(np.arange(0, n_ndr0, ndrs_per_round))
+                   
+                   idx = np.arange(0, n_ndr0, ndrs_per_round) # list of starting ndrs
+                   
+                   for i in range(len(idx)):
+                       jexosim_msg('=== Chunk %s / %s====='%(i+1, total_chunks), opt.diagnostics)
                        
-                       data = opt.data
-                                                                  
+                       if idx[i] == idx[-1]:
+                           opt.n_ndr = n_ndr0 - idx[i]
+                           opt.lc_original = lc0[:,idx[i]:]
+                           opt.ndr_end_frame_number = ndr_end_frame_number0[idx[i]:]
+                           opt.frames_per_ndr=  frames_per_ndr0[idx[i]:]
+                           opt.duration_per_ndr = duration_per_ndr0[idx[i]:]  
+                           
+                       else:
+                           opt.n_ndr = idx[i+1]- idx[i]
+                           opt.lc_original = lc0[:,idx[i]:idx[i+1]]
+                           opt.ndr_end_frame_number = ndr_end_frame_number0[idx[i]: idx[i+1]]
+                           opt.frames_per_ndr=  frames_per_ndr0[idx[i]: idx[i+1]]
+                           opt.duration_per_ndr = duration_per_ndr0[idx[i]: idx[i+1]]
+                           
+                       opt.n_exp = int(opt.n_ndr/opt.effective_multiaccum)
+                                   
+                       if i == 0:
+                           opt.pipeline.pipeline_auto_ap.val= 1
+                           opt.use_external_jitter = 0
+                           
+                           opt = self.run_JexoSimB(opt)
+                           opt  = self.run_pipeline_stage_1(opt)  
+                           
+                           opt.pipeline.pipeline_ap_factor.val= opt.AvBest 
+                           if (opt.noise.EnableSpatialJitter.val  ==1 or opt.noise.EnableSpectralJitter.val  ==1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
+                               opt.input_yaw_jitter, opt.input_pitch_jitter, opt._input_frame_osf = opt.yaw_jitter, opt.pitch_jitter, opt.frame_osf                     
+                                                      
+                       else:
+                           opt.pipeline.pipeline_auto_ap.val = 0
+                           opt.use_external_jitter = 1 # uses the jitter timeline from the first realization
+
+                           opt = self.run_JexoSimB(opt)
+                           opt  = self.run_pipeline_stage_1(opt)
+                      
+                       jexosim_msg('Aperture used %s'%(opt.pipeline.pipeline_ap_factor.val), opt.diagnostics)
+                
+                       data = opt.pipeline_stage_1.opt.data_raw
+                                     
                        if i ==0:
                            data_stack = data
                      
                        else:
                            data_stack = np.dstack((data_stack,data))
-
-     
-                   opt.n_ndr = n_ndr0
-                   opt.lc_original = lc0
-                   opt.ndr_end_frame_number =  ndr_end_frame_number0
-                   opt.frames_per_ndr  = frames_per_ndr0
-                   opt.duration_per_ndr = duration_per_ndr0
-                   opt.n_exp = int(opt.n_ndr/opt.multiaccum).value
                                                             
                elif opt.pipeline.split ==0:
    

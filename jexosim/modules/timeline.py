@@ -40,7 +40,7 @@ def run(opt):
     
   # find number of frames in each non-zeroth NDR  
   nNDR = np.round(NDR_time/opt.frame_time).astype(np.int).take(0)
-        
+    
   base = [opt.channel.detector_readout.nGND.val, opt.channel.detector_readout.nNDR0.val]
   for x in range(opt.multiaccum-1): base.append(nNDR)
   base.append(opt.channel.detector_readout.nRST.val)  

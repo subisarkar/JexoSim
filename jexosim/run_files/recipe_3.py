@@ -41,7 +41,7 @@ class recipe_3(object):
         opt.timeline.n_exp.val = 1000.0
          
         noise_list = [0,2,3,4,5,6,7,8,9]
-        # noise_list = [8]
+        
  
         start = 0 
         end = int(start + opt.no_real)       
@@ -90,7 +90,8 @@ class recipe_3(object):
                    print (opt.lab)               
                 
                 np.random.seed(seed)
-                opt = self.run_JexoSimA(opt) 
+                opt = self.run_JexoSimA(opt)
+                opt = self.run_JexoSimA1(opt) 
                 
                 if opt.observation_feasibility ==0:      
                     jexosim_msg ("Observation not feasible...", opt.diagnostics)
@@ -164,14 +165,14 @@ class recipe_3(object):
                     time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
                     self.results_dict['time_tag'] =  time_tag
              
-                    if j != start:
-                        os.remove(filename)  # delete previous temp file
-                    filename = '%s/Noise_budget_%s_TEMP.pickle'%(output_directory, opt.lab)
-                    with open(filename, 'wb') as handle:
-                        pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    # if j != start:
+                    #     os.remove(filename)  # delete previous temp file
+                    # filename = '%s/Noise_budget_%s_TEMP.pickle'%(output_directory, opt.lab)
+                    # with open(filename, 'wb') as handle:
+                    #     pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
                        
                     if j == end-1:
-                        os.remove(filename)  # delete previous temp file
+                        # os.remove(filename)  # delete previous temp file
                         filename = '%s/Noise_budget_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
                         with open(filename, 'wb') as handle:
                             pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -202,9 +203,12 @@ class recipe_3(object):
       else: # if detector saturates end sim      
           return opt 
       
-    def run_JexoSimB(self, opt):
+    def run_JexoSimA1(self, opt):
       jexosim_msg('Systematics', 1)
-      systematics.run(opt) 
+      systematics.run(opt)               
+      return opt
+        
+    def run_JexoSimB(self, opt):
       jexosim_msg('Noise', 1)
       noise.run(opt)                 
       return opt

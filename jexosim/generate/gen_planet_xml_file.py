@@ -32,7 +32,8 @@ st_mass:        Stellar Mass [Solar mass]
 st_met:         Stellar Metallicity [dex]									
 elat:           Ecliptic Latitude [deg]										
 sy_dist:        Distance [pc]												
-sy_jmag:        J (2MASS) Magnitude											
+sy_jmag:        J (2MASS) Magnitude		
+sy_kmag:        K (2MASS) Magnitude											
 pl_pubdate:     Planetary Parameter Reference Publication Date	
 """	 																																																		
 
@@ -148,9 +149,14 @@ def make_planet_xml_file(opt, pl):
             # print ("Most recent study with most complete paramaters")
             # print (data['pl_pubdate'][idx],data['pl_refname'][idx])   
             
+
+            
             star_name = data['hostname'][idx]
-            star_mag = data['sy_jmag'][idx]
-            mag_band = 'J'
+            J_mag = data['sy_jmag'][idx]
+            K_mag = data['sy_kmag'][idx]
+            
+
+            # mag_band = 'J'
                 
             
             # now find missing params
@@ -261,8 +267,9 @@ def make_planet_xml_file(opt, pl):
             
             # # add mag and star name to dic
             dic['hostname']= star_name
-            dic['sy_jmag']= star_mag
-            dic['mag_band']= mag_band
+            dic['sy_jmag']= J_mag
+            dic['sy_kmag']= K_mag
+            # dic['mag_band']= mag_band
     
             
             def makeXmlFile(xmlTemplateFile, dic, pl):
@@ -270,9 +277,8 @@ def make_planet_xml_file(opt, pl):
               tree = ET.parse(xmlTemplateFile)
              
               root = tree.getroot()
-            
-                  
-              for child in root.findall('fake_exosystem'):
+        
+              for child in root.findall('model_exosystem'):
                   child.find('R_p').set('val', '%s'%(dic['pl_radj']))
                   child.find('M_p').set('val', '%s'%(dic['pl_bmassj']))
                   child.find('T_p').set('val', '%s'%(dic['pl_eqt']))
@@ -289,7 +295,9 @@ def make_planet_xml_file(opt, pl):
                   child.find('Z').set('val', '%s'%(dic['st_met']))     
                   child.find('star_name').set('val', '%s'%(dic['hostname']))
                   child.find('ecliptic_lat').set('val', '%s'%(dic['elat']))
-                  child.find('planet_name').set('val', '%s'%(pl))              
+                  child.find('planet_name').set('val', '%s'%(pl))  
+                  child.find('J_mag').set('val', '%s'%(dic['sy_jmag'])) 
+                  child.find('K_mag').set('val', '%s'%(dic['sy_kmag'])) 
                   
                
               newXmlFileName = '%s/%s.xml'%(target_folder, pl)

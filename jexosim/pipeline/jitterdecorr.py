@@ -29,13 +29,29 @@ class JexoSimDecorr:
     def calcModelPointingOffsets(self):
         spec=[]
         spat = []        
+        # for j in range(self.mAccum-1 , self.mAccum*self.nExp, self.mAccum):
+        #     spec_offset = self.pointingJittX[self.pointingNdr==j]
+        #     spat_offset = self.pointingJittY[self.pointingNdr==j]
+        #     spec_offset = np.mean(spec_offset) / self.plate_scale
+        #     spat_offset = np.mean(spat_offset) / self.plate_scale         
+        #     spec.append(spec_offset)
+        #     spat.append(spat_offset)
+            
         for j in range(self.mAccum-1 , self.mAccum*self.nExp, self.mAccum):
-            spec_offset = self.pointingJittX[self.pointingNdr==j]
-            spat_offset = self.pointingJittY[self.pointingNdr==j]
+            n = self.mAccum
+            i = j - n + 2  # picks the second ndr
+            a = self.pointingNdr
+            
+            idx = np.argwhere( (a>=i)  &  (a<=j) ) [:,0]
+            spec_offset = self.pointingJittX[idx]
+            spat_offset = self.pointingJittY[idx]
             spec_offset = np.mean(spec_offset) / self.plate_scale
             spat_offset = np.mean(spat_offset) / self.plate_scale         
             spec.append(spec_offset)
-            spat.append(spat_offset)
+            spat.append(spat_offset) 
+            
+            
+            
                 
         self.modelJitterOffsetSpec = np.array(spec)        
         self.modelJitterOffsetSpat = np.array(spat)
@@ -107,7 +123,8 @@ class jitterCode():
     
     def __init__(self, data, opt):
         
-        method = opt.pipeline.jitterMethod.val    
+        method = opt.pipeline.jitterMethod.val  
+        
         self.opt = opt
         self.data = data
         self.jdc = JexoSimDecorr(self.data, self.opt)

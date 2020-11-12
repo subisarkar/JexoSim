@@ -2,7 +2,7 @@
     <title> NIRSpec_BOTS_G235M_170LP </title>
     <type name="channel configuration"> </type>
   
-  <channel name="NIRSpec_BOTS_G235M_170LP" comment="NIRSpec_BOTS_G235M_F170LP">
+  <channel name="NIRSpec_BOTS_G235M_F170LP" comment="NIRSpec_BOTS_G235M_F170LP">
       <instrument val="NIRSpec"/>
 
  <transmissions>
@@ -34,9 +34,11 @@
       <subarray_gap_list val="0,0,2.03,2.58 0,0,2.03,2.58 0,0,1.66,2.03 0,0,2.03,3.12044 0,0,1.66,3.12044" units="" comment=""/>
       <array_geometry val="32, 2048" units="dimensionless" comment="must be maximum subarray size"/>
       <qe val="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_QE.csv" comment=""/>
+      <quantum_yield val="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_quantum_yield.csv"/>
       <qe_rms_matrix_file val="None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
       <PRNU val="3.0" comment="flat field variation % rms"/>
       <flat_field_uncert val="0.5" comment="flat field uncertainty % rms"/>
+      <ipc_kernel val="__path__/data/JWST/NIRSpec/IPC_kernel/kernel.npy"/>
   </detector_array>
   
   <detector_pixel>

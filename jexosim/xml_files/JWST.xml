@@ -20,19 +20,18 @@
       <sim_pointing_psd val="flat" comment="flat or non-flat" />
       <sim_adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
       <sim_pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter if adjust_rms is True " />
+      <sim_use_ipc val="1" comment="if MIRI chosen this will become 0" />
   </simulation>
   
   <observation>
     <obs_type val = "1" units="" comment="1= primary transit, 2= secondary eclipse"/>
-    <obs_channel val="MIRI_LRS_slitless" />
-    <obs_auto_subarray val="1" />
-    <obs_user_subarray val="MIRI + LRS_slitless + SLITLESSPRISM + FAST" />
+    <obs_inst_config val="MIRI + LRS_slitless + SLITLESSPRISM + FAST" />
+    <obs_channel val="MIRI + LRS_slitless + SLITLESSPRISM + FAST" />
     <obs_use_sat val = "1" units="" comment="sets use of saturation time"/>
     <obs_fw_percent val = "80" units="" comment=""/>
     <obs_n_groups val = "2" units="" comment="sets number of groups"/>
     <obs_frac_t14_pre_transit val="0.5" units="" comment="fraction of T14 for pre-transit observation" />
     <obs_frac_t14_post_transit val="0.5"  units="" comment="fraction of T14 for post-transit observation" />
-    
   </observation>
   
   <pipeline>
@@ -52,8 +51,6 @@
       <pipeline_bad_corr val="1" units="" comment=""/>
   </pipeline>
 
-
-
  <exosystem_params>
     <star_spectrum_model val = "complex" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
     <planet_name val = 'GJ 1214 b' />
@@ -61,8 +58,6 @@
     <planet_spectrum_model val = "simple" comment="" />
     <planet_spectrum_file val="__path__" comment="planet/star contrast ratio"/>
     <star_spectrum_mag_norm  val="0" units="" comment="0 or 1: use a star spectrum normalized to given magnitude"/>
-    <star_spectrum_mag_band  val="J" comment="band of normalized magnitude"/>
-    <star_spectrum_mag  val="6.591" units="" comment="normalized magnitude"/>
     <planet_spectrum_params_cond  val="local"  comment=""/>
     <planet_spectrum_params_co  val="0.7" units="" comment=""/>
     <planet_spectrum_params_haze  val="1" units="" comment=""/>

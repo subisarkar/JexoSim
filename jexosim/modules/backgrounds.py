@@ -7,7 +7,7 @@ v1.0
 """
 
 from jexosim.classes.sed import Sed
-from jexosim.lib.jexosim_lib import jexosim_msg
+from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 from jexosim.lib import jexosim_lib 
 import numpy           as np
 from astropy import units as u
@@ -17,7 +17,7 @@ import copy
 
 def zodical_light(opt):
    
-    deg = opt.fake_exosystem.ecliptic_lat.val.value
+    deg = opt.model_exosystem.ecliptic_lat.val.value
     wl = opt.x_wav_osr
     jexosim_msg('Zodi model initiated...\n', opt.diagnostics)
     jexosim_msg('Ecliptic latitude in deg: %s   \n'%(deg), opt.diagnostics)
@@ -87,9 +87,9 @@ def run(opt):
       Omega_pix = 2.0*np.pi*(1.0-np.cos(np.arctan(0.5/ch.camera.wfno_x())))*u.sr
       Apix = ((ch.detector_pixel.pixel_size.val).to(u.m))**2           
 
-      opt.zodi.sed*= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s 
-      opt.emission.sed *= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s  
-      
+      opt.zodi.sed *= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s 
+      opt.emission.sed *= Apix*Omega_pix*opt.Re *u.electron/u.W/u.s 
+
       jexosim_lib.sed_propagation(opt.zodi, opt.total_transmission)
       
       opt.zodi.rebin(opt.x_wav_osr)
@@ -113,6 +113,10 @@ def run(opt):
 
       opt.zodi_sed_original = copy.deepcopy(opt.zodi.sed)
       opt.emission_sed_original = copy.deepcopy(opt.emission.sed)
+      
+      # jexosim_plot('zodi spectrum', opt.diagnostics, xdata = opt.zodi.wl, ydata=opt.zodi.sed)
+      # jexosim_plot('emission spectrum', opt.diagnostics, xdata = opt.emission.wl, ydata=opt.emission.sed)
+          
         
       return opt
       

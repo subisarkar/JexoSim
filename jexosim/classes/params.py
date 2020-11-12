@@ -97,16 +97,15 @@ class Params():
                             attr_dict2['attrib']['val'] = self.params[key]
                         # print (attr_dict2['val'],attr_dict2['attrib']['val'])
                         # print ('x')
-        if self.opt.observation.obs_auto_subarray.val ==0:
-              s = ((self.opt.observation.obs_user_subarray.val).replace(" ", ""))
-              start = 0
-              idx=[]
-              for i in range(3):
-                   idx0 = s.find('+', start)
-                   idx.append(idx0)
-                   start =idx0+1
-              ch = '%s_%s'%(s[:idx[0]],s[idx[0]+1:idx[1]])
-              self.opt.observation.obs_channel.val = ch
+        s = ((self.opt.observation.obs_inst_config.val).replace(" ", ""))
+        start = 0
+        idx=[]
+        for i in range(3):
+             idx0 = s.find('+', start)
+             idx.append(idx0)
+             start =idx0+1
+        ch = '%s_%s'%(s[:idx[0]],s[idx[0]+1:idx[1]])
+        self.opt.observation.obs_channel.val = ch
  
         
     def stage_2(self):   

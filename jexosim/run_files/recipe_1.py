@@ -26,7 +26,9 @@ class recipe_1(object):
         self.noise_dict ={}    
    
         opt.pipeline.useSignal.val=1
+   
         opt.pipeline.use_fast.val =1
+
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
                       
@@ -39,24 +41,39 @@ class recipe_1(object):
         
      
         noise_type = int(opt.noise.sim_noise_source.val)
+   
                
-        nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-               'sn'               :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-               'spat'             :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
-               'spec'             :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
-               'emm_switch'       :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
-               'zodi_switch'      :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
-               'dc_switch'        :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-               'source_switch'    :[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-               'diff'             :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-               'jitter_switch'    :[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-               'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
+        nb_dict = {'rn'            :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                'sn'               :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                'spat'             :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
+                'spec'             :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
+                'emm_switch'       :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
+                'zodi_switch'      :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
+                'dc_switch'        :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                'source_switch'    :[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+                'diff'             :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+                'jitter_switch'    :[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+                'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
                         'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'],  
                         'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
               }         
+
         
-       
+
+        opt.noise.EnableReadoutNoise.val = nb_dict['rn'][noise_type]
+        opt.noise.EnableShotNoise.val = nb_dict['sn'][noise_type]
+        opt.noise.EnableSpatialJitter.val= nb_dict['spat'][noise_type]
+        opt.noise.EnableSpectralJitter.val= nb_dict['spec'][noise_type]   
+        opt.background.EnableEmission.val = nb_dict['emm_switch'][noise_type]
+        opt.background.EnableZodi.val = nb_dict['zodi_switch'][noise_type]    
+        opt.background.EnableDC.val  =  nb_dict['dc_switch'][noise_type]
+        opt.background.EnableSource.val  = nb_dict['source_switch'][noise_type]
+        opt.diff = nb_dict['diff'][noise_type]      
+        opt.noise_tag = nb_dict['noise_tag'][noise_type]
+        opt.color = nb_dict['color'][noise_type]
+                
+        
         self.noise_dict[nb_dict['noise_tag'][noise_type]] ={}
         
         jexosim_msg ("Noise type: %s"%(nb_dict['noise_tag'][noise_type]), 1) 
@@ -64,26 +81,34 @@ class recipe_1(object):
         start = 0 
         end = int(start + opt.no_real)
         
+        opt.ap_f = []
+        
         for j in range(start, end):
+            
             
             if (opt.no_real-start) > 1:
                    jexosim_msg ("", 1)    
                    jexosim_msg ("============= REALIZATION %s ============="%(j), 1)
                    jexosim_msg (opt.lab, 1)                   
                    jexosim_msg ("", 1)  
-                   
+            
             opt = self.run_JexoSimA(opt)
+            opt = self.run_JexoSimA1(opt)
+            
             if opt.observation_feasibility ==0:      
                 jexosim_msg ("Observation not feasible...", opt.diagnostics) 
                 self.feasibility = 0
             else:
                 self.feasibility = 1
+                              
                 opt = self.run_JexoSimB(opt)
                 
                 if opt.simulation.sim_output_type.val == 1:  
                     opt = self.run_pipeline_stage_1(opt)       
                     opt = self.run_pipeline_stage_2(opt)              
                     self.pipeline = opt.pipeline_stage_2
+                    
+                    opt.ap_f.append(opt.pipeline.pipeline_ap_factor.val)
                     
                     self.noise_dict[opt.noise_tag]['wl'] = self.pipeline.binnedWav
                     self.results_dict['input_spec'] = opt.cr
@@ -134,7 +159,10 @@ class recipe_1(object):
              
                     if j != start:
                         os.remove(filename)  # delete previous temp file
-                    filename = '%s/OOT_SNR_%s_TEMP.pickle'%(output_directory, opt.lab)
+                        txt_file = '%s.txt'%(filename)
+                        os.remove(txt_file) 
+                    filename = '%s/OOT_SNR_%s_%s_TEMP.pickle'%(output_directory, opt.lab, time_tag)
+                    self.filename = 'OOT_SNR_%s_%s_TEMP.pickle'%(opt.lab, time_tag)
                     with open(filename, 'wb') as handle:
                         pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
                        
@@ -154,6 +182,7 @@ class recipe_1(object):
                     
                 write_record(opt, output_directory, self.filename, opt.params_file_path)
                             
+                            
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)
       exosystem.run(opt)
@@ -164,9 +193,7 @@ class recipe_1(object):
       jexosim_msg('Backgrounds', 1)
       backgrounds.run(opt) 
       jexosim_msg('Detector', 1)
-      detector.run(opt)
-
-      
+      detector.run(opt)    
       if opt.observation_feasibility ==1: # if detector does not saturate continue
           jexosim_msg('Timeline', 1)
           timeline.run(opt)
@@ -175,12 +202,15 @@ class recipe_1(object):
           return opt       
       else: # if detector saturates end sim      
           return opt 
+   
+    def run_JexoSimA1(self, opt):
+      jexosim_msg('Systematics', 1)
+      systematics.run(opt)               
+      return opt     
       
     def run_JexoSimB(self, opt):
-      jexosim_msg('Systematics', 1)
-      systematics.run(opt) 
       jexosim_msg('Noise', 1)
-      noise.run(opt)                 
+      noise.run(opt)
       return opt
       
     def run_pipeline_stage_1(self, opt):

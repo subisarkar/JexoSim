@@ -39,4 +39,3 @@ class Sed(object):
     """
     self.wl, self.sed = jexosim_lib.rebin(wl, self.wl, self.sed)
     
-    

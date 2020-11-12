@@ -34,9 +34,11 @@
       <subarray_gap_list val="0,0,0.6,5.3 0,0,0.6,5.3 0,0,0.6,5.3 0,0,0.6,5.3 0,0,0.6,5.3" units="" comment=""/>
       <array_geometry val="32, 2048" units= "dimensionless" comment="must be maximum array size"/>
       <qe val="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_QE.csv" comment="" />
+      <quantum_yield val="__path__/data/JWST/NIRSpec/Transmissions/NIRSpec_quantum_yield.csv"/>
       <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
       <PRNU val="3.0" comment="flat field variation % rms" />
       <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
+      <ipc_kernel val="__path__/data/JWST/NIRSpec/IPC_kernel/kernel.npy"/>
   </detector_array>
   
   <detector_pixel>

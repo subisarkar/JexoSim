@@ -1,8 +1,8 @@
 <root>
-    <title> TSGRISM_F444W </title>
+    <title> NIRCam_TSGRISM_F444W </title>
     <type name="channel configuration"> </type>
 
-<channel name="TSGRISM_F444W" comment="TSGRISM_F444W">
+<channel name="NIRCam_TSGRISM_F444W" comment="NIRCam_TSGRISM_F444W">
     <instrument val = "NIRCam"/>
 
   <transmissions>
@@ -31,12 +31,14 @@
   <detector_array>
     <subarray_list val="SUBGRISM64_1_output SUBGRISM64_4_output SUBGRISM128_1_output SUBGRISM128_4_output SUBGRISM256_1_output SUBGRISM256_4_output FULL_1_output FULL_4_output" units= "" comment=""/>
     <subarray_geometry_list val="64,2048 64,2048 128,2048 128,2048 256,2048 256,2048 2048,2048 2048,2048" units= "" comment=""/>
-    <subarray_t_f_list val="1.35960 0.34061 2.67800 0.67597 5.31480 1.34669 42.23000 10.73677" units= "s" comment=""/>
+    <subarray_t_f_list val="1.339 0.34061 2.6574 0.67597 5.2942 1.34669 42.2094 10.73677" units= "s" comment=""/>
     <array_geometry val="2048,2048" units= "dimensionless" comment="must be maximum array size"/>
     <qe val="__path__/data/JWST/NIRCam/Transmissions/NIRCam_LW_QE.csv" comment="" />
+    <quantum_yield val="__path__/data/JWST/NIRCam/Transmissions/NIRCam_LW_quantum_yield.csv"/>
     <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
     <PRNU val="3.0" comment="flat field variation % rms" />
     <flat_field_uncert val="0.5" comment="flat field uncertainty % rms" />
+    <ipc_kernel val="__path__/data/JWST/NIRCam/IPC_kernel/kernel.npy"/>
   </detector_array>
 
 <detector_pixel>

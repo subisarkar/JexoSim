@@ -31,7 +31,7 @@ def run(params_file):
     # params_file = 'jexosim_input_params_ex3.txt'
    
     jexosim_msg('JexoSim is running!\n', 1)    
-    jexosim_msg('User-defined input parameter file: %s\n '%(params_file), 1) 
+    jexosim_msg('User-defined input parameter file: %s\n  '%(params_file), 1) 
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
     jexosim_msg('Reading default common configuration file ... \n', 1)
     common_file = 'jexosim/xml_files/JWST.xml'
@@ -78,13 +78,13 @@ def run(params_file):
     jexosim_msg('Reading exosystem parameters file ... \n', 1)
     # overrides defaults in JWST.xml file
     ex_file = '%s/xml_files/exosystems/%s.xml'%(opt.__path__, pl)
-    
     opt3 = Options(ex_file).opt
     for key in opt3.__dict__:
         setattr(opt, str(key), opt3.__dict__[key])
 
     if opt.exosystem_params.planet_use_database.val == 0:
         pl =  input_params['user_defined_planet_name']
+        
 
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
@@ -121,7 +121,10 @@ def run(params_file):
     #==============================================================================
     #  Run with right recipe
     #==============================================================================
-    opt.lab = '%s_%s'%(opt.observation.obs_channel.val, pl)
+    opt.lab = '%s_%s'%(opt.observation.obs_inst_config.val, pl)
+    opt.lab = opt.lab.replace(' + ','_')
+    opt.lab = opt.lab.replace(' ','_')
+    
     opt.no_real = opt.simulation.sim_realisations.val
     opt.diagnostics = opt.simulation.sim_diagnostics.val
     opt.input_params = input_params
@@ -153,13 +156,13 @@ def run(params_file):
             results.run(results_file)
     else:
         jexosim_msg('No results', 1)
-    
-  
-           
+              
     #==============================================================================
     #      Store results
     #==============================================================================
    
 if __name__ == "__main__":     
     
-    run('jexosim_input_params_ex8.txt')      
+    run('jexosim_input_params_ex6.txt')
+
+    

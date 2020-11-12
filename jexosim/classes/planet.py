@@ -163,14 +163,25 @@ class Planet(object):
   
    
   def file_model(self):
-      filename = self.opt.exosystem_params.planet_spectrum_file.val       
+      filename = self.opt.exosystem_params.planet_spectrum_file.val   
+      print (filename)
       try:
           aa = np.loadtxt(filename)
       except IOError:
           jexosim_msg("Error6  planet class: No spectrum file found",  1) 
-      wl=  aa[:,0]*u.um, 
-      cr = aa[:,1]
+      if aa[:,0][0]< 1e-4: 
+          wl=  aa[:,0]*1e6*u.um 
+      else:
+          wl=  aa[:,0]*u.um 
+      cr = aa[:,1]*u.dimensionless_unscaled
+      # import matplotlib.pyplot as plt
+      # plt.figure(999999)
+      # plt.plot(wl, cr)
+      # xxxx
       self.sed = sed.Sed(wl,cr)   
+      
+      
+      
 
              
   def calc_T14(self, inc, a, per, Rp, Rs):

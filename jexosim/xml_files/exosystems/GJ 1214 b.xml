@@ -2,7 +2,7 @@
     <title> JexoSim exosystem file </title>
     <type name="exosystem parameters"> </type>
 
-    <fake_exosystem>
+    <model_exosystem>
         <planet_name val="GJ 1214 b" comment=""/>
         <R_p val="0.254" units="Rjup" comment=""/>
         <M_p val="0.0197" units="Mjup" comment=""/>
@@ -20,8 +20,10 @@
         <Z val="0.39" units="" comment=""/>
         <star_name val="GJ 1214" comment=""/>
         <ecliptic_lat val="27.915229999999998" units="deg" comment=""/>
+        <J_mag val="9.75" units="" comment=""/>
+        <K_mag val="8.782" units="" comment=""/>
      
-    </fake_exosystem>
+    </model_exosystem>
     
     
 </root>

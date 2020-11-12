@@ -47,17 +47,24 @@ class recipe_2(object):
             jexosim_msg ("Monte Carlo selected", 1) 
                            
         opt = self.run_JexoSimA(opt)
-        
+                                      
         if opt.observation_feasibility ==0:      
            jexosim_msg ("Observation not feasible...", opt.diagnostics) 
            self.feasibility = 0
         else:
            self.feasibility = 1
-                    
-           if opt.n_ndr > 20000:
+           n_ndr0 = opt.n_ndr*1
+           lc0 = opt.lc_original*1
+           ndr_end_frame_number0 = opt.ndr_end_frame_number*1
+           frames_per_ndr0 = opt.frames_per_ndr*1
+           duration_per_ndr0 = opt.duration_per_ndr*1
+           n_exp0 = opt.n_exp           
+                        
+           if n_ndr0 > 10000:
+
                opt.pipeline.split = 1
                if opt.diagnostics ==1 :
-                   jexosim_msg ('number of NDRs > 20000: using split protocol', opt.diagnostics)
+                   jexosim_msg ('number of NDRs > 10000: using split protocol', opt.diagnostics)
            else:
                opt.pipeline.split = 0 
   
@@ -71,24 +78,20 @@ class recipe_2(object):
                
                pp = time.time()
                
+               opt = self.run_JexoSimA1(opt)  # set QE grid for this realization
+               jexosim_msg ("QE variations set", 1) 
+               jexosim_msg ("Number of exposures %s"%(n_exp0), 1) 
+               
 # =============================================================================
 #  # split simulation into chunks to permit computation - makes no difference to final results    
 # =============================================================================
                if opt.pipeline.split ==1:
-                                      
-                   n_ndr0 = opt.n_ndr*1
-                   lc0 = opt.lc_original*1
-                   ndr_end_frame_number0 = opt.ndr_end_frame_number*1
-                   frames_per_ndr0 = opt.frames_per_ndr*1
-                   duration_per_ndr0 = opt.duration_per_ndr*1
-                   n_exp0 = opt.n_exp
-                   
+              
                    jexosim_msg('Splitting data series into chunks', opt.diagnostics)
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
-                   ndrs_per_round = opt.multiaccum*int(10000/opt.multiaccum)  
-                   
-                   # ndrs_per_round = opt.multiaccum*int(200/opt.multiaccum)      
-
+                   ndrs_per_round = opt.effective_multiaccum*int(5000/opt.multiaccum)  
+                   # ndrs_per_round = opt.effective_multiaccum*int(50/opt.multiaccum)  
+  
                    total_chunks = len(np.arange(0, n_ndr0, ndrs_per_round))
                    
                    idx = np.arange(0, n_ndr0, ndrs_per_round) # list of starting ndrs
@@ -130,15 +133,6 @@ class recipe_2(object):
                            opt = self.run_JexoSimB(opt)
                            opt  = self.run_pipeline_stage_1(opt)
                        
-                       # if i == 0:
-                       #     plstack = opt.pointing_timeline[:,2]
-                       # else:
-                       #     plstack = np.hstack((plstack, opt.pointing_timeline[:,2]))                           
-                       # np.save('/Users/user1/Desktop/plstack.npy', plstack)
-                       # np.save('/Users/user1/Desktop/pitchjit.npy', opt.input_pitch_jitter.value)
-                       # np.save('/Users/user1/Desktop/ndr_end_frame_number.npy',ndr_end_frame_number0)
-                       # np.save('/Users/user1/Desktop/frames_per_ndr.npy', frames_per_ndr0)          
-                       # np.save('/Users/user1/Desktop/frameosf.npy', opt._input_frame_osf)
                                   
                        jexosim_msg('Aperture used %s'%(opt.pipeline.pipeline_ap_factor.val), opt.diagnostics)
                        data0 = opt.pipeline_stage_1.binnedLC
@@ -251,11 +245,14 @@ class recipe_2(object):
           light_curve.run(opt)     
           return opt       
       else: # if detector saturates end sim      
-          return opt 
-      
-    def run_JexoSimB(self, opt):
+          return opt
+
+    def run_JexoSimA1(self, opt):
       jexosim_msg('Systematics', 1)
-      systematics.run(opt) 
+      systematics.run(opt)               
+      return opt
+        
+    def run_JexoSimB(self, opt):
       jexosim_msg('Noise', 1)
       noise.run(opt)                 
       return opt

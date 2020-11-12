@@ -35,7 +35,7 @@ def run(results_file):
     no_list = np.array([ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
                         'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'])  
-    color = ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
+    color = ['0.5','r', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
               
     ch =res_dict['ch']
     
@@ -63,6 +63,7 @@ def run(results_file):
                 p_stack = res_dict['p_stack'][idx]
             p_mean = res_dict['p_mean'][idx]
             p_std = res_dict['p_std'][idx]
+            
             
             cr = res_dict['input_spec']
             cr_wl = res_dict['input_spec_wl']
@@ -388,5 +389,6 @@ def run(results_file):
     plt.show()
 
 if __name__ == "__main__":     
-
-    run('Full_transit_NIRSpec_BOTS_PRISM_Kepler-62 f_2020_10_02_1742_53.pickle')    
+ 
+    run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_HD_209458_b_2020_11_09_2005_14.pickle')
+     

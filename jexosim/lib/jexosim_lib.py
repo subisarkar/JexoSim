@@ -136,7 +136,9 @@ def rebin(x, xp, fp):
   xp = xp[idx]
   fp = fp[idx]
   
+
   if np.diff(xp).min() < np.diff(x).min():
+   
     # Binning!
     c = cumtrapz(fp, x=xp)
     xpc = xp[1:]
@@ -147,13 +149,15 @@ def rebin(x, xp, fp):
     new_c_2 = np.interp(x+0.5*delta, xpc, c, 
                         left=0.0, right=0.0)
     new_f = (new_c_2 - new_c_1)/delta
+    
+
  
   else:
     # Interpolate !
     new_f = np.interp(x, xp, fp, left=0.0, right=0.0)
     
   new_f = (new_f.value)*fp.unit
-    
+  
 #    func = interpolate.interp1d(xp, fp, kind='quadratic', bounds_error=None, fill_value=0.0)
 #    new_f  = func(x)*fp.unit
   '''
