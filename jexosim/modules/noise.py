@@ -863,6 +863,13 @@ def run(opt):
   opt.emission.sed =  copy.deepcopy(opt.emission_sed_original) # "
 
   opt.lc = copy.deepcopy(opt.lc_original)
+    
+  # import matplotlib.pyplot as plt
+  # plt.figure('syst_lc_ex2')
+  # plt.plot(opt.lc[int(len(opt.x_wav_osr[1::3])/2)], 'b-')
+  
+  # xxxx
+  
   opt.ldc = copy.deepcopy(opt.ldc_original)
   opt.cr_wl = copy.deepcopy(opt.cr_wl_original) 
   opt.cr = copy.deepcopy(opt.cr_original)  

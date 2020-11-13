@@ -1,9 +1,9 @@
 '''
 JexoSim
 2.0
-Recipe 2 b :
+Recipe 2 :
 Monte Carlo full transit simulation returning transit depths and noise on transit dept per spectral bin
-returns intermediate data pipeline products
+
 Each realisation run the stage 2 JexoSim routine with a new noise randomization
 The if the pipeline_auto_ap=1, the aperture mask size may vary with each realisation
 This should not matter since final measurement is the fractional transit depth
@@ -47,20 +47,27 @@ class recipe_2b(object):
             jexosim_msg ("Monte Carlo selected", 1) 
                            
         opt = self.run_JexoSimA(opt)
-        
+                                      
         if opt.observation_feasibility ==0:      
            jexosim_msg ("Observation not feasible...", opt.diagnostics) 
            self.feasibility = 0
         else:
            self.feasibility = 1
-                    
-           if opt.n_ndr > 20000:
+           n_ndr0 = opt.n_ndr*1
+           lc0 = opt.lc_original*1
+           ndr_end_frame_number0 = opt.ndr_end_frame_number*1
+           frames_per_ndr0 = opt.frames_per_ndr*1
+           duration_per_ndr0 = opt.duration_per_ndr*1
+           n_exp0 = opt.n_exp           
+                        
+           if n_ndr0 > 10000:
+
                opt.pipeline.split = 1
                if opt.diagnostics ==1 :
-                   jexosim_msg ('number of NDRs > 20000: using split protocol', opt.diagnostics)
+                   jexosim_msg ('number of NDRs > 10000: using split protocol', opt.diagnostics)
            else:
                opt.pipeline.split = 0 
-   
+  
            for j in range(start, end):
                
                if (opt.no_real-start) > 1:
@@ -71,24 +78,22 @@ class recipe_2b(object):
                
                pp = time.time()
                
+               opt = self.run_JexoSimA1(opt)  # set QE grid for this realization
+               jexosim_msg ("QE variations set", 1) 
+               jexosim_msg ("Number of exposures %s"%(n_exp0), 1) 
+
+               lc0 = opt.lc_original*1
+               
 # =============================================================================
 #  # split simulation into chunks to permit computation - makes no difference to final results    
 # =============================================================================
                if opt.pipeline.split ==1:
-                                      
-                   n_ndr0 = opt.n_ndr*1
-                   lc0 = opt.lc_original*1
-                   ndr_end_frame_number0 = opt.ndr_end_frame_number*1
-                   frames_per_ndr0 = opt.frames_per_ndr*1
-                   duration_per_ndr0 = opt.duration_per_ndr*1
-                   n_exp0 = opt.n_exp
-                   
+              
                    jexosim_msg('Splitting data series into chunks', opt.diagnostics)
                    # uses same QE grid and jitter timeline but otherwise randomoses noise
-                   ndrs_per_round = opt.multiaccum*int(10000/opt.multiaccum)  
-                   
-                   # ndrs_per_round = opt.multiaccum*int(200/opt.multiaccum)      
-
+                   ndrs_per_round = opt.effective_multiaccum*int(5000/opt.multiaccum)  
+                   # ndrs_per_round = opt.effective_multiaccum*int(50/opt.multiaccum)  
+  
                    total_chunks = len(np.arange(0, n_ndr0, ndrs_per_round))
                    
                    idx = np.arange(0, n_ndr0, ndrs_per_round) # list of starting ndrs
@@ -130,15 +135,6 @@ class recipe_2b(object):
                            opt = self.run_JexoSimB(opt)
                            opt  = self.run_pipeline_stage_1(opt)
                        
-                       # if i == 0:
-                       #     plstack = opt.pointing_timeline[:,2]
-                       # else:
-                       #     plstack = np.hstack((plstack, opt.pointing_timeline[:,2]))                           
-                       # np.save('/Users/user1/Desktop/plstack.npy', plstack)
-                       # np.save('/Users/user1/Desktop/pitchjit.npy', opt.input_pitch_jitter.value)
-                       # np.save('/Users/user1/Desktop/ndr_end_frame_number.npy',ndr_end_frame_number0)
-                       # np.save('/Users/user1/Desktop/frames_per_ndr.npy', frames_per_ndr0)          
-                       # np.save('/Users/user1/Desktop/frameosf.npy', opt._input_frame_osf)
                                   
                        jexosim_msg('Aperture used %s'%(opt.pipeline.pipeline_ap_factor.val), opt.diagnostics)
                        data0 = opt.pipeline_stage_1.binnedLC
@@ -150,12 +146,13 @@ class recipe_2b(object):
                        else:
                            data_stack = np.dstack((data_stack,data))
                            data_stack0 = np.vstack((data_stack0,data0))                  
-                           aa = data_stack.sum(axis=0)
-                           bb = aa.sum(axis=0)                           
-                           jexosim_plot('test_from_sim', opt.diagnostics,
-                                        ydata=bb[opt.effective_multiaccum::opt.effective_multiaccum] )       
-                           aa = data_stack0.sum(axis=1)                 
-                           jexosim_plot('test_from_pipeline', opt.diagnostics,
+
+                   aa = data_stack.sum(axis=0)
+                   bb = aa.sum(axis=0)
+                   jexosim_plot('test_from_sim', opt.diagnostics,
+                            ydata=bb[opt.effective_multiaccum::opt.effective_multiaccum] )
+                   aa = data_stack0.sum(axis=1)
+                   jexosim_plot('test_from_pipeline', opt.diagnostics,
                                         ydata=aa)                            
 
                    opt.n_ndr  = n_ndr0             
@@ -177,11 +174,10 @@ class recipe_2b(object):
                    data_stack0  = opt.pipeline_stage_1.binnedLC                   
                    jexosim_plot('testvvv', opt.diagnostics,
                                 ydata=data_stack0.sum(axis=1) )  
-                                 
-               opt.pipeline_stage_1.binnedLC = data_stack0   
-               
+                   
+                
+               opt.pipeline_stage_1.binnedLC = data_stack0     
                opt = self.run_pipeline_stage_2(opt)
-               
                pipeline = opt.pipeline_stage_2
        
                p = pipeline.transitDepths
@@ -191,9 +187,7 @@ class recipe_2b(object):
                    p_stack = np.vstack((p_stack,p))
                                       
                jexosim_msg ("time to complete realization %s %s"%(j, time.time()-pp ) ,opt.diagnostics)
-         
-               self.results_dict['realization_%s_binned_lc'%(j)] = pipeline.binnedLC
-               self.results_dict['exp_end_time'] = pipeline.exp_end_time_grid
+        
 
                self.results_dict['wl'] = pipeline.binnedWav   
                self.results_dict['input_spec'] = opt.cr
@@ -254,11 +248,14 @@ class recipe_2b(object):
           light_curve.run(opt)     
           return opt       
       else: # if detector saturates end sim      
-          return opt 
-      
-    def run_JexoSimB(self, opt):
+          return opt
+
+    def run_JexoSimA1(self, opt):
       jexosim_msg('Systematics', 1)
-      systematics.run(opt) 
+      systematics.run(opt)               
+      return opt
+        
+    def run_JexoSimB(self, opt):
       jexosim_msg('Noise', 1)
       noise.run(opt)                 
       return opt

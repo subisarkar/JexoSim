@@ -33,10 +33,21 @@ def add_systematic_grid(opt):
     plt.figure('syst_grid')
     plt.plot(time, syst_grid[100])
     
-    print (np.diff(wl))
-    print (np.diff(syst_wl))
+    # print (np.diff(wl))
+    # print (np.diff(syst_wl))
+    
+    plt.figure('syst_lc_ex')
+    plt.plot(time, opt.lc[int(len(wl)/2)], 'r-')
     
     opt.lc *= syst_grid
+    
+    opt.lc_original = copy.deepcopy(opt.lc)
+    
+    print (opt.lc.shape)
+    
+    
+    plt.figure('syst_lc_ex')
+    plt.plot(time, opt.lc[int(len(wl)/2)], 'b-')
 
 
 

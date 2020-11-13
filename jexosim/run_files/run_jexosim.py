@@ -163,6 +163,7 @@ def run(params_file):
    
 if __name__ == "__main__":     
     
-    run('jexosim_input_params_ex1.txt')
+    # run('jexosim_input_params_ex1.txt')
+    run('jexosim_input_params_uw.txt')
 
     

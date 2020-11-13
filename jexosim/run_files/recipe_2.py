@@ -54,7 +54,7 @@ class recipe_2(object):
         else:
            self.feasibility = 1
            n_ndr0 = opt.n_ndr*1
-           lc0 = opt.lc_original*1
+           
            ndr_end_frame_number0 = opt.ndr_end_frame_number*1
            frames_per_ndr0 = opt.frames_per_ndr*1
            duration_per_ndr0 = opt.duration_per_ndr*1
@@ -81,6 +81,8 @@ class recipe_2(object):
                opt = self.run_JexoSimA1(opt)  # set QE grid for this realization
                jexosim_msg ("QE variations set", 1) 
                jexosim_msg ("Number of exposures %s"%(n_exp0), 1) 
+               
+               lc0 = opt.lc_original*1
                
 # =============================================================================
 #  # split simulation into chunks to permit computation - makes no difference to final results    
