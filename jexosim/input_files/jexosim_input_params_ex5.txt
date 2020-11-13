@@ -46,6 +46,13 @@ sim_flat_field_uncert
 sim_use_ipc 	0
 # Enter 1 to apply inter-pixel capacitance effect.  Will not be applied for MIRI.
 
+sim_use_systematic_model 0
+# Enter 1 to apply a systematic model located at path below. 0 or leave blank to omit
+
+sim_systematic_model_path  
+# If sim_use_systematic_model=1 provide the full path to the model
+
+
 
 ######################### OBSERVATION ###############################################
 
@@ -198,6 +205,9 @@ planet_spectrum_file
 star_spectrum_model	complex
 # Enter simple to use Planck function. Enter complex to use Phoenix stellar model. Recommend complex.
 
+star_spectrum_file   
+# Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
+
 star_spectrum_mag_norm     1 
 # Enter 1 to force star to a fixed magnitude (below). Enter 0 to allow magnitude to be derived in simulation.  In most cases recommend setting to 0.
 
@@ -220,9 +230,6 @@ planet_spectrum_params_cloud
 
 planet_spectrum_params_met   
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
-
-planet_spectrum_mmw    
-# Enter mean molecular weight in amu 
 
 
 ############## Following only needed if planet_use_database = 0 #####################

@@ -485,6 +485,8 @@ def crop_to_subarray(opt):
  
     cond=0    
     # special case for NIRSpec subarrays
+    
+
     if opt.channel.instrument.val =='NIRSpec':
         #wavelength solutions centered at division of subarrays to give right wavelength in each subarray    
         if opt.channel.name != 'NIRSpec_BOTS_G140H_F100LP' \

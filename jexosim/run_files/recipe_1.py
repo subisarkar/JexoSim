@@ -26,9 +26,7 @@ class recipe_1(object):
         self.noise_dict ={}    
    
         opt.pipeline.useSignal.val=1
-   
         opt.pipeline.use_fast.val =1
-
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
                       
@@ -59,7 +57,6 @@ class recipe_1(object):
                         'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
               }         
 
-        
 
         opt.noise.EnableReadoutNoise.val = nb_dict['rn'][noise_type]
         opt.noise.EnableShotNoise.val = nb_dict['sn'][noise_type]
@@ -72,8 +69,7 @@ class recipe_1(object):
         opt.diff = nb_dict['diff'][noise_type]      
         opt.noise_tag = nb_dict['noise_tag'][noise_type]
         opt.color = nb_dict['color'][noise_type]
-                
-        
+                        
         self.noise_dict[nb_dict['noise_tag'][noise_type]] ={}
         
         jexosim_msg ("Noise type: %s"%(nb_dict['noise_tag'][noise_type]), 1) 

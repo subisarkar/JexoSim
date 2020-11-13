@@ -44,6 +44,12 @@ sim_flat_field_uncert   0.5
 sim_use_ipc 	1
 # Enter 1 to apply inter-pixel capacitance effect.  Will not be applied for MIRI.
 
+sim_use_systematic_model 0
+# Enter 1 to apply a systematic model located at path below. 0 or leave blank to omit
+
+sim_systematic_model_path  
+# If sim_use_systematic_model=1 provide the full path to the model
+
 
 ######################### OBSERVATION ###############################################
 
@@ -68,7 +74,7 @@ obs_n_groups
 obs_n_reset_groups     default
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
-obs_inst_config  NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
+obs_inst_config  NIRSpec + BOTS_G395H_F290LP + SUB2048 +  NRSRAPID
 
 # available combinations: copy and paste a choice
 # instrument + configuration + subarray + readout_pattern
@@ -150,9 +156,6 @@ obs_inst_config  NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
 # NIRCam + TSGRISM_F322W2 + FULL_1_output + RAPID
 # NIRCam + TSGRISM_F322W2 + FULL_4_output + RAPID
 
-
-
-
 ######################### PIPELINE #################################################
 
 pipeline_binning	 R-bin
@@ -181,31 +184,31 @@ pipeline_bad_corr	 1
 
 ######################### EXOSYSTEM #################################################
 
-planet_name		TOI-732 c
+planet_name		GJ 1214 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database	  1
 # Enter 1 to obtain all exosystem parameters from the database automatically. Enter 0 to use user-defined exosystem parameters(see below).
 
-planet_spectrum_model	file	 
+planet_spectrum_model	simple	 
 # Enter simple for flat transmission spectrum or blackbody based emission spectrum. 
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
 
-planet_spectrum_file	 /Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_spectra/K2-18b.txt
+planet_spectrum_file	 
 # Give complete path to specific planet spectrum file. Only needed if planet_spectrum_mode = file.
 
 star_spectrum_model	complex
-# Enter simple to use Planck function. Enter complex to use Phoenix stellar model. Recommend complex.
+# Enter simple to use Planck function. 
+# Enter complex to use Phoenix stellar model database
+# Enter file to use a star spectrum from a specific file  
 
-star_spectrum_mag_norm     0
-# Enter 1 to force star to a fixed magnitude (below). Enter 0 to allow magnitude to be derived in simulation.  In most cases recommend setting to 0.
+star_spectrum_file   
+# Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
 
-star_spectrum_mag_band     
-# Enter J or K (only applied if star_spectrum_mag_norm = 1)
+star_spectrum_mag_norm     1
+# Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 0 to use radius and distance instead.
 
-star_spectrum_mag       
-# Enter magnitude (only applied if star_spectrum_mag_norm = 1)
 
 ############## Following only needed if planet_spectrum_model = complex #############
 
@@ -223,9 +226,6 @@ planet_spectrum_params_cloud
 
 planet_spectrum_params_met   
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
-
-planet_spectrum_mmw    
-# Enter mean molecular weight in amu 
 
 
 ############## Following only needed if planet_use_database = 0 #####################
@@ -280,4 +280,10 @@ user_defined_star_name
 
 user_defined_ecliptic_lat     
 # Enter ecliptic latitude in deg  
+
+user_defined_J_mag    	 
+# Enter J magnitude
+
+user_defined_K_mag    	 
+# Enter K magnitude
 

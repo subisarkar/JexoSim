@@ -1,15 +1,15 @@
 ######################### SIMULATION ################################################
 
-sim_diagnostics      
+sim_diagnostics       
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
-sim_mode               
+sim_mode              
 # 1 = OOT(with Allan). 2 = full transit. 3 = noise budget. 4 = OOT(no Allan).
 
-sim_output_type              
+sim_output_type          
 # 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline processed results + intermediate data
 
-sim_noise_source		 
+sim_noise_source	 	 
 # Pick a number from the list below. For most simulations recommend using 0 (All noise)
 # 0 All noise sources 
 # 2 Star (photon noise)
@@ -29,22 +29,31 @@ sim_realisations
 sim_full_ramps	 
 # Enter 0 to use a 2 NDR (CDS) approximation to UTR that adjusts Poisson and read noise to that expected for the number of groups per integration ramp (faster).  Enter 1 to simulate every NDR and perform UTR directly (slower).  Recommend 0 for speed.
 
-sim_use_UTR_noise_correction   
+sim_use_UTR_noise_correction    
 # Enter 1 to apply the noise correction if sim_full_ramps = 0. Enter 0 to omit this. Recommend keeping this set to 1.
 
-sim_pointing_psd   
+sim_pointing_psd     
 # Enter flat to use the flat white noise psd.  Enter non-flat to use the non-flat psd.
 
-sim_prnu_rms    
+sim_prnu_rms     
 # Enter rms of the prnu grid in percent.  Typical value is 3%.  The grid is randomised with each simulation. If set to 0, no prnu or flat field is applied
 
-sim_flat_field_uncert  
+sim_flat_field_uncert    
 # Enter uncertainty on flat field in percent.  Typical value 0.5%
+
+sim_use_ipc 	 
+# Enter 1 to apply inter-pixel capacitance effect.  Will not be applied for MIRI.
+
+sim_use_systematic_model  
+# Enter 1 to apply a systematic model located at path below. 0 or leave blank to omit
+
+sim_systematic_model_path  
+# If sim_use_systematic_model=1 provide the full path to the model
 
 
 ######################### OBSERVATION ###############################################
 
-obs_type	  
+obs_type	   
 # 1 = primary transit. 2 = secondary eclipse. 
 
 obs_frac_t14_pre_transit	 
@@ -53,45 +62,106 @@ obs_frac_t14_pre_transit
 obs_frac_t14_post_transit 
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 	 
 
-obs_auto_subarray  
-# Enter 1 to allow code to select an optimal subarray and readout pattern.  Enter 0 to select these manually (see below).
-
-obs_channel 	  
-# Enter instrument channel from following choices (only applied if obs_auto_subarray = 1):
-# NIRSpec_BOTS_G395M_F290LP
-# NIRSpec_BOTS_G235M_F170LP
-# NIRSpec_BOTS_G140M_F100LP
-# NIRSpec_BOTS_G140M_F070LP
-# NIRSpec_BOTS_G395H_F290LP
-# NIRSpec_BOTS_G235H_F170LP
-# NIRSpec_BOTS_G140H_F100LP
-# NIRSpec_BOTS_G140H_F070LP
-# NIRSpec_BOTS_PRISM
-# NIRISS_SOSS_GR700XD
-# MIRI_LRS_slitless
-# MIRI_LRS_slit
-# NIRCam_TSGRISM_F444W
-# NIRCam_TSGRISM_F322W2
-
-obs_use_sat 	 
+obs_use_sat 	  
 # Enter 1 to allow code to find number of groups per integration based on minimum pixel saturation time. Enter 0 to force simulation to use n_groups set below.  Recommend 1.
 
-obs_fw_percent  
+obs_fw_percent     
 # Enter percentage of detector full well capacity before a pixel is considered saturated
 
 obs_n_groups    
 # Enter number of groups per integration (only applied if use_sat = 0). JexoSim currently assumes 1 frame per group.  
  
-obs_n_reset_groups     
+obs_n_reset_groups      
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
+obs_inst_config   
+
+# available combinations: copy and paste a choice
+# instrument + configuration + subarray + readout_pattern
+
+# MIRI + LRS_slitless + SLITLESSPRISM + FAST
+# MIRI + LRS_slit + FULL + FAST 
+
+# NIRSpec + BOTS_G395M_F290LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G395M_F290LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G395M_F290LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G395M_F290LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G395M_F290LP + SUB2048 +  NRSRAPID
+
+# NIRSpec + BOTS_G235M_F170LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G235M_F170LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G235M_F170LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G235M_F170LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G235M_F170LP + SUB2048 + NRSRAPID
+
+# NIRSpec + BOTS_G140M_F100LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G140M_F100LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G140M_F100LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G140M_F100LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G140M_F100LP + SUB2048 +  NRSRAPID
+
+# NIRSpec + BOTS_G140M_F070LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G140M_F070LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G140M_F070LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G140M_F070LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G140M_F070LP + SUB2048 +  NRSRAPID
+
+# NIRSpec + BOTS_G395H_F290LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G395H_F290LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G395H_F290LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G395H_F290LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G395H_F290LP + SUB2048 +  NRSRAPID
+
+# NIRSpec + BOTS_G235H_F170LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G235H_F170LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G235H_F170LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G235H_F170LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G235H_F170LP + SUB2048 + NRSRAPID
+
+# NIRSpec + BOTS_G140H_F100LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G140H_F100LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G140H_F100LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G140H_F100LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G140H_F100LP + SUB2048 +  NRSRAPID
+
+# NIRSpec + BOTS_G140H_F070LP + SUB512S  + NRSRAPID
+# NIRSpec + BOTS_G140H_F070LP + SUB512  + NRSRAPID
+# NIRSpec + BOTS_G140H_F070LP + SUB1024A  + NRSRAPID
+# NIRSpec + BOTS_G140H_F070LP + SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_G140H_F070LP + SUB2048 +  NRSRAPID
+
+# NIRSpec + BOTS_PRISM +  SUB512S  + NRSRAPID
+# NIRSpec + BOTS_PRISM +  SUB512  + NRSRAPID
+# NIRSpec + BOTS_PRISM +  SUB1024B  + NRSRAPID
+# NIRSpec + BOTS_PRISM +  SUB2048  + NRSRAPID
+
+# NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
+# NIRISS + SOSS_GR700XD  + SUBSTRIP256 + NISRAPID
+     
+# NIRCam + TSGRISM_F444W + SUBGRISM64_1_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM64_4_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM128_1_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM128_4_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM256_1_output + RAPID
+# NIRCam + TSGRISM_F444W + SUBGRISM256_4_output + RAPID
+# NIRCam + TSGRISM_F444W + FULL_1_output + RAPID
+# NIRCam + TSGRISM_F444W + FULL_4_output + RAPID
+
+# NIRCam + TSGRISM_F322W2 + SUBGRISM64_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM64_4_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM128_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM128_4_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM256_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + SUBGRISM256_4_output + RAPID
+# NIRCam + TSGRISM_F322W2 + FULL_1_output + RAPID
+# NIRCam + TSGRISM_F322W2 + FULL_4_output + RAPID
 
 ######################### PIPELINE #################################################
 
 pipeline_binning	 
 # Enter R-bin for R-binning. Enter fixed-bin for bins of given pixel width. 
 
-pipeline_R	        
+pipeline_R	         
 # Enter binned R power (only applied if pipeline_binning = R-bin)
 
 pipeline_bin_size		 	
@@ -103,7 +173,7 @@ pipeline_ap_shape
 pipeline_apply_mask	 
 # Enter 1 to apply mask in data reduction. Enter 0 to omit mask. Recommend 1.
 
-pipeline_auto_ap	  	
+pipeline_auto_ap	   	
 # Enter 1 to allow code to find optimal mask width. 0 to set mask width by user (see below).  Recommend 1 
 
 pipeline_ap_factor		 	
@@ -114,13 +184,13 @@ pipeline_bad_corr
 
 ######################### EXOSYSTEM #################################################
 
-planet_name		 
+planet_name		
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database	  
 # Enter 1 to obtain all exosystem parameters from the database automatically. Enter 0 to use user-defined exosystem parameters(see below).
 
-planet_spectrum_model		 
+planet_spectrum_model	 	 
 # Enter simple for flat transmission spectrum or blackbody based emission spectrum. 
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
@@ -128,17 +198,17 @@ planet_spectrum_model
 planet_spectrum_file	 
 # Give complete path to specific planet spectrum file. Only needed if planet_spectrum_mode = file.
 
-star_spectrum_model	complex
-# Enter simple to use Planck function. Enter complex to use Phoenix stellar model. Recommend complex.
+star_spectrum_model	 
+# Enter simple to use Planck function. 
+# Enter complex to use Phoenix stellar model database
+# Enter file to use a star spectrum from a specific file  
 
-star_spectrum_mag_norm     
-# Enter 1 to force star to a fixed magnitude (below). Enter 0 to allow magnitude to be derived in simulation.  In most cases recommend setting to 0.
+star_spectrum_file   
+# Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
 
-star_spectrum_mag_band     
-# Enter J or K (only applied if star_spectrum_mag_norm = 1)
+star_spectrum_mag_norm      
+# Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 0 to use radius and distance instead.
 
-star_spectrum_mag       
-# Enter magnitude (only applied if star_spectrum_mag_norm = 1)
 
 ############## Following only needed if planet_spectrum_model = complex #############
 
@@ -156,9 +226,6 @@ planet_spectrum_params_cloud
 
 planet_spectrum_params_met   
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
-
-planet_spectrum_mmw    
-# Enter mean molecular weight in amu 
 
 
 ############## Following only needed if planet_use_database = 0 #####################
@@ -214,83 +281,9 @@ user_defined_star_name
 user_defined_ecliptic_lat     
 # Enter ecliptic latitude in deg  
 
+user_defined_J_mag    	 
+# Enter J magnitude
 
-############## Following only needed if obs_auto_subarray = 0 #####################
+user_defined_K_mag    	 
+# Enter K magnitude
 
-obs_user_subarray   
- 
-# available combinations: copy and paste a choice
-# channel + mode + subarray + readout_pattern
-
-# MIRI + LRS_slitless + SLITLESSPRISM + FAST
-# MIRI + LRS_slit + FULL + FAST 
-
-# NIRSpec + BOTS_G395M_F290LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G395M_F290LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G395M_F290LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G395M_F290LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G395M_F290LP + SUB2048 +  NRSRAPID
-# NIRSpec + BOTS_G235M_F170LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G235M_F170LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G235M_F170LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G235M_F170LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G235M_F170LP + SUB2048 + NRSRAPID
-# NIRSpec + BOTS_G140M_F100LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G140M_F100LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G140M_F100LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G140M_F100LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G140M_F100LP + SUB2048 +  NRSRAPID
-# NIRSpec + BOTS_G140M_F070LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G140M_F070LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G140M_F070LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G140M_F070LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G140M_F070LP + SUB2048 +  NRSRAPID
-
-# NIRSpec + BOTS_G395H_F290LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G395H_F290LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G395H_F290LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G395H_F290LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G395H_F290LP + SUB2048 +  NRSRAPID
-# NIRSpec + BOTS_G235H_F170LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G235H_F170LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G235H_F170LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G235H_F170LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G235H_F170LP + SUB2048 + NRSRAPID
-# NIRSpec + BOTS_G140H_F100LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G140H_F100LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G140H_F100LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G140H_F100LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G140H_F100LP + SUB2048 +  NRSRAPID
-# NIRSpec + BOTS_G140H_F070LP + SUB512S  + NRSRAPID
-# NIRSpec + BOTS_G140H_F070LP + SUB512  + NRSRAPID
-# NIRSpec + BOTS_G140H_F070LP + SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_G140H_F070LP + SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_G140H_F070LP + SUB2048 +  NRSRAPID
-
-# NIRSpec + BOTS_PRISM +  SUB512S  + NRSRAPID
-# NIRSpec + BOTS_PRISM +  SUB512  + NRSRAPID
-# NIRSpec + BOTS_PRISM +  SUB1024A  + NRSRAPID
-# NIRSpec + BOTS_PRISM +  SUB1024B  + NRSRAPID
-# NIRSpec + BOTS_PRISM +  SUB2048  + NRSRAPID
-
-# NIRISS + SOSS_GR700XD + SUBSTRIP96 + NISRAPID
-# NIRISS + SOSS_GR700XD  + SUBSTRIP256 + NISRAPID
-     
-# NIRCam + TSGRISM_F444W + SUBGRISM64_1_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM64_4_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM128_1_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM128_4_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM256_1_output + RAPID
-# NIRCam + TSGRISM_F444W + SUBGRISM256_4_output + RAPID
-# NIRCam + TSGRISM_F444W + FULL_1_output + RAPID
-# NIRCam + TSGRISM_F444W + FULL_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM64_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM64_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM128_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM128_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM256_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + SUBGRISM256_4_output + RAPID
-# NIRCam + TSGRISM_F322W2 + FULL_1_output + RAPID
-# NIRCam + TSGRISM_F322W2 + FULL_4_output + RAPID
-
-  

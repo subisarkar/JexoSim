@@ -443,17 +443,15 @@ def fast_method(opt):
   
   quantum_yield = opt.quantum_yield.sed[1::3]
   quantum_yield = quantum_yield[np.newaxis, :, np.newaxis]   
-  
-  
-  bkg = bkg*quantum_yield   
-  
+   
+  bkg = bkg*quantum_yield  
   
   if (opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableAll.val == 1) and opt.noise.DisableAll.val != 1:
 
       fano_factor = (3 * quantum_yield - quantum_yield**2 - 2) / quantum_yield
-      
+
       photon_noise = np.random.poisson(bkg.value) - bkg.value
-      
+    
       photon_noise = photon_noise*quantum_yield
       
       fano_noise = np.random.poisson(bkg.value) - bkg.value #photon noise
@@ -464,9 +462,7 @@ def fast_method(opt):
       # bkg_combined_noise = photon_noise
       
       bkg_pn_added =1
-      
 
-   
 #   3e) add dark current and noise
       
   if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val) and opt.background.DisableAll.val != 1: 
@@ -494,6 +490,8 @@ def fast_method(opt):
    
   bkg *=u.electron         
   bkg = np.where(bkg >= 0.0, bkg, 0)
+  
+  print ('hello')
 
 #   3g) make ramps and add read noise
   for i in range(0, opt.n_ndr, opt.effective_multiaccum):
@@ -511,6 +509,8 @@ def fast_method(opt):
 # =============================================================================
 #       now do pipeline steps for bkg  
 # =============================================================================
+
+  print ('hello')
 
 # 3h) subtract the dc)
   if (opt.background.EnableDC.val ==1 or opt.background.EnableAll.val) and opt.background.DisableAll.val != 1:  

@@ -144,12 +144,13 @@ class recipe_2(object):
                        else:
                            data_stack = np.dstack((data_stack,data))
                            data_stack0 = np.vstack((data_stack0,data0))                  
-                           aa = data_stack.sum(axis=0)
-                           bb = aa.sum(axis=0)                           
-                           jexosim_plot('test_from_sim', opt.diagnostics,
-                                        ydata=bb[opt.effective_multiaccum::opt.effective_multiaccum] )       
-                           aa = data_stack0.sum(axis=1)                 
-                           jexosim_plot('test_from_pipeline', opt.diagnostics,
+
+                   aa = data_stack.sum(axis=0)
+                   bb = aa.sum(axis=0)
+                   jexosim_plot('test_from_sim', opt.diagnostics,
+                            ydata=bb[opt.effective_multiaccum::opt.effective_multiaccum] )
+                   aa = data_stack0.sum(axis=1)
+                   jexosim_plot('test_from_pipeline', opt.diagnostics,
                                         ydata=aa)                            
 
                    opt.n_ndr  = n_ndr0             

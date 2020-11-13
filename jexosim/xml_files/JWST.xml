@@ -21,6 +21,8 @@
       <sim_adjust_rms val="0" units="" comment="activate to adjust RMS of desired jitter" />
       <sim_pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter if adjust_rms is True " />
       <sim_use_ipc val="1" comment="if MIRI chosen this will become 0" />
+      <sim_use_systematic_model val="1" comment="" />
+      <sim_systematic_model_path val="__path__" comment="" />
   </simulation>
   
   <observation>
@@ -63,8 +65,6 @@
     <planet_spectrum_params_haze  val="1" units="" comment=""/>
     <planet_spectrum_params_cloud  val="0" units="" comment=""/>
     <planet_spectrum_params_met  val="1.7" units="" comment=""/>
-    <planet_spectrum_params_mmw  val="18" units="" comment=""/>
-
  </exosystem_params>
  
   <noise>

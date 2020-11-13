@@ -26,10 +26,10 @@ sim_noise_source
 sim_realisations	 1
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
 
-sim_full_ramps	  1
+sim_full_ramps	  0
 # Enter 0 to use a 2 NDR (CDS) approximation to UTR that adjusts Poisson and read noise to that expected for the number of groups per integration ramp (faster).  Enter 1 to simulate every NDR and perform UTR directly (slower).  Recommend 0 for speed.
 
-sim_use_UTR_noise_correction    0
+sim_use_UTR_noise_correction    1
 # Enter 1 to apply the noise correction if sim_full_ramps = 0. Enter 0 to omit this. Recommend keeping this set to 1.
 
 sim_pointing_psd    non-flat
@@ -43,6 +43,12 @@ sim_flat_field_uncert   0.5
 
 sim_use_ipc 	0
 # Enter 1 to apply inter-pixel capacitance effect.  Will not be applied for MIRI.
+
+sim_use_systematic_model 0
+# Enter 1 to apply a systematic model located at path below. 0 or leave blank to omit
+
+sim_systematic_model_path  
+# If sim_use_systematic_model=1 provide the full path to the model
 
 
 ######################### OBSERVATION ###############################################
@@ -196,6 +202,9 @@ planet_spectrum_file
 star_spectrum_model	complex
 # Enter simple to use Planck function. Enter complex to use Phoenix stellar model. Recommend complex.
 
+star_spectrum_file   
+# Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
+
 star_spectrum_mag_norm     0
 # Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 0 to use radius and distance instead.
 
@@ -215,9 +224,6 @@ planet_spectrum_params_cloud
 
 planet_spectrum_params_met    
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
-
-planet_spectrum_mmw     
-# Enter mean molecular weight in amu 
 
 
 ############## Following only needed if planet_use_database = 0 #####################
