@@ -389,6 +389,5 @@ def run(results_file):
     plt.show()
 
 if __name__ == "__main__":     
- 
-    run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_HD_209458_b_2020_11_09_2005_14.pickle')
-     
+
+    run('Full_transit_MIRI_LRS_slitless_SLITLESSPRISM_FAST_GJ_1214_b_2020_11_18_1739_49.pickle')

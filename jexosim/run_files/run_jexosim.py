@@ -90,16 +90,17 @@ def run(params_file):
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
     #==============================================================================      
     i = int(opt.noise.sim_noise_source.val) # noise option - choose 0 for all noise - default      
-    nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    nb_dict = {
+           'rn'           :[1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
            'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-           'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
-           'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
-           'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],                           
-           'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],       
-           'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+           'spat'         :[1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
+           'spec'         :[1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
+           'emm_switch'   :[1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1],                           
+           'zodi_switch'  :[1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],       
+           'dc_switch'    :[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
            'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
            'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-           'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+           'jitter_switch':[1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
            'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                     'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
                     'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'],  
@@ -163,7 +164,8 @@ def run(params_file):
    
 if __name__ == "__main__":     
     
-    # run('jexosim_input_params_ex1.txt')
-    run('jexosim_input_params_uw.txt')
+    run('jexosim_input_params_ex1.txt')
+    # run('jexosim_input_params_uw.txt')
+    # run('jexosim_input_params_paper.txt')
 
     

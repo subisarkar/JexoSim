@@ -9,6 +9,7 @@ v1.0
 from jexosim.classes.star    import Star
 from jexosim.classes.planet  import Planet
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
+from jexosim.lib import jexosim_lib
 from astropy import units as u
  
 class model_star_class():
@@ -65,6 +66,9 @@ def run(opt):
         opt.model_exosystem.ecliptic_lat.val = opt.input_params['user_defined_ecliptic_lat']*u.deg
         opt.model_exosystem.J_mag.val = opt.input_params['user_defined_J_mag']
         opt.model_exosystem.K_mag.val = opt.input_params['user_defined_K_mag']
+        
+        if  opt.input_params['user_defined_logg'] == '':
+            opt.model_exosystem.logg.val = jexosim_lib.calc_logg(opt.model_exosystem.M_s.val,opt.model_exosystem.R_s.val)[1]
 
         
   jexosim_msg('Exosystem parameters \n---------------------', 1)
@@ -84,7 +88,10 @@ def run(opt):
 		 (planet.planet.a).to(u.m), 
 		 (planet.planet.P).to(u.s), 
 		 (planet.planet.R).to(u.m), 
-		 (planet.planet.star.R).to(u.m))             
+		 (planet.planet.star.R).to(u.m))  
+             
+  jexosim_msg('T14 %s'%(planet.t14), 1)
+  # xxxxx
   
  
   opt.star = star

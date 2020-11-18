@@ -5,7 +5,7 @@ Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin wi
 
 '''
 from jexosim.modules import exosystem, telescope, channel, backgrounds
-from jexosim.modules import detector, timeline, light_curve, systematics, noise, output
+from jexosim.modules import detector, timeline, light_curve, systematics, noise, output 
 from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
 from astropy import units as u
@@ -56,7 +56,6 @@ class recipe_1(object):
                         'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'],  
                         'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
               }         
-
 
         opt.noise.EnableReadoutNoise.val = nb_dict['rn'][noise_type]
         opt.noise.EnableShotNoise.val = nb_dict['sn'][noise_type]

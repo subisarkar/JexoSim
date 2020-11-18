@@ -8,6 +8,7 @@ v1.0
 
 import numpy as np
 from jexosim.lib.jexosim_lib import jexosim_msg
+from astropy import units as u
 
 
 def loadData(opt):
@@ -108,10 +109,16 @@ def subBackground(opt) :
     
     if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
        opt.data.shape[0]>20:
-           aa = opt.bkg.sum(axis=0)/opt.bkg.shape[0] #mean value per column
+           aa = opt.bkg_signal.sum(axis=0)/opt.bkg_signal.shape[0] #mean value per column
+           
            if opt.channel.instrument.val !='NIRSpec':  # overall mean - okay if no slit since no wav-dep on zodi and emission
-               aa = opt.bkg.mean()  
-           opt.data = opt.data- aa                     
+                 aa = []
+                 for i in range(opt.data.shape[2]):
+                     aa.append(opt.bkg_signal[...,i].mean().value)
+                 aa = np.array(aa)*u.electron
+                 print (aa)
+           opt.data = opt.data- aa
+             
     else:
         border_pix = 5
         if opt.data.shape[0]<20:
@@ -120,8 +127,8 @@ def subBackground(opt) :
         background_2 = opt.data[-border_pix:]   
         background = np.vstack ( (background_1, background_2) )     
         aa = background.sum(axis=0)/background.shape[0]
-        if opt.channel.instrument.val !='NIRSpec':
-               aa =  background.mean()
+        # if opt.channel.instrument.val !='NIRSpec':
+        #        aa =  background.mean()
         opt.data = opt.data- aa
 
     return opt

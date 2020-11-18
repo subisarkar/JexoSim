@@ -168,16 +168,7 @@ def run(opt):
       # Fix units
       opt.fp = opt.fp*opt.star.sed.sed.unit 
       opt.fp_signal = opt.fp_signal*opt.star.sed.sed.unit  
-      
-      
-#==============================================================================
-#     load quantum yield
-#============================================================================== 
 
-      dtmp=np.loadtxt(opt.channel.detector_array.quantum_yield().replace('__path__', opt.__path__), delimiter=',')
-      quantum_yield = Sed(dtmp[:,0]*u.um, dtmp[:,1]*u.dimensionless_unscaled)
-      quantum_yield.rebin(opt.x_wav_osr)
-      opt.quantum_yield = quantum_yield 
 
 #==============================================================================
 #     Crop array to subarray

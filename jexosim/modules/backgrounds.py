@@ -98,10 +98,14 @@ def run(opt):
       opt.zodi.sed     *= opt.d_x_wav_osr 
       opt.emission.sed *= opt.d_x_wav_osr
       
+      zodi_photons_sed = copy.deepcopy(opt.zodi.sed)
+      emission_photons_sed = copy.deepcopy(opt.emission.sed)
+      
       if ch.camera.slit_width.val == 0:
           slit_size =  opt.fpn[1]*2  # to ensure all wavelengths convolved onto all pixels in slitless case
       else:
           slit_size =  ch.camera.slit_width.val
+
        
       # need to work on this to make more accurate : filter wavelength range might not correspond to wl sol on the detector, i.e. some wavelengths not being included that should be
       opt.zodi.sed     = scipy.signal.convolve(opt.zodi.sed, 
@@ -116,8 +120,27 @@ def run(opt):
       
       # jexosim_plot('zodi spectrum', opt.diagnostics, xdata = opt.zodi.wl, ydata=opt.zodi.sed)
       # jexosim_plot('emission spectrum', opt.diagnostics, xdata = opt.emission.wl, ydata=opt.emission.sed)
-          
-        
+                
+      
+# ====Now work out quantum yield ==============================================
+
+      zodi_w_qy =  zodi_photons_sed*opt.quantum_yield.sed
+      zodi_w_qy = scipy.signal.convolve(zodi_w_qy, 
+		      np.ones(np.int(slit_size*ch.simulation_factors.osf())), 
+		      'same') * opt.zodi.sed.unit    
+      opt.qy_zodi = zodi_w_qy  / opt.zodi.sed
+      
+      
+      emission_w_qy =  emission_photons_sed*opt.quantum_yield.sed
+      emission_w_qy = scipy.signal.convolve(emission_w_qy, 
+		      np.ones(np.int(slit_size*ch.simulation_factors.osf())), 
+		      'same') * opt.emission.sed.unit    
+      opt.qy_emission = emission_w_qy  / opt.emission.sed   
+   
+            
+# =============================================================================
+      
+    
       return opt
       
 

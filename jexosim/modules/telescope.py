@@ -68,7 +68,16 @@ def run(opt):
       jexosim_lib.sed_propagation(opt.star.sed, opt.telescope_transmission)
       jexosim_msg('tel check 3: %s'%(opt.star.sed.sed.max()), opt.diagnostics)
       
+#==============================================================================
+#     load quantum yield
+#============================================================================== 
+
+      dtmp=np.loadtxt(opt.channel.detector_array.quantum_yield().replace('__path__', opt.__path__), delimiter=',')
+      quantum_yield = Sed(dtmp[:,0]*u.um, dtmp[:,1]*u.dimensionless_unscaled)
+      quantum_yield.rebin(opt.x_wav_osr)
+      opt.quantum_yield = quantum_yield 
    
+    
       return opt
   
 def useInterp(opt):
