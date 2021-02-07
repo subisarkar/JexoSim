@@ -23,8 +23,10 @@ where  `xxxx.pickle`  is the output file name in the output directory.  The resu
 <div align="center">
 <img src="example_1/NIRISS_1.png" width="300px">
 <img src="example_1/NIRISS_2.png" width="300px">
-=======
-
+<img src="example_1/NIRISS_3.png" width="300px">
+<img src="example_1/NIRISS_4.png" width="300px">
+<img src="example_1/NIRISS_5.png" width="300px">
+<img src="example_1/NIRISS_6.png" width="300px">
 </img>
 <br/>
 </div>
