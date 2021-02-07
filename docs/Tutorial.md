@@ -21,12 +21,10 @@ This example will run an out-of-transit simulation, followed by Allan deviation 
 where  `xxxx.pickle`  is the output file name in the output directory.  The results will show the signal, noise, fractional noise at T14, and the predicted noise on the transit depth.
 
 <div align="center">
-<<<<<<< HEAD
 <img src="example_1/NIRISS_1.png" width="300px">
 <img src="example_1/NIRISS_2.png" width="300px">
 =======
-<img src="jexosim_logo.png" width="300px">
->>>>>>> 29d896e506c9ae583d73dc17ce943a28a9927b72
+
 </img>
 <br/>
 </div>
