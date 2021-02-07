@@ -118,8 +118,7 @@ Four example input parameter files are provided.  These can be duplicated and ed
 Use of code
 ------
 
- JexoSim is currently available for use on a collaborative basis.  Please contact the JexoSim team to discuss uing the code. 
- JexoSim does not contain all known systematics for the various instruments, but is a good starting point to investigate the effects of systematics, and has the framework to incorporate more systematics in the future.
+JexoSim does not contain all known systematics for the various instruments, but is a good starting point to investigate the effects of systematics, and has the framework to incorporate more systematics in the future.  
  
 Citing
 ------
