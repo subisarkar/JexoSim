@@ -75,7 +75,7 @@ obs_n_groups
 obs_n_reset_groups     default
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
-obs_inst_config MIRI + LRS_slitless + SLITLESSPRISM + FAST
+obs_inst_config NIRCam + TSGRISM_F322W2 + SUBGRISM64_4_output + RAPID
 
 # available combinations: copy and paste a choice
 # instrument + configuration + subarray + readout_pattern

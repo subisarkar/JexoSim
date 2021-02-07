@@ -418,6 +418,6 @@ if __name__ == "__main__":
     # run('Full_transit_NIRCam_TSGRISM_F322W2_SUBGRISM64_4_output_RAPID_K2-18_b_2021_02_05_1008_14.pickle')
     # run('Full_transit_NIRSpec_BOTS_G140M_F100LP_SUB2048_NRSRAPID_K2-18_b_2021_02_05_2248_21.pickle')
     
-    # run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_02_07_1010_08.pickle')
+    run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_02_07_1010_08.pickle')
     
-    run('OOT_SNR_NIRISS_SOSS_GR700XD_SUBSTRIP96_NISRAPID_K2-18_b_2021_02_03_1146_44.pickle')
+    # run('OOT_SNR_NIRISS_SOSS_GR700XD_SUBSTRIP96_NISRAPID_K2-18_b_2021_02_03_1146_44.pickle')

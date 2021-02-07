@@ -97,10 +97,23 @@ The results from any given simulation are placed in the output folder.  To ident
 Make sure the file is in the designated output directory for this to work.
 In addition a .txt with the same name as the dictionary file will be generated containing derived simulation values (e.g. number of NDRs, integration time etc.) and the input parameter file values used.
 
+
+FITS output file only
+------
+
+### 1.  No processing
+
+You can choose to not run the JexoSim pipeline but simply store the unprocessed JexoSim image time series in FITS format. This will allow you to run the synthetic data through an alternate pipeline.  This option is available for both OOT and full transit simulations, however it is not available for noise budget simulations.  To choose this option, enter `2`  for the entry `sim_output_type` in the input parameter file.  The FITS file will appear in the output folder together with a .txt file containing simulation information.
+
+### 2.  Intermediate processing
+
+You can allow JexoSim to process the raw data through stage 1 of its pipeline, producing calibrated light curves binned to the desired R-power or number of pixel columns.   These are then packaged into FITS format and dumped in the output folder together with a .txt file containing simulation information.  This option is available for both OOT and full transit simulations, however it is not available for noise budget simulations.   To choose this option, enter `3`  for the entry `sim_output_type` in the input parameter file. 
+
+
 Examples
 ------
-In the folder `JexoSim/jexosim/input_files` there are example input parameter text files, which can be run using the 'Running a simulation' routine above.    Example 1 (`jexosim_input_params_ex1.txt`) runs a single OOT simulation with Allan deviation analysis for the planet GJ 1214 b using the NIRISS SOSS SUBSTRIP96 mode with all noise sources activated, and returns signal, standard deviation of the signal, fractional noise at T14, and estimated precision on the transit depth. 
-Example 2 (`jexosim_input_params_ex2.txt`) runs a Monte Carlo simulation with 25 realizations using a full transit simulation of HAT-P-2 b observed in MIRI LRS, returning precison on the transit depth, and final reconstructed spectra with error bars.  Example 3 (`jexosim_input_params_ex2.txt`) is an OOT noise budget simulation of K2-18 b observed by  MIRI LRS which returns a noise breakdown of the constribution of different noise sources.
+Four example input parameter files are provided.  These can be duplicated and edited as required by the user.  For further information on running these example go to :  [docs/tutorial.md](https://docs/tutorial.md)
+
 
 Use of code
 ------
