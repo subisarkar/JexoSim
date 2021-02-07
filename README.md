@@ -112,7 +112,7 @@ You can allow JexoSim to process the raw data through stage 1 of its pipeline, p
 
 Examples
 ------
-Four example input parameter files are provided.  These can be duplicated and edited as required by the user.  For further information on running these example go to :  [docs/tutorial.md](https://docs/tutorial.md)
+Four example input parameter files are provided.  These can be duplicated and edited as required by the user.  For further information on running these example go to :  [blob/master/docs/Tutorial.md](https://blob/master/docs/Tutorial.md)
 
 
 Use of code
