@@ -11,7 +11,7 @@ This recipe only generates raw data to be used in a subsequent pipeline.
 import numpy as np
 import time, os, pickle
 from datetime import datetime
-from jexosim.modules import astroscene, telescope, channel, backgrounds, output
+from jexosim.modules import exosystem, telescope, channel, backgrounds, output
 from jexosim.modules import detector, timeline, light_curve, systematics, noise
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 from jexosim.lib.output_lib import write_record_no_pipeline
@@ -104,8 +104,8 @@ class recipe_2_no_pipeline(object):
 
          
     def run_jexosimA(self, opt):
-      jexosim_msg('Astroscene', 1)
-      astroscene.run(opt)
+      jexosim_msg('Exosystem', 1)
+      exosystem.run(opt)
       jexosim_msg('Telescope', 1)
       telescope.run(opt)
       jexosim_msg('Channel', 1)

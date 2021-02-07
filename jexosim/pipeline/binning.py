@@ -516,8 +516,7 @@ class extractSpec():
         # Fix for NIRISS substrip96 again found empirically
         if self.data[...,0].shape[0] == 96 :
              y_pos = -97 + self.opt.y_pos_osr[1::3]/3.0
-        
-        
+
         mid_dist = pixSize/2.  + y_pos*pixSize 
 
         if self.final_ap ==2 or self.final_ap ==1:   #excludes signal only and n_pix runs          

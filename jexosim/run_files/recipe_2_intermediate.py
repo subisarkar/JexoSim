@@ -1,25 +1,22 @@
 '''
 JexoSim
 2.0
-Recipe 2 :
-Monte Carlo full transit simulation returning transit depths and noise on transit dept per spectral bin
-
-Each realisation run the stage 2 JexoSim routine with a new noise randomization
-The if the pipeline_auto_ap=1, the aperture mask size may vary with each realisation
-This should not matter since final measurement is the fractional transit depth
+Recipe 2: Full transit simulation
+Pipeline Stage 1 processing only, with binned light curves returned in FITS format
 
 '''
 
 import numpy as np
 import time, os, pickle
 from datetime import datetime
-from jexosim.modules import exosystem, telescope, channel, backgrounds
+from jexosim.modules import exosystem, telescope, channel, backgrounds, output
 from jexosim.modules import detector, timeline, light_curve, systematics, noise
-from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
+from jexosim.pipeline.run_pipeline import pipeline_stage_1
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
+from astropy import units as u
 
 
-class recipe_2(object):
+class recipe_2_intermediate(object):
     def __init__(self, opt):
         
         output_directory = opt.common.output_directory.val
@@ -85,9 +82,7 @@ class recipe_2(object):
                opt = self.run_JexoSimA1(opt)  # set QE grid for this realization
                jexosim_msg ("QE variations set", 1) 
                jexosim_msg ("Number of exposures %s"%(n_exp0), 1) 
-               
-               
-               
+                        
 # =============================================================================
 #  # split simulation into chunks to permit computation - makes no difference to final results    
 # =============================================================================
@@ -181,63 +176,21 @@ class recipe_2(object):
         
                    binnedLC_stack  = opt.pipeline_stage_1.binnedLC                   
                    jexosim_plot('testvvv', opt.diagnostics,
-                                ydata=binnedLC_stack.sum(axis=1) )  
+                                ydata=binnedLC_stack.sum(axis=1) )
                    
+# =============================================================================
+# Now put intermediate data (binned light curves) into FITS files
+# =============================================================================
+               opt.pipeline_stage_1.binnedLC*=u.electron
+               opt.pipeline_stage_1.binnedWav*=u.um
+  
+               filename = output.run(opt)
                 
-               opt.pipeline_stage_1.binnedLC = binnedLC_stack     
-               opt = self.run_pipeline_stage_2(opt)
-               pipeline = opt.pipeline_stage_2
-       
-               p = pipeline.transitDepths
-               if j == start:
-                   p_stack = p
-               else:
-                   p_stack = np.vstack((p_stack,p))
-                                      
-               jexosim_msg ("time to complete realization %s %s"%(j, time.time()-pp ) ,opt.diagnostics)
-        
+               write_record(opt, output_directory, filename, opt.params_file_path)
 
-               self.results_dict['wl'] = pipeline.binnedWav   
-               self.results_dict['input_spec'] = opt.cr
-               self.results_dict['input_spec_wl'] = opt.cr_wl
-              
-               if j==start:  # if only one realisation slightly different format
-                   self.results_dict['p_stack'] = np.array(p)
-                   self.results_dict['p_std']= np.zeros(len(p))
-                   self.results_dict['p_mean'] = np.array(p)             
-               else:
-                   self.results_dict['p_stack'] = np.vstack((self.results_dict['p_stack'], p))
-                   self.results_dict['p_std'] = self.results_dict['p_stack'].std(axis=0)  
-                   self.results_dict['p_mean'] = self.results_dict['p_stack'].mean(axis=0)
-
-                      
-               time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
-                   
-               self.results_dict['time_tag'] =  time_tag
-               self.results_dict['bad_map'] = opt.bad_map
-               self.results_dict['example_exposure_image'] = opt.exp_image
-               self.results_dict['pixel wavelengths'] = opt.x_wav_osr[1::3].value
-                                 
-    
-               if j != start:
-                   os.remove(filename)  # delete previous temp file
-     
-               filename = '%s/Full_transit_%s_TEMP.pickle'%(output_directory, opt.lab)
-               with open(filename, 'wb') as handle:
-                   pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
-                   
+               jexosim_msg('File saved as %s/%s'%(output_directory, filename), 1)         
                 
-           os.remove(filename)  # delete previous temp file
-           # write final file
-           filename = '%s/Full_transit_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
-           with open(filename, 'wb') as handle:
-                  pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
-        
-           jexosim_msg('Results in %s'%(filename), 1)
-           self.filename = 'Full_transit_%s_%s.pickle'%(opt.lab, time_tag)
-               
-           write_record(opt, output_directory, self.filename, opt.params_file_path)
-            
+                             
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)
       exosystem.run(opt)
@@ -273,8 +226,3 @@ class recipe_2(object):
       opt.pipeline_stage_1 = pipeline_stage_1(opt)   
       return opt  
              
-    def run_pipeline_stage_2(self, opt):    
-      jexosim_msg('Pipeline stage 2', 1)
-      opt.pipeline_stage_2 = pipeline_stage_2(opt)             
-      return opt 
-    

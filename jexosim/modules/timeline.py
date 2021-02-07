@@ -12,11 +12,7 @@ from jexosim.lib.jexosim_lib import jexosim_msg
 def run(opt):
 
   planet = opt.planet
-  opt.T14 =   (planet.calc_T14((planet.planet.i).to(u.rad),
-		 (planet.planet.a).to(u.m), 
-		 (planet.planet.P).to(u.s), 
-		 (planet.planet.R).to(u.m), 
-		 (planet.planet.star.R).to(u.m))  ).to(u.hour)    
+  opt.T14 =   planet.T14
   
   opt.time_at_transit      = opt.T14*(0.5+  opt.observation.obs_frac_t14_pre_transit.val )
    

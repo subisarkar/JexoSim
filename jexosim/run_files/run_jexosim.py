@@ -8,16 +8,23 @@ v1.0
 from jexosim.classes.options import Options
 from jexosim.classes.params import Params
 from jexosim.run_files.recipe_1 import recipe_1
+from jexosim.run_files.recipe_1a import recipe_1a
 from jexosim.run_files.recipe_2 import recipe_2
-from jexosim.run_files.recipe_2a import recipe_2a
 from jexosim.run_files.recipe_2b import recipe_2b
 from jexosim.run_files.recipe_3 import recipe_3
+from jexosim.run_files.recipe_3a import recipe_3a
 from jexosim.run_files.recipe_4 import recipe_4
+
+from jexosim.run_files.recipe_2_no_pipeline import recipe_2_no_pipeline
+from jexosim.run_files.recipe_1_no_pipeline import recipe_1_no_pipeline
+from jexosim.run_files.recipe_1_intermediate import recipe_1_intermediate
+from jexosim.run_files.recipe_2_intermediate import recipe_2_intermediate
+
 from jexosim.run_files import results
 from jexosim.generate.gen_planet_xml_file import make_planet_xml_file
 from jexosim.lib.jexosim_lib import jexosim_msg
 import jexosim
-import os
+import os, sys
 import time
 
  
@@ -90,27 +97,29 @@ def run(params_file):
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
     #==============================================================================      
     i = int(opt.noise.sim_noise_source.val) # noise option - choose 0 for all noise - default      
-    nb_dict = {
-           'rn'           :[1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-           'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-           'spat'         :[1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0],                                   
-           'spec'         :[1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],                                      
-           'emm_switch'   :[1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1],                           
-           'zodi_switch'  :[1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],       
-           'dc_switch'    :[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-           'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-           'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-           'jitter_switch':[1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-           'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
-                    'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                    'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'],  
-                    'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
-          }  
-                            
+    nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+               'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+               'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],                                   
+               'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],                                      
+               'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],                    
+               'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1],    
+               'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+               'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+               'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+               'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+               'fano'         :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+               'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
+                        'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
+                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise'],  
+                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c']
+              } 
+                
+
     opt.noise.EnableReadoutNoise.val = nb_dict['rn'][i]
     opt.noise.EnableShotNoise.val = nb_dict['sn'][i]
     opt.noise.EnableSpatialJitter.val= nb_dict['spat'][i]
-    opt.noise.EnableSpectralJitter.val= nb_dict['spec'][i]   
+    opt.noise.EnableSpectralJitter.val= nb_dict['spec'][i]
+    opt.noise.EnableFanoNoise.val= nb_dict['fano'][i]
     opt.background.EnableEmission.val = nb_dict['emm_switch'][i]
     opt.background.EnableZodi.val = nb_dict['zodi_switch'][i]    
     opt.background.EnableDC.val  =  nb_dict['dc_switch'][i]
@@ -131,23 +140,44 @@ def run(params_file):
     opt.input_params = input_params
     opt.jexosim_path = jexosim_path
     opt.params_file_path = params_file 
+    if opt.noise.sim_prnu_rms.val !=0:
+        opt.noise.ApplyPRNU.val = 1
+    else:
+        opt.noise.ApplyPRNU.val = 0
     
     jexosim_msg(('Simulation mode %s'%(int(opt.simulation.sim_mode.val))), 1)    
     jexosim_msg(f'{opt.lab}', 1)
-          
+    
     if opt.simulation.sim_mode.val == 1:
-          recipe  = recipe_1(opt)
+        if opt.simulation.sim_output_type.val == 1:
+            recipe  = recipe_1(opt) # replace with 1a to test split method
+        elif opt.simulation.sim_output_type.val == 2:   
+            recipe  = recipe_1_no_pipeline(opt)  
+        elif opt.simulation.sim_output_type.val == 3:  
+            recipe  = recipe_1_intermediate(opt)  
+            
     if opt.simulation.sim_mode.val == 2:
-       if opt.simulation.sim_output_type.val == 1:   
-           recipe  = recipe_2(opt)   
-       if opt.simulation.sim_output_type.val == 2: # fits only
-           recipe  = recipe_2a(opt)   
-       if opt.simulation.sim_output_type.val == 3: #  
-           recipe  = recipe_2b(opt)       
-    if opt.simulation.sim_mode.val == 3:
-          recipe  = recipe_3(opt) 
-    if opt.simulation.sim_mode.val == 4:
-          recipe  = recipe_4(opt) 
+            if opt.simulation.sim_output_type.val == 1:
+                recipe  = recipe_2(opt)
+            elif opt.simulation.sim_output_type.val == 2:
+                recipe  = recipe_2_no_pipeline(opt)  
+            if opt.simulation.sim_output_type.val == 3: #
+                recipe  = recipe_2_intermediate(opt)   
+                
+    if opt.simulation.sim_mode.val == 3: #noise budget
+            if opt.simulation.sim_output_type.val == 1:
+                recipe  = recipe_3(opt) # replace with 3a to test split method
+            elif opt.simulation.sim_output_type.val !=1:
+                jexosim_msg('This output option is not currently available for noise budgets',1)
+                sys.exit()
+  
+    if opt.simulation.sim_mode.val == 4: #same as 1 but no Allen analysis
+        if opt.simulation.sim_output_type.val == 1:
+            recipe  = recipe_4(opt) 
+        elif opt.simulation.sim_output_type.val == 2:   
+            recipe  = recipe_1_no_pipeline(opt) 
+        elif opt.simulation.sim_output_type.val == 3:  
+            recipe  = recipe_1_intermediate(opt)          
           
     print ('time to complete', time.time() - aa)     
           
@@ -163,9 +193,15 @@ def run(params_file):
     #==============================================================================
    
 if __name__ == "__main__":     
-    
-    run('jexosim_input_params_ex1.txt')
-    # run('jexosim_input_params_uw.txt')
-    # run('jexosim_input_params_paper.txt')
 
+    # run('jexosim_input_params_ex4.txt')
+    run('jexosim_input_params_TEST1.txt')
+  
+ 
     
+ 
+    # run('jexosim_input_params_ex_miri_test.txt')
+    # run('jexosim_input_params_ex_nirspec_test.txt')
+    # run('jexosim_input_params_ex_nircam_test.txt')
+    # run('jexosim_input_params_ex_niriss_test.txt')
+  

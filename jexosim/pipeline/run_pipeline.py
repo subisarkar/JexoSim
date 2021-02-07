@@ -72,7 +72,7 @@ class pipeline_stage_1():
               
 
 #==============================================================================
-#    Pipeline steps - add satflag, dq array       
+#    Pipeline steps       
 #             
 #==============================================================================
          
@@ -95,6 +95,8 @@ class pipeline_stage_1():
         self.opt = calibration.flatField(self.opt)
    
     def subBackground(self):
+
+
         self.opt = calibration.subBackground(self.opt)  
         
     def doUTR(self):
@@ -150,7 +152,25 @@ class pipeline_stage_1():
                 if x0 > 40:
                     x0=40
                 sample =  self.opt.data[...,0:x0]
-                
+        # print (sample.shape)   
+        # zero_check = sample.sum(axis=0)
+        # zero_check = zero_check.sum(axis=1)
+        # idx_zero = np.argwhere(zero_check==0)
+        
+        # sample = np.delete(sample, idx_zero, axis=1)
+        
+        # print (sample.shape)
+        # print (idx_zero)
+        # idx_zero_0 = idx_zero[0].item()
+        # idx_zero_1 = idx_zero[-1].item()
+        
+        # print (idx_zero_0, idx_zero_1)
+        # print (zero_check[idx_zero_0], zero_check[idx_zero_1])
+        
+        # import matplotlib.pyplot as plt
+        # plt.figure('zero_check')
+        # plt.plot(zero_check)
+        # xxxx
             
         jexosim_msg("SAMPLE SHAPE %s %s %s"%(sample.shape), self.opt.diagnostics)
         pix_size = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
@@ -167,7 +187,7 @@ class pipeline_stage_1():
         for i in ApList:
             testApFactor = 1.0*i  
             jexosim_msg("test ApFactor %s"%(testApFactor), self.opt.diagnostics)
-            self.extractSample = binning.extractSpec(sample, self.opt, self.opt.diff, testApFactor, 2) 
+            self.extractSample = binning.extractSpec(sample,  self.opt, self.opt.diff, testApFactor, 2) 
             if self.opt.channel.instrument.val =='NIRISS':
                     self.extractSample.applyMask_extract_1D_NIRISS()
             else:
@@ -177,7 +197,7 @@ class pipeline_stage_1():
             binnedLC = self.extractSample.binnedLC   
             wl =  self.extractSample.binnedWav
             SNR = binnedLC.mean(axis =0)/binnedLC .std(axis =0)
-             
+ 
             if i == ApList[0] :
                 SNR_stack = SNR
             else:
@@ -188,22 +208,39 @@ class pipeline_stage_1():
         
         idx = np.argwhere( (wl>=wl_min) & (wl<= wl_max))
         SNR_stack = SNR_stack[:,idx][...,0]
+        wl=  wl[idx].T[0]
+        wl0=wl
         
+ 
+        nan_check = SNR_stack.sum(axis=0)
+        nan_idx = np.argwhere(np.isnan(nan_check))
+    
+        SNR_stack = np.delete(SNR_stack, nan_idx, axis=1)
+        wl0 =  np.delete(wl, nan_idx) 
+ 
+        zero_check = SNR_stack.sum(axis=0)
+        zero_idx = np.argwhere(zero_check==0)
+        SNR_stack = np.delete(SNR_stack, zero_idx, axis=1)
+        wl0 =  np.delete(wl0, zero_idx) 
+ 
+        
+
         best=[]
         for i in range(SNR_stack.shape[1]):
             aa = SNR_stack[:,i]
 #            jexosim_msg i, np.argmax(aa), ApList[np.argmax(aa)]
             best.append(ApList[np.argmax(aa)])          
-        wl=  wl[idx].T[0]
+        
 
         jexosim_plot('highest SNR aperture vs wavelength', self.opt.diagnostics,
-                     xdata=wl, ydata=best, marker='bo-')      
+                     xdata=wl0, ydata=best, marker='bo-')      
         
         AvBest = np.round(np.mean(best),0)
         jexosim_msg ("average best aperture factor %s"%(AvBest), self.opt.diagnostics)
         self.opt.AvBest = AvBest
         self.ApFactor = AvBest
         self.opt.pipeline.pipeline_ap_factor.val = self.ApFactor
+
  
     def extractSpec(self):
         

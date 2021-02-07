@@ -72,6 +72,7 @@
       <EnableSpectralJitter val="0" units=""/>
       <EnableShotNoise val="1" units=""/>
       <EnableReadoutNoise val="0" units=""/>
+      <EnableFanoNoise val="0" units=""/>
       <EnableAll val="0" units="" comment="enables all noise sources and applies PRNU: if ApplyRandomPRNU is 1 it will apply random grid else it applies the standard grid"/>
       <DisableAll val="0" units="" comment="disables all noise sources and does not apply PRNU, overides enable all"/>
       <ApplyPRNU val="1" units="" comment="If 1 uses a matrix of QE variations"/>

@@ -34,8 +34,8 @@ def run(results_file):
         
     no_list = np.array([ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background'])  
-    color = ['0.5','r', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c']
+                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise'])  
+    color = ['0.5','r', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c']
               
     ch =res_dict['ch']
     
@@ -87,9 +87,13 @@ def run(results_file):
             plt.grid(True)
                    
             r = 4 
-            if ch== 'NIRCam_TSGRISM_F444W' or ch== 'NIRCam_TSGRISM_F322W2':
+            if 'NIRCam' in ch:
                 r=2
-             
+            if 'NIRSpec' in ch:
+                loc = ch.find('PRISM')
+                if loc == -1:
+                    r= 2   
+                    
             z = np.polyfit(wl, p_std*1e6, r)
                                          
             plt.figure('precision %s'%(res_dict['time_tag']))
@@ -241,9 +245,14 @@ def run(results_file):
                          , fracNoT14_mean.max()*np.sqrt(2) + fracNoT14_mean.max()*np.sqrt(2)*0.2)
     
                 r = 4 
-                if ch== 'NIRCam_TSGRISM_F444W' or ch== 'NIRCam_TSGRISM_F322W2':
+                if 'NIRCam' in ch:
                     r=2
-
+                if 'NIRSpec' in ch:
+                    loc = ch.find('PRISM')
+                    if loc == -1:
+                        r= 2  
+                    
+            
                 z = np.polyfit(wl, fracNoT14_mean*np.sqrt(2), r)
                 p= np.poly1d(z)
                 # yhat = p(wav)
@@ -266,9 +275,9 @@ def run(results_file):
                 cr_wl = cr_wl[idx0]
   
                 f = interpolate.interp1d(cr_wl,cr, bounds_error=False)
-                rand_spec = np.array(f(wl))
                 
                 for ntransits in [1,10,100]:
+                    rand_spec = np.array(f(wl))
                     plt.figure('sample spectrum for %s transit %s'%(ntransits, res_dict['time_tag']))  
                     plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
                     for i in range(len(wl)):
@@ -305,6 +314,8 @@ def run(results_file):
         no_dict =  res_dict['noise_dic']  
   
         for key in no_dict.keys():
+            
+            print (key)
    
             idx = np.argwhere(no_list==key)[0].item()
             col = color[idx]
@@ -350,6 +361,16 @@ def run(results_file):
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
             
+            
+            # plt.figure('sigp')
+            # N = 2367
+            # sigp = np.sqrt(2)*(no_mean/sig_mean)/np.sqrt(N)
+            # plt.plot(wl, sigp*1e6)
+            
+            # xxx
+            
+            
+            
             if res_dict['simulation_realisations'] > 1:
                 for i in range(no_stack.shape[0]):
                     plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)                 
@@ -390,4 +411,11 @@ def run(results_file):
 
 if __name__ == "__main__":     
 
-    run('Full_transit_MIRI_LRS_slitless_SLITLESSPRISM_FAST_GJ_1214_b_2020_11_18_1739_49.pickle')
+    # run('OOT_SNR_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2020_12_28_1157_21.pickle')
+    
+    # run('OOT_SNR_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_02_04_1304_53.pickle')
+    
+    # run('Full_transit_NIRCam_TSGRISM_F322W2_SUBGRISM64_4_output_RAPID_K2-18_b_2021_02_05_1008_14.pickle')
+    # run('Full_transit_NIRSpec_BOTS_G140M_F100LP_SUB2048_NRSRAPID_K2-18_b_2021_02_05_2248_21.pickle')
+    
+    run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_02_07_1010_08.pickle')

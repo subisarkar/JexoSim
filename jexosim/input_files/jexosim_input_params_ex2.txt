@@ -3,10 +3,10 @@
 sim_diagnostics      1
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
-sim_mode              2 
+sim_mode             2
 # 1 = OOT(with Allan). 2 = full transit. 3 = noise budget. 4 = OOT(no Allan).
 
-sim_output_type         1     
+sim_output_type         1 
 # 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline processed results + intermediate data
 
 sim_noise_source	0	 
@@ -22,6 +22,7 @@ sim_noise_source	0
 # 9 Combined jitter (spatial and spectral)
 # 10 Noiseless no backgrounds
 # 11 Noiseless with backgrounds
+# 12 Fano noise
 
 sim_realisations	 50
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
@@ -51,31 +52,30 @@ sim_systematic_model_path
 # If sim_use_systematic_model=1 provide the full path to the model
 
 
-
 ######################### OBSERVATION ###############################################
 
 obs_type	  1
 # 1 = primary transit. 2 = secondary eclipse. 
 
-obs_frac_t14_pre_transit	 0.5
+obs_frac_t14_pre_transit	0.5 
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 
 
-obs_frac_t14_post_transit        0.5
+obs_frac_t14_post_transit  0.5
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 	 
 
 obs_use_sat 	 1
 # Enter 1 to allow code to find number of groups per integration based on minimum pixel saturation time. Enter 0 to force simulation to use n_groups set below.  Recommend 1.
 
-obs_fw_percent    100
+obs_fw_percent    80
 # Enter percentage of detector full well capacity before a pixel is considered saturated
 
-obs_n_groups    
+obs_n_groups      
 # Enter number of groups per integration (only applied if use_sat = 0). JexoSim currently assumes 1 frame per group.  
  
 obs_n_reset_groups     default
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
-obs_inst_config  MIRI + LRS_slitless + SLITLESSPRISM + FAST
+obs_inst_config MIRI + LRS_slitless + SLITLESSPRISM + FAST
 
 # available combinations: copy and paste a choice
 # instrument + configuration + subarray + readout_pattern
@@ -157,14 +157,12 @@ obs_inst_config  MIRI + LRS_slitless + SLITLESSPRISM + FAST
 # NIRCam + TSGRISM_F322W2 + FULL_1_output + RAPID
 # NIRCam + TSGRISM_F322W2 + FULL_4_output + RAPID
 
-
-
 ######################### PIPELINE #################################################
 
 pipeline_binning	 R-bin
 # Enter R-bin for R-binning. Enter fixed-bin for bins of given pixel width. 
 
-pipeline_R	       100 
+pipeline_R	       100
 # Enter binned R power (only applied if pipeline_binning = R-bin)
 
 pipeline_bin_size		 	
@@ -193,16 +191,18 @@ planet_name		K2-18 b
 planet_use_database	  1
 # Enter 1 to obtain all exosystem parameters from the database automatically. Enter 0 to use user-defined exosystem parameters(see below).
 
-planet_spectrum_model	complex	 
+planet_spectrum_model	file	 
 # Enter simple for flat transmission spectrum or blackbody based emission spectrum. 
-# Enter complex to use a planet spectrum from the database (only pick for gas giant)
+# Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
 
-planet_spectrum_file	 
-# Give complete path to specific planet spectrum file. Only needed if planet_spectrum_mode = file.
+planet_spectrum_file	K2-18b.txt 
+# Give complete path to specific planet spectrum file. Exception: if the file is in the .../data/planet_spectra folder, only the file name need be given. Only needed if planet_spectrum_mode = file.
 
 star_spectrum_model	complex
-# Enter simple to use Planck function. Enter complex to use Phoenix stellar model. Recommend complex.
+# Enter simple to use Planck function. 
+# Enter complex to use Phoenix stellar model database
+# Enter file to use a star spectrum from a specific file  
 
 star_spectrum_file   
 # Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
@@ -213,78 +213,81 @@ star_spectrum_mag_norm     1
 
 ############## Following only needed if planet_spectrum_model = complex #############
 
-planet_spectrum_params_cond    local
+planet_spectrum_params_cond    
 # Enter local for local condensation. Enter rainout for rainout condensation
 
-planet_spectrum_params_co     0.7
+planet_spectrum_params_co     
 # Enter C/O ratio value between 0.35, 0.56, 0.7, 1.0
 
-planet_spectrum_params_haze   1
+planet_spectrum_params_haze   
 # Enter haze scattering parameter: choose between 1, 10, 100, 1100 x standard Rayleigh scattering
 
-planet_spectrum_params_cloud   0
+planet_spectrum_params_cloud   
 # Enter uniform cloud parameter: choose between 0, 0.06, 0.2, 1
 
-planet_spectrum_params_met   0
+planet_spectrum_params_met   
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
 
 
 ############## Following only needed if planet_use_database = 0 #####################
 
-user_defined_planet_name 	   
+user_defined_planet_name xxx	   
 # Enter name for planet   
 
-user_defined_R_p		 
+user_defined_R_p	0.1633	 
 # Enter planet radius in R_j units
 
-user_defined_M_p		 
+user_defined_M_p	0.01466	 
 # Enter planet mass in M_j units
 
-user_defined_P		 
+user_defined_P		8.24664 
 # Enter period in days
 
-user_defined_T_p	   
+user_defined_T_p	   1000
 # Enter planet temperature in K
 
-user_defined_a	        
+user_defined_a	       0.0652 
 # Enter semi-major axis in AU
 
-user_defined_i		 
+user_defined_i		89.65 
 # Enter inclination angle in deg
 
-user_defined_e		 
+user_defined_e		 0
 # Enter eccentricity 
  
-user_defined_albedo	  
+user_defined_albedo	  0
 # Enter albedo  
 
-user_defined_R_s		  
+user_defined_R_s	0.538	  
 # Enter star radius in R_sun units
 
-user_defined_M_s	 
+user_defined_M_s	 0.544
 # Enter star radius in M_sun units
 
-user_defined_T_s	 
+user_defined_T_s	 3709.0
 # Enter star radius K
 
-user_defined_d 		 
+user_defined_d 		27.19 
 # Enter distance in pc
 
 user_defined_logg	 	 
 # Enter logg
 
-user_defined_Z		  
+user_defined_Z		 -0.2 
 # Enter star metallicity Z index
 
-user_defined_star_name 	  
+user_defined_T14	1.0 
+# Enter transit duration in hrs
+
+user_defined_star_name 	  ccc
 # Enter star name
 
-user_defined_ecliptic_lat     
-# Enter ecliptic latitude in deg 
+user_defined_ecliptic_lat     0
+# Enter ecliptic latitude in deg  
 
-user_defined_J_mag    	 
+user_defined_J_mag    	 0
 # Enter J magnitude
 
-user_defined_K_mag    	 
+user_defined_K_mag    	 0
 # Enter K magnitude
 

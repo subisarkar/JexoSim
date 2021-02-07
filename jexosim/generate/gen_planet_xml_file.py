@@ -9,7 +9,7 @@ v1.0
 import numpy as np
 import pandas as pd
 from lxml import etree as ET # USE lxml because it maintins order when setting attributes.
-from jexosim.lib import jexosim_lib
+from jexosim.lib import jexosim_lib, exosystem_lib
 import jexosim
 from astropy import units as u
 import os, csv
@@ -25,7 +25,8 @@ pl_radj:        Planet Radius [Jupiter Radius]
 pl_bmassj:      Planet Mass or Mass*sin(i) [Jupiter Mass]																																
 pl_orbeccen:    Eccentricity																															
 pl_eqt:         Equilibrium Temperature [K]																
-pl_orbincl:     Inclination [deg]																											
+pl_orbincl:     Inclination [deg]		
+pl_trandur:     Transit Duration [hours]																								
 st_teff:        Stellar Effective Temperature [K]						
 st_rad:         Stellar Radius [Solar Radius]									
 st_mass:        Stellar Mass [Solar mass]	
@@ -107,7 +108,7 @@ def make_planet_xml_file(opt, pl):
                     # print (i, pl)
                     idx_list.append(i)        
                     
-            params = 13
+            params = 14
             param_array = np.zeros(( len(idx_list), params))
             nan_list =[]
             ct = -1
@@ -126,7 +127,8 @@ def make_planet_xml_file(opt, pl):
                 T_s = data['st_teff'][idx] 
                 d = data['sy_dist'][idx]
                 Z = data['st_met'][idx]
-                param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z])
+                T14 = data['pl_trandur'][idx]
+                param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z, T14])
                 param_array[ct] = param_list
                 nan_list.append(len(np.argwhere(np.isnan(param_list))))
              
@@ -174,14 +176,15 @@ def make_planet_xml_file(opt, pl):
             T_s = data['st_teff'][idx] 
             d = data['sy_dist'][idx]
             Z = data['st_met'][idx]
-            param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z])
+            T14 = data['pl_trandur'][idx]
+            param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z, T14])
             
             dic = {'elat': ecliptic_lat,
                    'pl_radj': R_p,'pl_bmassj': M_p, 'pl_eqt':T_p,  'pl_orbincl': i, 'pl_orbeccen': e, 'pl_orbsmax': a,
-                   'pl_orbper': P ,'st_rad': R_s,'st_mass': M_s,'st_teff': T_s,'sy_dist': d,'st_met': Z }
+                   'pl_orbper': P ,'st_rad': R_s,'st_mass': M_s,'st_teff': T_s,'sy_dist': d,'st_met': Z, 'pl_trandur': T14 }
             
             params = ['elat', 'pl_radj','pl_bmassj', 'pl_eqt', 'pl_orbincl','pl_orbeccen','pl_orbsmax',
-                        'pl_orbper','st_rad','st_mass','st_teff','sy_dist','st_met']
+                        'pl_orbper','st_rad','st_mass','st_teff','sy_dist','st_met', 'pl_trandur']
              
             
             print (param_list)
@@ -233,32 +236,20 @@ def make_planet_xml_file(opt, pl):
                     dic[params[missing_params[i]]]   = data0[params[missing_params[i]]][idx]
                     param_list[missing_params[i]] = data0[params[missing_params[i]]][idx]
    
-            
-            idx = np.argwhere(np.isnan(dic['pl_orbeccen']))
-            if len(idx) ==1:
-                print ("As no e value found, setting e to 0")
-                dic['pl_orbeccen'] = 0
-                param_list[5] = 0
-               
-            
-            idx = np.argwhere(np.isnan(dic['pl_eqt']))
-            if len(idx) ==1:
-                T_p = jexosim_lib.calc_EqT(T_s, R_s*u.Rsun, a*u.au, 0.3, 0)
-                print ("As no T_p value found, calculating T_p = ", T_p)
-                dic['pl_eqt'] = T_p
-                param_list[3] = T_p
-            
-          
+            # print (dic)
+
             missing_params = np.argwhere(np.isnan(param_list))
             if len(missing_params) >0:
                 missing_params = np.argwhere(np.isnan(param_list)).T[0]
             
-                for i in range(len(missing_params)):
-                    
-                    print (params[missing_params[i]], "still missing information: enter manually")
-                    value = input("Enter value (check correct units in template xml file)")
-                    dic[params[missing_params[i]]] = value
-                    print (params[missing_params[i]], 'set to', value)              
+                for i in range(len(missing_params)):         
+                    if  params[missing_params[i]] == 'pl_trandur' or params[missing_params[i]] == 'pl_orbeccen' or params[missing_params[i]] =='pl_eqt' :
+                        pass # these can be calculated given a complete set of inputs
+                    else: 
+                        print (params[missing_params[i]], "still missing information: enter manually")
+                        value = input("Enter value (check correct units in template xml file)")
+                        dic[params[missing_params[i]]] = value
+                        print (params[missing_params[i]], 'set to', value)              
                 
             # calculate logg and add to dic 
             print ("Adding calculated log g")
@@ -270,8 +261,32 @@ def make_planet_xml_file(opt, pl):
             dic['sy_jmag']= J_mag
             dic['sy_kmag']= K_mag
             # dic['mag_band']= mag_band
-    
             
+            idx = np.argwhere(np.isnan(dic['pl_orbeccen']))
+            if len(idx) ==1:
+                print ("As no e value found, setting e to 0")
+                dic['pl_orbeccen'] = 0
+                param_list[5] = 0
+                         
+            idx = np.argwhere(np.isnan(dic['pl_eqt']))
+            if len(idx) ==1:
+                T_p = jexosim_lib.calc_EqT(T_s, R_s*u.Rsun, a*u.au, 0.3, 0)
+                print ("As no T_p value found, calculating T_p = ", T_p)
+                dic['pl_eqt'] = T_p
+                param_list[3] = T_p
+                
+            idx = np.argwhere(np.isnan(dic['pl_trandur']))
+            if len(idx) ==1:
+                pl_inc = (dic['pl_orbincl']*u.deg).to(u.rad)
+                pl_a  =(dic['pl_orbsmax']*u.au).to(u.m)
+                pl_P  =(dic['pl_orbper']*u.day).to(u.hr)
+                pl_Rp = (dic['pl_radj']*u.Rjup).to(u.m)
+                pl_Rs = (dic['st_rad']*u.Rsun).to(u.m)         
+                T14 = exosystem_lib.calc_T14(pl_inc, pl_a, pl_P, pl_Rp, pl_Rs)
+                print ("As no T14 value found, calculating T14 = ", T14)
+                T14 = T14.value
+                dic['pl_trandur'] = T14
+
             def makeXmlFile(xmlTemplateFile, dic, pl):
   
               tree = ET.parse(xmlTemplateFile)
@@ -292,7 +307,8 @@ def make_planet_xml_file(opt, pl):
                   child.find('T_s').set('val', '%s'%(dic['st_teff']))
                   child.find('d').set('val', '%s'%(dic['sy_dist']))
                   child.find('logg').set('val', '%s'%(dic['logg']))
-                  child.find('Z').set('val', '%s'%(dic['st_met']))     
+                  child.find('Z').set('val', '%s'%(dic['st_met']))   
+                  child.find('T14').set('val', '%s'%(dic['pl_trandur']))   
                   child.find('star_name').set('val', '%s'%(dic['hostname']))
                   child.find('ecliptic_lat').set('val', '%s'%(dic['elat']))
                   child.find('planet_name').set('val', '%s'%(pl))  

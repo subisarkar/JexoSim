@@ -62,11 +62,11 @@
   </detector_readout>
   
   <pipeline_params>
-      <start_wav val="0.85" units=""/>
-      <end_wav val="2.0" units=""/>
+      <start_wav val="0.6" units=""/>
+      <end_wav val="1.4" units=""/>
       <extra_pix val="0" units=""/>
-      <wavrange_lo val="0.97" units=""/>
-      <wavrange_hi val="1.84" units=""/>
+      <wavrange_lo val="0.7" units=""/>
+      <wavrange_hi val="1.27" units=""/>
   </pipeline_params>
 
 </channel>

@@ -18,6 +18,7 @@
         <d val="14.6427" units="pc" comment=""/>
         <logg val="4.929313524714402" units="" comment=""/>
         <Z val="0.39" units="" comment=""/>
+        <T14 val="0.8688" units="hr" comment=""/>
         <star_name val="GJ 1214" comment=""/>
         <ecliptic_lat val="27.915229999999998" units="deg" comment=""/>
         <J_mag val="9.75" units="" comment=""/>

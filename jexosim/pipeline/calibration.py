@@ -102,39 +102,36 @@ def flatField(opt):
     
     return opt
     
- 
 
 def subBackground(opt) : 
     jexosim_msg ("subtracting background...", opt.diagnostics)
     
     if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
-       opt.data.shape[0]>20:
-           aa = opt.bkg_signal.sum(axis=0)/opt.bkg_signal.shape[0] #mean value per column
-           
-           if opt.channel.instrument.val !='NIRSpec':  # overall mean - okay if no slit since no wav-dep on zodi and emission
-                 aa = []
-                 for i in range(opt.data.shape[2]):
-                     aa.append(opt.bkg_signal[...,i].mean().value)
-                 aa = np.array(aa)*u.electron
-                 print (aa)
-           opt.data = opt.data- aa
-             
+        opt.data.shape[0]>20:
+            aa = opt.bkg_signal.sum(axis=0)/opt.bkg_signal.shape[0] #mean value per column
+            if opt.channel.instrument.val !='NIRSpec':  # overall mean - okay if no slit since no wav-dep on zodi and emission
+                  aa = []
+                  for i in range(opt.data.shape[2]):
+                      aa.append(opt.bkg_signal[...,i].mean().value)
+                  aa = np.array(aa)*u.electron
+            opt.data = opt.data- aa         
     else:
         border_pix = 5
         if opt.data.shape[0]<20:
-               border_pix = 1
+                border_pix = 1
         background_1 = opt.data[0:border_pix]
         background_2 = opt.data[-border_pix:]   
         background = np.vstack ( (background_1, background_2) )     
         aa = background.sum(axis=0)/background.shape[0]
-        # if opt.channel.instrument.val !='NIRSpec':
-        #        aa =  background.mean()
+        if opt.channel.instrument.val !='NIRSpec':
+                aa = []
+                for i in range(opt.data.shape[2]):
+                    aa.append(background[...,i].mean().value)
+                aa = np.array(aa)*u.electron 
         opt.data = opt.data- aa
-
     return opt
 
 
-    
 def doUTR(data, opt):
        
     multiaccum = int(opt.effective_multiaccum)

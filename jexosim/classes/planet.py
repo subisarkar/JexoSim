@@ -163,8 +163,14 @@ class Planet(object):
   
    
   def file_model(self):
-      filename = self.opt.exosystem_params.planet_spectrum_file.val   
-      print (filename)
+      filename = self.opt.exosystem_params.planet_spectrum_file.val
+      if '/' in  filename:
+          pass
+      else:
+          filename = '%s/jexosim/data/planet_spectra/%s'%(self.opt.jexosim_path, filename)
+      
+      jexosim_msg('planet spectrum from file: %s'%(filename),1)  
+    
       try:
           aa = np.loadtxt(filename)
       except IOError:
@@ -181,15 +187,6 @@ class Planet(object):
       self.sed = sed.Sed(wl,cr)   
       
       
-      
-
-             
-  def calc_T14(self, inc, a, per, Rp, Rs):
-    b = np.cos(inc)*a/Rs
-    rat = Rp/Rs
-    self.t14 = per/np.pi* Rs/a * np.sqrt((1+rat)**2 - b**2)
-    return self.t14
-         
   def calc_gravity(self, Mp, Rp):
     Mp = 1*u.M_earth
     Rp = 1*u.R_earth

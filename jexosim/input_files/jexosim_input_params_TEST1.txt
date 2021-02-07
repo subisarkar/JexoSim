@@ -3,11 +3,11 @@
 sim_diagnostics      1
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
-sim_mode              3
+sim_mode              2
 # 1 = OOT(with Allan). 2 = full transit. 3 = noise budget. 4 = OOT(no Allan).
 
-sim_output_type         1 
-# 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline processed results + intermediate data
+sim_output_type         3
+# 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline intermediate data
 
 sim_noise_source	0	 
 # Pick a number from the list below. For most simulations recommend using 0 (All noise)
@@ -24,7 +24,7 @@ sim_noise_source	0
 # 11 Noiseless with backgrounds
 # 12 Fano noise
 
-sim_realisations	 10
+sim_realisations	 1
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
 
 sim_full_ramps	  0
@@ -57,10 +57,10 @@ sim_systematic_model_path
 obs_type	  1
 # 1 = primary transit. 2 = secondary eclipse. 
 
-obs_frac_t14_pre_transit	 
+obs_frac_t14_pre_transit	0.5 
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 
 
-obs_frac_t14_post_transit   
+obs_frac_t14_post_transit  0.5
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 	 
 
 obs_use_sat 	 1
@@ -165,7 +165,7 @@ pipeline_binning	 R-bin
 pipeline_R	       100
 # Enter binned R power (only applied if pipeline_binning = R-bin)
 
-pipeline_bin_size		1 	
+pipeline_bin_size		 	
 # Enter width of bin in pixels (only applied if pipeline_binning = fixed-bin)
 
 pipeline_ap_shape	 rect
@@ -174,10 +174,10 @@ pipeline_ap_shape	 rect
 pipeline_apply_mask	 1
 # Enter 1 to apply mask in data reduction. Enter 0 to omit mask. Recommend 1.
 
-pipeline_auto_ap	  0	
+pipeline_auto_ap	  1	
 # Enter 1 to allow code to find optimal mask width. 0 to set mask width by user (see below).  Recommend 1 
 
-pipeline_ap_factor		1 	
+pipeline_ap_factor		 	
 # Choose mask width in units of F-number*wavelength (only applied if pipeline_auto_ap = 0). If pipeline_ap_shape = rect, longest wavelength is used to set the width).
 
 pipeline_bad_corr	 1
@@ -196,8 +196,8 @@ planet_spectrum_model	file
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
 
-planet_spectrum_file	 /Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_spectra/K2-18b.txt 
-# Give complete path to specific planet spectrum file. Only needed if planet_spectrum_mode = file.
+planet_spectrum_file	K2-18b.txt 
+# Give complete path to specific planet spectrum file. Exception: if the file is in the .../data/planet_spectra folder, only the file name need be given. Only needed if planet_spectrum_mode = file.
 
 star_spectrum_model	complex
 # Enter simple to use Planck function. 
@@ -231,63 +231,63 @@ planet_spectrum_params_met
 
 ############## Following only needed if planet_use_database = 0 #####################
 
-user_defined_planet_name     
+user_defined_planet_name xxx	   
 # Enter name for planet   
 
-user_defined_R_p	 
+user_defined_R_p	0.1633	 
 # Enter planet radius in R_j units
 
-user_defined_M_p	  
+user_defined_M_p	0.01466	 
 # Enter planet mass in M_j units
 
-user_defined_P		 
+user_defined_P		8.24664 
 # Enter period in days
 
-user_defined_T_p	   
+user_defined_T_p	   1000
 # Enter planet temperature in K
 
-user_defined_a	       
+user_defined_a	       0.0652 
 # Enter semi-major axis in AU
 
-user_defined_i		 
+user_defined_i		89.65 
 # Enter inclination angle in deg
 
-user_defined_e		 
+user_defined_e		 0
 # Enter eccentricity 
  
-user_defined_albedo	 
+user_defined_albedo	  0
 # Enter albedo  
 
-user_defined_R_s	 	  
+user_defined_R_s	0.538	  
 # Enter star radius in R_sun units
 
-user_defined_M_s	  
+user_defined_M_s	 0.544
 # Enter star radius in M_sun units
 
-user_defined_T_s	 
+user_defined_T_s	 3709.0
 # Enter star radius K
 
-user_defined_d 		 
+user_defined_d 		27.19 
 # Enter distance in pc
 
 user_defined_logg	 	 
 # Enter logg
 
-user_defined_Z		  
+user_defined_Z		 -0.2 
 # Enter star metallicity Z index
 
-user_defined_T14	  
+user_defined_T14	1.0 
 # Enter transit duration in hrs
 
-user_defined_star_name 	  
+user_defined_star_name 	  ccc
 # Enter star name
 
-user_defined_ecliptic_lat     
+user_defined_ecliptic_lat     0
 # Enter ecliptic latitude in deg  
 
-user_defined_J_mag    	  
+user_defined_J_mag    	 0
 # Enter J magnitude
 
-user_defined_K_mag    	 
+user_defined_K_mag    	 0
 # Enter K magnitude
 

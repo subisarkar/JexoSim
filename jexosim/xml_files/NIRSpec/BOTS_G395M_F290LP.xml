@@ -63,10 +63,10 @@
   
   <pipeline_params>
       <start_wav val="2.7" units=""/>
-      <end_wav val="5.2" units=""/>
+      <end_wav val="5.3" units=""/>
       <extra_pix val="0" units=""/>
       <wavrange_lo val="2.87" units=""/>
-      <wavrange_hi val="5.1" units=""/>
+      <wavrange_hi val="5.18" units=""/>
     </pipeline_params>
 
 </channel>

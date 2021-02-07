@@ -1,19 +1,22 @@
 '''
 Jexosim 
 2.0
-Recipe 1 - OOT simulation returning stellar signal and noise per spectral bin with Allan analysis
+Recipe 1 - OOT simulation.
+Pipeline Stage 1 processing only, with binned light curves returned in FITS format
 
 '''
 from jexosim.modules import exosystem, telescope, channel, backgrounds
 from jexosim.modules import detector, timeline, light_curve, systematics, noise, output 
-from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
-from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
+from jexosim.pipeline.run_pipeline import pipeline_stage_1
+from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
+from jexosim.lib.output_lib import write_record
+
 from astropy import units as u
 from datetime import datetime
 import pickle, os
 import numpy as np
 
-class recipe_1(object):
+class recipe_1_intermediate(object):
     def __init__(self, opt):
         
         output_directory = opt.common.output_directory.val
@@ -36,7 +39,8 @@ class recipe_1(object):
         opt.timeline.use_T14.val=0
         opt.timeline.obs_time.val = 0*u.hr # 0 means n_exp overides obs_time
         opt.timeline.n_exp.val = 1000.0 # uses 1000 exposures 
-     
+        # opt.timeline.n_exp.val =  50 # uses 1000 exposures 
+  
         noise_type = int(opt.noise.sim_noise_source.val)
    
                
@@ -97,79 +101,17 @@ class recipe_1(object):
                 self.feasibility = 1
                               
                 opt = self.run_JexoSimB(opt)
+ 
+                opt = self.run_pipeline_stage_1(opt) 
                 
-                opt = self.run_pipeline_stage_1(opt)       
-                opt = self.run_pipeline_stage_2(opt)              
-                self.pipeline = opt.pipeline_stage_2
+                opt.pipeline_stage_1.binnedLC*=u.electron
+                opt.pipeline_stage_1.binnedWav*=u.um
+  
+                filename = output.run(opt)
                 
-                
-                self.noise_dict[opt.noise_tag]['wl'] = self.pipeline.binnedWav
-                self.results_dict['input_spec'] = opt.cr
-                self.results_dict['input_spec_wl'] = opt.cr_wl            
-                
-                         
-                if j == start:                    
-                    self.noise_dict[opt.noise_tag]['signal_std_stack'] = self.pipeline.ootNoise
-                    self.noise_dict[opt.noise_tag]['signal_mean_stack'] = self.pipeline.ootSignal
-                    if opt.pipeline.useAllen.val == 1:
-                        self.noise_dict[opt.noise_tag]['fracNoT14_stack'] = self.pipeline.noiseAt1hr
-                        
-                    self.noise_dict[opt.noise_tag]['signal_std_mean'] = self.pipeline.ootNoise
-                    self.noise_dict[opt.noise_tag]['signal_mean_mean'] = self.pipeline.ootSignal
-                    if opt.pipeline.useAllen.val == 1:
-                        self.noise_dict[opt.noise_tag]['fracNoT14_mean'] = self.pipeline.noiseAt1hr
-                        
-                    self.noise_dict[opt.noise_tag]['signal_std_std'] = np.zeros(len(self.pipeline.binnedWav))
-                    self.noise_dict[opt.noise_tag]['signal_mean_std'] = np.zeros(len(self.pipeline.binnedWav))
-                    if opt.pipeline.useAllen.val == 1:
-                        self.noise_dict[opt.noise_tag]['fracNoT14_std'] = np.zeros(len(self.pipeline.binnedWav))
-                   
+                write_record(opt, output_directory, filename, opt.params_file_path)
 
-                else:
-                    self.noise_dict[opt.noise_tag]['signal_std_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_std_stack'], self.pipeline.ootNoise))
-                    self.noise_dict[opt.noise_tag]['signal_mean_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['signal_mean_stack'], self.pipeline.ootSignal))
-                    if opt.pipeline.useAllen.val == 1:
-                        self.noise_dict[opt.noise_tag]['fracNoT14_stack'] = np.vstack((self.noise_dict[opt.noise_tag]['fracNoT14_stack'], self.pipeline.noiseAt1hr))
-
-                    self.noise_dict[opt.noise_tag]['signal_std_mean'] = self.noise_dict[opt.noise_tag]['signal_std_stack'].mean(axis=0)
-                    self.noise_dict[opt.noise_tag]['signal_mean_mean'] = self.noise_dict[opt.noise_tag]['signal_mean_stack'].mean(axis=0)
-                    if opt.pipeline.useAllen.val == 1:
-                        self.noise_dict[opt.noise_tag]['fracNoT14_mean'] = self.noise_dict[opt.noise_tag]['fracNoT14_stack'].mean(axis=0)
-                        
-                    self.noise_dict[opt.noise_tag]['signal_std_std'] = self.noise_dict[opt.noise_tag]['signal_std_stack'].std(axis=0)
-                    self.noise_dict[opt.noise_tag]['signal_mean_std'] = self.noise_dict[opt.noise_tag]['signal_mean_stack'].std(axis=0)
-                    if opt.pipeline.useAllen.val == 1:
-                        self.noise_dict[opt.noise_tag]['fracNoT14_std'] = self.noise_dict[opt.noise_tag]['fracNoT14_stack'].std(axis=0)
-
-                self.noise_dict[opt.noise_tag]['bad_map'] = opt.bad_map
-                self.noise_dict[opt.noise_tag]['example_exposure_image'] = opt.exp_image
-                self.noise_dict[opt.noise_tag]['pixel wavelengths'] = opt.x_wav_osr[1::3].value
-
-                self.results_dict['noise_dic'] = self.noise_dict
-
-                time_tag = (datetime.now().strftime('%Y_%m_%d_%H%M_%S'))
-                self.results_dict['time_tag'] =  time_tag
-         
-                if j != start:
-                    os.remove(filename)  # delete previous temp file
-                    txt_file = '%s.txt'%(filename)
-                    os.remove(txt_file) 
-                filename = '%s/OOT_SNR_%s_%s_TEMP.pickle'%(output_directory, opt.lab, time_tag)
-                self.filename = 'OOT_SNR_%s_%s_TEMP.pickle'%(opt.lab, time_tag)
-                with open(filename, 'wb') as handle:
-                    pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
-                   
-                if j == end-1:
-                    os.remove(filename)  # delete previous temp file
-                    filename = '%s/OOT_SNR_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
-                    with open(filename, 'wb') as handle:
-                        pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
-                    
-                    jexosim_msg('Results in %s'%(filename), 1)
-                    self.filename = 'OOT_SNR_%s_%s.pickle'%(opt.lab, time_tag)
-                                      
-                write_record(opt, output_directory, self.filename, opt.params_file_path)
-                            
+                jexosim_msg('File saved as %s/%s'%(output_directory, filename), 1)
                             
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)

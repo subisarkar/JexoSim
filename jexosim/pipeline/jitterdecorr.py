@@ -49,15 +49,10 @@ class JexoSimDecorr:
             spat_offset = np.mean(spat_offset) / self.plate_scale         
             spec.append(spec_offset)
             spat.append(spat_offset) 
-            
-            
-            
-                
+          
         self.modelJitterOffsetSpec = np.array(spec)        
         self.modelJitterOffsetSpat = np.array(spat)
-        self.modelJitterOffsetSpec = self.modelJitterOffsetSpec - self.modelJitterOffsetSpec.mean()
-        self.modelJitterOffsetSpat = self.modelJitterOffsetSpat - self.modelJitterOffsetSpat.mean()          
-       
+
     def getPointingOffsets(self):      
       XX = {'spec':self.modelJitterOffsetSpec, 'spat':self.modelJitterOffsetSpat  }         
       return XX
