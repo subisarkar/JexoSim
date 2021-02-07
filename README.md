@@ -1,4 +1,4 @@
-# JexoSim
+# JexoSim 2.0
 <div align="center">
 <img src="docs/jexosim_logo.png" width="300px">
 </img>
