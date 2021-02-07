@@ -1,3 +1,12 @@
+
+# JexoSim 2.0
+<div align="center">
+<img src="docs/jexosim_logo.png" width="300px">
+</img>
+<br/>
+</div>
+<br/><br/>
+
 # JexoSim 2.0 tutorial
  
  Four example files are provided corresponding to the case studies given in Sarkar & Madhusudhan (2021) JexoSim 2.0: Enhanced JWST Simulator for Exoplanet Spectroscopy - Implementation and Case Studies (submitted).
