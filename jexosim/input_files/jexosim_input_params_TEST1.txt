@@ -185,7 +185,7 @@ pipeline_bad_corr	 1
 
 ######################### EXOSYSTEM #################################################
 
-planet_name		K2-18 b
+planet_name		NGTS-11 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database	  1

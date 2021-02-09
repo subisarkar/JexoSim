@@ -67,7 +67,7 @@ def make_planet_xml_file(opt, pl):
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
 
     target_folder = '%s/jexosim/xml_files/exosystems'%(jexosim_path)
-
+    template_folder = '%s/jexosim/data/templates'%(jexosim_path)
     
     # pl = 'HD 209458 b'
     #pl = '55 Cnc e'
@@ -321,7 +321,7 @@ def make_planet_xml_file(opt, pl):
               tree.write(f)
               f.close()  
                      
-            xml_file = '%s/template.xml'%(target_folder)
+            xml_file = '%s/template.xml'%(template_folder)
             makeXmlFile(xml_file, dic, pl)
             
       
