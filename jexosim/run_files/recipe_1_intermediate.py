@@ -107,11 +107,11 @@ class recipe_1_intermediate(object):
                 opt.pipeline_stage_1.binnedLC*=u.electron
                 opt.pipeline_stage_1.binnedWav*=u.um
   
-                filename = output.run(opt)
+                self.filename = output.run(opt)
                 
-                write_record(opt, output_directory, filename, opt.params_file_path)
+                write_record(opt, output_directory, self.filename, opt.params_file_path)
 
-                jexosim_msg('File saved as %s/%s'%(output_directory, filename), 1)
+                jexosim_msg('File saved as %s/%s'%(output_directory, self.filename), 1)
                             
     def run_JexoSimA(self, opt):
       jexosim_msg('Exosystem', 1)

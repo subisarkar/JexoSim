@@ -101,10 +101,10 @@ class recipe_1_no_pipeline(object):
                               
                 opt = self.run_jexosimB(opt)
             
-            filename = output.run(opt)
+            self.filename = output.run(opt)
         
-            write_record_no_pipeline(opt, output_directory, filename, opt.params_file_path)
-            jexosim_msg('File saved as %s/%s'%(output_directory, filename), 1)
+            write_record_no_pipeline(opt, output_directory, self.filename, opt.params_file_path)
+            jexosim_msg('File saved as %s/%s'%(output_directory, self.filename), 1)
 
          
     def run_jexosimA(self, opt):
