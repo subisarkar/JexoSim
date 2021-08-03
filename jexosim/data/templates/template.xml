@@ -23,7 +23,9 @@
         <ecliptic_lat val="1" units="deg" comment=""/>
         <J_mag val="1" units="" comment=""/>
         <K_mag val="1" units="" comment=""/>
-     
+        <ra val="0" units="" comment=""/>
+        <dec val="0" units="" comment=""/>
+        
     </model_exosystem>
     
     

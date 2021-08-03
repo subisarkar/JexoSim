@@ -29,7 +29,7 @@ class recipe_4(object):
         self.noise_dict ={}    
    
         opt.pipeline.useSignal.val=1
-        opt.pipeline.use_fast.val =1
+        opt.simulation.sim_use_fast.val =1
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
                       
@@ -44,33 +44,34 @@ class recipe_4(object):
      
         noise_type = int(opt.noise.sim_noise_source.val)
    
-        nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-                   'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-                   'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],                                   
-                   'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],                                      
-                   'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],                    
-                   'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1],    
-                   'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-                   'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-                   'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                   'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-                   'fano'         :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-                   'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
+        nb_dict = {'rn'             :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+               'sn'                 :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+               'spat'               :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],                                   
+               'spec'               :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],                                      
+               'emm_switch'         :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0],                    
+               'zodi_switch'        :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],    
+               'dc_switch'          :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+               'source_switch'      :[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+               'diff'               :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+               'jitter_switch'      :[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+               'fano'               :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+               'sunshield_switch'   :[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+               'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise'],  
-                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c']
+                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise', 'Sunshield noise'],  
+                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c','brown']
               } 
- 
+                
         opt.noise.EnableReadoutNoise.val = nb_dict['rn'][noise_type]
         opt.noise.EnableShotNoise.val = nb_dict['sn'][noise_type]
         opt.noise.EnableSpatialJitter.val= nb_dict['spat'][noise_type]
-        opt.noise.EnableSpectralJitter.val= nb_dict['spec'][noise_type]   
+        opt.noise.EnableSpectralJitter.val= nb_dict['spec'][noise_type] 
         opt.noise.EnableFanoNoise.val= nb_dict['fano'][noise_type]   
         opt.background.EnableEmission.val = nb_dict['emm_switch'][noise_type]
-        opt.background.EnableZodi.val = nb_dict['zodi_switch'][noise_type]    
+        opt.background.EnableZodi.val = nb_dict['zodi_switch'][noise_type]   
+        opt.background.EnableSunshield.val = nb_dict['sunshield_switch'][noise_type]  
         opt.background.EnableDC.val  =  nb_dict['dc_switch'][noise_type]
         opt.background.EnableSource.val  = nb_dict['source_switch'][noise_type]
-        
         opt.diff = nb_dict['diff'][noise_type]      
         opt.noise_tag = nb_dict['noise_tag'][noise_type]
         opt.color = nb_dict['color'][noise_type]

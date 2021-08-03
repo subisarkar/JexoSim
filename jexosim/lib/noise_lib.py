@@ -12,6 +12,7 @@ from astropy import units as u
 import time
 import scipy
 from numba import jit, prange
+import matplotlib.pyplot as plt
 
 def apply_read_noise(signal, opt):   
     if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:             
@@ -33,15 +34,22 @@ def read_noise (noise, sigma_ro):
     noise = noise + np.random.normal(scale = sigma_ro, size = noise.shape)  
     return noise
 
-def combine_noise(noise1, noise2):
+def combine_noise(noise1, noise2):  # I don't think this is needed any more.
     sign = np.sign(noise1 + noise2)
     combined_noise = sign*(abs(noise1**2 + noise2**2))**0.5
     return combined_noise
 
-def calc_fano(quantum_yield, signal):   
+def calc_fano_noise(quantum_yield, signal):   
     fano_factor = (3 * quantum_yield - quantum_yield**2 - 2) / quantum_yield   
-    fano_noise = np.random.poisson(signal.value) - signal.value #photon noise   
-    fano_noise = fano_noise * np.sqrt(quantum_yield * fano_factor)   
+    
+    # old way
+    # fano_noise = np.random.poisson(signal.value) - signal.value #photon noise   
+    # fano_noise = fano_noise * np.sqrt(quantum_yield * fano_factor)  
+    
+    # new way - same result
+    fano_noise = np.sqrt(signal)* np.sqrt(fano_factor*quantum_yield)
+    fano_noise  = np.random.normal(0, fano_noise) * u.electron
+    
     return fano_noise
 
 def calc_poission_noise(signal):    
@@ -252,120 +260,6 @@ def create_pointing_timeline(opt):
     
     return  pointingArray
 
-def crop_array(opt):      
-  fp_whole = opt.fp[1::3,1::3]
-  fp_signal_whole = opt.fp_signal[1::3,1::3]
-  #==============================================================================   
-  #1) Calculate the maximum width (y crop) in pixels and apply crop
-  #==============================================================================   
-  aa = fp_signal_whole.sum(axis=1).value # sum of profile in x axis
-  jexosim_plot('y crop selection', opt.diagnostics, ydata=aa, marker='ro-', grid=True)
-  bb = np.mean(np.vstack((aa[:5],aa[-5:]))) # average of outer 5 pixels
-  idx_max = np.argmax(aa)
-  #find where signal falls below b*npe either side
-  for i in range(int(len(aa)/2)):
-      s = aa[idx_max-i]
-      if s < bb*np.e:
-          idx0=1+ idx_max-i #+1 so that it starts within the region of > b8npe
-          break
-  for i in range(int(len(aa)/2)):
-      s = aa[idx_max+i]
-      if s < bb*np.e:
-          idx1=idx_max+i
-          break        
-  #idx0, idx1 #indexs that bound this region
-  idx1 = int(idx1) ; idx0 = int(idx0)
-  w_crop = idx1- (idx0)  
-  jexosim_msg ("width of crop chosen %s"%(w_crop ) , opt.diagnostics)  
-  jexosim_plot('y crop selection', opt.diagnostics, xdata=np.arange(idx0, idx1,1), ydata=aa[idx0:idx1], 
-               marker='bo-', grid=True)
-  #==============================================================================   
-  #2) Calculate the maximum length (x crop) in pixels and apply crop
-  #==============================================================================     
-  wav_sol= opt.x_wav_osr[1::3].value # wav sol in whole pixels
-  idx = np.argwhere((wav_sol>=opt.channel.pipeline_params.start_wav.val-0.5)& (wav_sol<=opt.channel.pipeline_params.end_wav.val+0.5)) 
-  idxA = idx[0].item()
-  idxB = idx[-1].item()
-  return idx0, idx1, idxA, idxB
-
-
-def proxy_bkg(opt):
-#==============================================================================   
-#Obtain a value for the background subtraction in pipeline as if the crop did not happened
-#==============================================================================        
-# a) set up background array for each ndr, of 10 pixels wide vs original fp in length 
-  bkg_signal = np.zeros((10, opt.fp[1::3,1::3].shape[1], opt.n_ndr))*u.electron
-  blank_bkg = np.ones((10, opt.fp[1::3,1::3].shape[1], opt.n_ndr))
-  zodi_signal = np.zeros_like(blank_bkg)*u.electron
-  emission_signal = np.zeros_like(blank_bkg)*u.electron
-  dc_signal = np.zeros_like(blank_bkg)*u.electron
-  
-  if opt.background.EnableZodi.val == 1:
-      zodi_signal = blank_bkg* opt.zodi.sed[opt.offs::opt.osf][np.newaxis, :, np.newaxis]     
-      zodi_signal = zodi_signal * opt.frame_time * opt.frames_per_ndr
-      bkg_signal = bkg_signal + zodi_signal 
-  if opt.background.EnableEmission.val == 1:       
-      emission_signal = blank_bkg* opt.emission.sed[opt.offs::opt.osf][np.newaxis, :, np.newaxis] 
-      emission_signal = emission_signal * opt.frame_time * opt.frames_per_ndr
-      bkg_signal = bkg_signal + emission_signal      
-  if opt.noise.ApplyPRNU.val == 1:
-      qe_bkg = np.vstack((opt.qe[0:5], opt.qe[-5:])) # pick QE at edges of grid, where background sampled
-      qe_uncert_bkg = np.vstack((opt.qe_uncert[0:5], opt.qe_uncert[-5:]))
-      applied_qe_bkg = qe_bkg*qe_uncert_bkg 
-      bkg_signal= (bkg_signal.transpose() * applied_qe_bkg.transpose() ).transpose()           
-  if opt.background.EnableDC.val ==1:
-      dc_signal = blank_bkg*  opt.channel.detector_pixel.Idc() * opt.frame_time * opt.frames_per_ndr                 
-      bkg_signal = bkg_signal + dc_signal       
-  combined_noise  = np.zeros_like(bkg_signal) 
-  if opt.noise.EnableShotNoise.val == 1:       
-      bkg_signal = np.where(bkg_signal >= 0.0, bkg_signal, 0)
-      combined_noise = calc_poission_noise(bkg_signal.value) *u.electron     
-  # Apply weighted quantum yield to signal
-  qy_emission = opt.qy_emission[1::3][np.newaxis, :, np.newaxis]
-  qy_zodi = opt.qy_zodi[1::3][np.newaxis, :, np.newaxis]    
-  quantum_yield_total = (qy_zodi*zodi_signal + qy_emission*emission_signal +1*dc_signal) / bkg_signal
-  bkg_signal = bkg_signal*quantum_yield_total
-  combined_noise = combined_noise*quantum_yield_total  
-  # Obtain fano noise
-  if opt.noise.EnableFanoNoise.val == 1:
-      
-      signal_for_fano = zodi_signal + emission_signal # use only photons for fano noise
-      signal_for_fano = np.where(signal_for_fano<=0, 1e-10*u.electron, signal_for_fano)
-      quantum_yield_for_fano = (qy_zodi*zodi_signal + qy_emission*emission_signal) / signal_for_fano
-      quantum_yield_for_fano = np.where(quantum_yield_for_fano<1, 1, quantum_yield_for_fano)
-      fano_noise = calc_fano(quantum_yield_for_fano, signal_for_fano) *u.electron
-      
-     
-      combined_noise = combine_noise(combined_noise.value, fano_noise.value) *u.electron
-  if opt.noise.EnableShotNoise.val == 1 or opt.noise.EnableFanoNoise.val == 1:
-       if opt.simulation.sim_full_ramps.val == 0 and opt.simulation.sim_use_UTR_noise_correction.val == 1:
-             n = opt.projected_multiaccum
-             combined_noise, scale = poission_noise_UTR_correction(n, combined_noise.value) 
-             combined_noise = combined_noise * u.electron
-          
-  bkg_signal = bkg_signal + combined_noise 
-
-  for i in range(0, opt.n_ndr, opt.effective_multiaccum):
-      bkg_signal[...,i:i+opt.effective_multiaccum] = np.cumsum(bkg_signal[...,i:i+opt.effective_multiaccum], axis=2)
-  if opt.simulation.sim_use_ipc.val == 1 and opt.channel.instrument.val !='MIRI': 
-      ipc_kernel = np.load(opt.channel.detector_array.ipc_kernel.val.replace('__path__', '%s/%s'%(opt.jexosim_path, 'jexosim')))
-      bkg_signal =  apply_ipc(bkg_signal, ipc_kernel)
-  if opt.noise.EnableReadoutNoise.val == 1:
-      bkg_signal =  apply_read_noise(bkg_signal, opt)     
-# =============================================================================
-#       now do pipeline steps for bkg_signal  
-# =============================================================================
-# subtract the dc)
-  if opt.background.EnableDC.val ==1:  
-      bkg_signal =  bkg_signal - opt.channel.detector_pixel.Idc.val* opt.duration_per_ndr
- # flat field (but with uncertainty)
-  if opt.noise.ApplyPRNU.val == 1:
-       jexosim_msg ("APPLYING Flat field to background counts..." , opt.diagnostics)
-       bkg_signal =  (bkg_signal.transpose() / qe_bkg.transpose() ).transpose()
-  print (bkg_signal.shape)
-
-  return bkg_signal
-
 def jitterless(opt):
    jexosim_msg ("using jitterless array", opt.diagnostics)
    blank_signal = np.ones((int(opt.fp.shape[0]/3), int(opt.fp.shape[1]/3), len(opt.frames_per_ndr)))
@@ -380,8 +274,7 @@ def obtain_signal_only(opt):
    blank_signal = np.ones((fp.shape[0], fp.shape[1], len(opt.frames_per_ndr)))
    signal =   (blank_signal.transpose() * fp.transpose() ).transpose() 
    signal = signal*opt.frames_per_ndr*opt.frame_time 
-   
-    
+
    if opt.timeline.apply_lc.val ==1:
       signal *= opt.lc
    signal = np.where(signal >= 0.0, signal, 0)  

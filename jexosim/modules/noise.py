@@ -11,12 +11,14 @@ from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
 from jexosim.lib import jexosim_lib, noise_lib, signal_lib 
 from astropy import units as u
 import copy
+import matplotlib.pyplot as plt
 
 def run(opt):
  
   opt.fp =   copy.deepcopy(opt.fp_original) # needed to reuse if cropped fp is used and monte carlo mode used
   opt.fp_signal =  copy.deepcopy(opt.fp_signal_original) # " 
   opt.zodi.sed =  copy.deepcopy(opt.zodi_sed_original) # "
+  opt.sunshield.sed =  copy.deepcopy(opt.sunshield_sed_original) # "
   opt.emission.sed =  copy.deepcopy(opt.emission_sed_original) # "
   opt.lc = copy.deepcopy(opt.lc_original)    
   opt.ldc = copy.deepcopy(opt.ldc_original)
@@ -28,62 +30,27 @@ def run(opt):
   opt.qe_uncert = copy.deepcopy(opt.qe_uncert_original)
   opt.quantum_yield = copy.deepcopy(opt.quantum_yield_original)
   opt.qy_zodi = copy.deepcopy(opt.qy_zodi_original)
+  opt.qy_sunshield = copy.deepcopy(opt.qy_sunshield_original)
   opt.qy_emission = copy.deepcopy(opt.qy_emission_original)
   opt.syst_grid = copy.deepcopy(opt.syst_grid_original)
    
   opt = signal_lib.initiate_signal(opt) 
-  opt = signal_lib.apply_jitter(opt)
+  opt = signal_lib.apply_jitter(opt)  # opt.signal iniatated here
   opt = signal_lib.apply_lc(opt)
   opt = signal_lib.initiate_noise(opt)
   opt = signal_lib.apply_non_stellar_photons(opt)
   opt = signal_lib.apply_prnu(opt)
   opt = signal_lib.apply_dc(opt)
-  print ('www', opt.signal.max())
-  
   opt = signal_lib.apply_poisson_noise(opt)
-  
-  print ('noise',opt.combined_noise.max()) 
-  print ('After poisson', opt.signal.max())
-  import matplotlib.pyplot as plt
-  n= opt.combined_noise.sum(axis=0)
-  n = n.std(axis=1)
-  plt.figure('noise pixel level')
-  plt.plot(opt.x_wav_osr[1::3], n, 'b-')
-    
   opt = signal_lib.apply_quantum_yield(opt)
- 
-  
-  print ('noise',opt.combined_noise.max())
-  n= opt.combined_noise.sum(axis=0)
-  n = n.std(axis=1)
-  plt.figure('noise pixel level')
-  plt.plot(opt.x_wav_osr[1::3], n, 'r-')
-  
   opt = signal_lib.apply_fano(opt)
-  
-  n= opt.combined_noise.sum(axis=0)
-  n = n.std(axis=1)
-  plt.figure('noise pixel level')
-  plt.plot(opt.x_wav_osr[1::3], n, 'g-')
-
-  print ('noise',opt.combined_noise.max())
-
-  print ('www', opt.signal.max())
   opt = signal_lib.apply_utr_correction(opt)
-  
-  plt.figure('noise pixel level')
-  n= opt.combined_noise.sum(axis=0)
-  n = n.std(axis=1)
-  plt.plot(opt.x_wav_osr[1::3], n, 'r-')
-
-  print ('www', opt.signal.max())
   opt = signal_lib.apply_combined_noise(opt)
-  print ('www', opt.signal.max())
-  
   opt = signal_lib.make_ramps(opt)
   opt = signal_lib.apply_ipc(opt)
   opt = signal_lib.apply_read_noise(opt)
   opt = signal_lib.apply_gaps(opt)
+  
   opt.data = opt.signal
   opt.data_signal_only = opt.signal_only
 

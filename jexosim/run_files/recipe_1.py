@@ -26,7 +26,7 @@ class recipe_1(object):
         self.noise_dict ={}    
    
         opt.pipeline.useSignal.val=1
-        opt.pipeline.use_fast.val =1
+        opt.simulation.sim_use_fast.val =1
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
                       
@@ -36,35 +36,37 @@ class recipe_1(object):
         opt.timeline.use_T14.val=0
         opt.timeline.obs_time.val = 0*u.hr # 0 means n_exp overides obs_time
         opt.timeline.n_exp.val = 1000.0 # uses 1000 exposures 
+        # opt.timeline.n_exp.val = 10.0 # uses 1000 exposures 
+
      
         noise_type = int(opt.noise.sim_noise_source.val)
    
-               
-        nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-                   'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-                   'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],                                   
-                   'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],                                      
-                   'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],                    
-                   'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1],    
-                   'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-                   'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-                   'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                   'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-                   'fano'         :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-                   'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
+        nb_dict = {'rn'             :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+               'sn'                 :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+               'spat'               :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],                                   
+               'spec'               :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],                                      
+               'emm_switch'         :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0],                    
+               'zodi_switch'        :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],    
+               'dc_switch'          :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+               'source_switch'      :[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+               'diff'               :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+               'jitter_switch'      :[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+               'fano'               :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+               'sunshield_switch'   :[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+               'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise'],  
-                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c']
+                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise', 'Sunshield noise'],  
+                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'brown']
               } 
-               
-
+                
         opt.noise.EnableReadoutNoise.val = nb_dict['rn'][noise_type]
         opt.noise.EnableShotNoise.val = nb_dict['sn'][noise_type]
         opt.noise.EnableSpatialJitter.val= nb_dict['spat'][noise_type]
         opt.noise.EnableSpectralJitter.val= nb_dict['spec'][noise_type] 
         opt.noise.EnableFanoNoise.val= nb_dict['fano'][noise_type]   
         opt.background.EnableEmission.val = nb_dict['emm_switch'][noise_type]
-        opt.background.EnableZodi.val = nb_dict['zodi_switch'][noise_type]    
+        opt.background.EnableZodi.val = nb_dict['zodi_switch'][noise_type]   
+        opt.background.EnableSunshield.val = nb_dict['sunshield_switch'][noise_type]  
         opt.background.EnableDC.val  =  nb_dict['dc_switch'][noise_type]
         opt.background.EnableSource.val  = nb_dict['source_switch'][noise_type]
         opt.diff = nb_dict['diff'][noise_type]      
@@ -89,7 +91,15 @@ class recipe_1(object):
             
             opt = self.run_JexoSimA(opt)
             opt = self.run_JexoSimA1(opt)
+             
             
+            # np.save('/Users/user1/Desktop/fp_signal.npy', opt.fp_signal[1::3,1::3].value)
+            # np.save('/Users/user1/Desktop/fp_wav.npy', opt.x_wav_osr[1::3].value)
+                        
+                        
+            # xxxx
+            
+     
             if opt.observation_feasibility ==0:      
                 jexosim_msg ("Observation not feasible...", opt.diagnostics) 
                 self.feasibility = 0
@@ -106,7 +116,11 @@ class recipe_1(object):
                 self.noise_dict[opt.noise_tag]['wl'] = self.pipeline.binnedWav
                 self.results_dict['input_spec'] = opt.cr
                 self.results_dict['input_spec_wl'] = opt.cr_wl            
+
+
                 
+          
+
                          
                 if j == start:                    
                     self.noise_dict[opt.noise_tag]['signal_std_stack'] = self.pipeline.ootNoise
@@ -144,6 +158,7 @@ class recipe_1(object):
                 self.noise_dict[opt.noise_tag]['bad_map'] = opt.bad_map
                 self.noise_dict[opt.noise_tag]['example_exposure_image'] = opt.exp_image
                 self.noise_dict[opt.noise_tag]['pixel wavelengths'] = opt.x_wav_osr[1::3].value
+                self.noise_dict[opt.noise_tag]['focal_plane_star_signal'] = opt.fp_signal[1::3,1::3].value
 
                 self.results_dict['noise_dic'] = self.noise_dict
 

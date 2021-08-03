@@ -13,6 +13,7 @@ from astropy import units as u
 from astropy import constants as const
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, planck
 import os, sys
+import matplotlib.pyplot as plt
 
 class Planet(object):
   """
@@ -34,7 +35,7 @@ class Planet(object):
         self.file_model()  
         jexosim_msg ("filed planet spectrum chosen", 1)
     else:
-        jexosim_msg('Error1 planet class: no compatible entry for planet_spectrum_model', 1)
+        jexosim_msg('Error1 planet class: no compatible entry for planet spectrum_model', 1)
         sys.exit()
           
     
@@ -44,17 +45,31 @@ class Planet(object):
         cr = np.array([( (self.planet.R).to(u.m)/(self.planet.star.R).to(u.m))**2]*len(wl))*u.dimensionless_unscaled
         self.sed = sed.Sed(wl,cr)      
     elif self.opt.observation.obs_type.val == 2:
-        wl = np.arange(0.3,30,0.1)*u.um
-        star_flux =  np.pi*planck(wl, self.planet.star.T)*(  (self.planet.star.R).to(u.m) / (self.planet.star.d).to(u.m))**2
-        planet_flux_em =  np.pi*planck(wl, self.planet.T)*(  (self.planet.R).to(u.m) / (self.planet.star.d).to(u.m))**2
-        planet_flux_ref =  star_flux * (self.planet.albedo / 4.) *(  (self.planet.R).to(u.m) / (self.planet.a).to(u.m))**2
+      
+        wl = self.opt.star.sed_pre_norm.wl
+        # import matplotlib.pyplot as plt
+        # plt.figure('star in planet simple model')
+        star_flux = self.opt.star.sed_pre_norm.sed * ((self.planet.star.R).to(u.m))**2
+        # plt.plot(self.opt.star.sed_pre_norm.wl, star_flux)       
+        # star_flux_bb =  np.pi*u.sr*planck(wl, self.planet.star.T)* ((self.planet.star.R).to(u.m))**2
+        # plt.plot(wl, star_flux_bb)
+         
+        planet_flux_em = np.pi*u.sr*planck(wl, self.planet.T)* ((self.planet.R).to(u.m))**2
+        planet_flux_ref = star_flux * (self.planet.albedo / 4.) *(  (self.planet.R).to(u.m) / (self.planet.a).to(u.m))**2
+         
         planet_flux = planet_flux_em + planet_flux_ref 
+
         cr = planet_flux / star_flux
         self.sed = sed.Sed(wl,cr)   
-        # import matplotlib.pyplot as plt
-        # plt.plot(wl, planet_flux)
+ 
+        plt.figure ('fluxes')
+        plt.plot(wl, planet_flux)
+        # plt.plot(wl, planet_flux_em)
+        # plt.plot(wl, planet_flux_ref )
         # plt.plot(wl, star_flux)
-        # xxxx
+        plt.figure ('cr')
+        plt.plot(wl, cr)
+        
     else:
         jexosim_msg("Error2  planet class: no compatible entry for obs_type", 1)
         sys.exit()
@@ -180,10 +195,20 @@ class Planet(object):
       else:
           wl=  aa[:,0]*u.um 
       cr = aa[:,1]*u.dimensionless_unscaled
-      # import matplotlib.pyplot as plt
-      # plt.figure(999999)
-      # plt.plot(wl, cr)
-      # xxxx
+      
+      import matplotlib.pyplot as plt
+      
+      plt.figure('test planet spectrum 1')
+      plt.plot(wl, cr)
+      
+      plt.figure('test planet spectrum 2')
+      plt.plot(wl, np.gradient(wl))  
+      
+      
+      plt.figure('test planet spectrum 3 - R power')
+      plt.plot(wl, wl/np.gradient(wl))  
+      
+       
       self.sed = sed.Sed(wl,cr)   
       
       

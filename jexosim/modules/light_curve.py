@@ -14,12 +14,23 @@ import copy
 
 def run(opt):
     
-  opt.cr    =  opt.planet.sed.sed[opt.offs::opt.osf]
-  opt.cr_wl =  opt.planet.sed.wl[opt.offs::opt.osf]      
+  if len(opt.planet.sed.sed) == len(opt.x_wav_osr):
+      opt.cr    =  opt.planet.sed.sed[opt.offs::opt.osf]
+      opt.cr_wl =  opt.planet.sed.wl[opt.offs::opt.osf] 
+  else:
+      opt.cr    =  opt.planet.sed.sed
+      opt.cr_wl =  opt.planet.sed.wl 
+      
+
+      
   if opt.timeline.apply_lc.val ==1:                     
      # Apply lightcurve model
-    opt.cr    =  opt.planet.sed.sed[opt.offs::opt.osf]
-    opt.cr_wl =  opt.planet.sed.wl[opt.offs::opt.osf]  
+    if len(opt.planet.sed.sed) == len(opt.x_wav_osr):
+      opt.cr    =  opt.planet.sed.sed[opt.offs::opt.osf]
+      opt.cr_wl =  opt.planet.sed.wl[opt.offs::opt.osf] 
+    else:
+      opt.cr    =  opt.planet.sed.sed
+      opt.cr_wl =  opt.planet.sed.wl 
     # inputs needed to use pytransit : z no longer calculated as separate step  
     t0 = (opt.time_at_transit).to(u.day).value.item()
     per =  (opt.planet.planet.P).to(u.day).value
@@ -33,7 +44,10 @@ def run(opt):
         opt.z_params = [timegrid, t0, per, ars, inc, ecc, omega]
         opt.lc, opt.ldc = exosystem_lib.get_light_curve(opt, opt.cr, opt.cr_wl, 					 		 
         							opt.observation.obs_type.val)
+        opt.lc[np.isnan(opt.lc)]=0  
+        opt.lc[opt.lc==np.inf] = 0  
         
+   
     else:  # use high density timegrid, and average for each NDR step
         highD_timegrid  = (np.arange(opt.frame_time, opt.total_observing_time+ opt.frame_time/2, opt.frame_time)*u.s).to(u.day).value 
         opt.z_params = [highD_timegrid, t0, per, ars, inc, ecc, omega]
@@ -44,14 +58,18 @@ def run(opt):
         lc = np.hstack((highD_lc, highD_lc[:,0].reshape(highD_lc.shape[0],1)*0))
         idx = np.hstack(([0],np.cumsum(opt.ndr_sequence).astype(int)))   
         lc0 = np.add.reduceat(lc,idx, axis = 1)[:,:-1] /opt.ndr_sequence 
-        lc0[lc0==np.inf] = 0
-        opt.lc = lc0
+        opt.lc = lc0  
+        opt.lc[np.isnan(opt.lc)]=0  
+        opt.lc[opt.lc==np.inf] = 0  
+        
+
            
   else:
       opt.lc = 0
       opt.z = 0
       opt.ldc = 0
-      
+
+  print ('length of cr, x pixels......', len(opt.cr), len(opt.x_wav_osr[1::3]))
   opt.cr_wl_original = copy.deepcopy(opt.cr_wl)
   opt.cr_original = copy.deepcopy(opt.cr)
   opt.lc_original = copy.deepcopy(opt.lc)

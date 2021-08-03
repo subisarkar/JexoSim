@@ -92,26 +92,27 @@ def run(params_file):
     if opt.exosystem_params.planet_use_database.val == 0:
         pl =  input_params['user_defined_planet_name']
         
-
+ 
     #==============================================================================
     # Set noise source from noise budget matrix - use one noise source only as not in a loop
     #==============================================================================      
     i = int(opt.noise.sim_noise_source.val) # noise option - choose 0 for all noise - default      
-    nb_dict = {'rn'           :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-               'sn'           :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-               'spat'         :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],                                   
-               'spec'         :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],                                      
-               'emm_switch'   :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],                    
-               'zodi_switch'  :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1],    
-               'dc_switch'    :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-               'source_switch':[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-               'diff'         :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-               'jitter_switch':[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-               'fano'         :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    nb_dict = {'rn'                 :[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+               'sn'                 :[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+               'spat'               :[1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],                                   
+               'spec'               :[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],                                      
+               'emm_switch'         :[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0],                    
+               'zodi_switch'        :[1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],    
+               'dc_switch'          :[1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+               'source_switch'      :[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+               'diff'               :[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+               'jitter_switch'      :[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+               'fano'               :[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+               'sunshield_switch'   :[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
                'noise_tag': [ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise'],  
-                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c']
+                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise', 'Sunshield noise'],  
+                        'color': ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c', 'brown']
               } 
                 
 
@@ -121,17 +122,20 @@ def run(params_file):
     opt.noise.EnableSpectralJitter.val= nb_dict['spec'][i]
     opt.noise.EnableFanoNoise.val= nb_dict['fano'][i]
     opt.background.EnableEmission.val = nb_dict['emm_switch'][i]
-    opt.background.EnableZodi.val = nb_dict['zodi_switch'][i]    
+    opt.background.EnableZodi.val = nb_dict['zodi_switch'][i]  
+    opt.background.EnableSunshield.val = nb_dict['sunshield_switch'][i]   
     opt.background.EnableDC.val  =  nb_dict['dc_switch'][i]
     opt.background.EnableSource.val  = nb_dict['source_switch'][i]
     opt.diff = nb_dict['diff'][i]      
     opt.noise_tag = nb_dict['noise_tag'][i]
     opt.color = nb_dict['color'][i]
-                  
+    
+           
     #==============================================================================
     #  Run with right recipe
     #==============================================================================
     opt.lab = '%s_%s'%(opt.observation.obs_inst_config.val, pl)
+    
     opt.lab = opt.lab.replace(' + ','_')
     opt.lab = opt.lab.replace(' ','_')
     
@@ -147,7 +151,7 @@ def run(params_file):
     
     jexosim_msg(('Simulation mode %s'%(int(opt.simulation.sim_mode.val))), 1)    
     jexosim_msg(f'{opt.lab}', 1)
-    
+   
     if opt.simulation.sim_mode.val == 1:
         if opt.simulation.sim_output_type.val == 1:
             recipe  = recipe_1(opt) # replace with 1a to test split method
@@ -192,16 +196,13 @@ def run(params_file):
     #      Store results
     #==============================================================================
    
-if __name__ == "__main__":     
-
-    run('jexosim_input_params_ex1.txt')
-    # run('jexosim_input_params_TEST1.txt')
+if __name__ == "__main__":      
   
- 
-    
- 
-    # run('jexosim_input_params_ex_miri_test.txt')
+
+    # run('jexosim_input_params_ex5 copy.txt')  
+
+    run('jexosim_input_params_ex_miri_test.txt')
     # run('jexosim_input_params_ex_nirspec_test.txt')
     # run('jexosim_input_params_ex_nircam_test.txt')
     # run('jexosim_input_params_ex_niriss_test.txt')
-  
+ 

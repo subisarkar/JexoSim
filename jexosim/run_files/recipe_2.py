@@ -17,6 +17,7 @@ from jexosim.modules import exosystem, telescope, channel, backgrounds
 from jexosim.modules import detector, timeline, light_curve, systematics, noise
 from jexosim.pipeline.run_pipeline import pipeline_stage_1, pipeline_stage_2
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot, write_record
+import gc
 
 
 class recipe_2(object):
@@ -24,6 +25,8 @@ class recipe_2(object):
         
         output_directory = opt.common.output_directory.val
         filename=""
+        runtag = int(np.random.uniform(0,100000))
+        
         
         self.results_dict ={}
         self.results_dict['simulation_mode'] = opt.simulation.sim_mode.val
@@ -31,7 +34,7 @@ class recipe_2(object):
         self.results_dict['ch'] =  opt.observation.obs_channel.val 
 
         opt.pipeline.useSignal.val=0
-        opt.pipeline.use_fast.val =1
+        opt.simulation.sim_use_fast.val =1
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
 
@@ -39,7 +42,8 @@ class recipe_2(object):
         opt.timeline.useLDC.val = 1
         opt.pipeline.useAllen.val =0
         opt.pipeline.fit_gamma.val  =0 #keep zero for uncert on p
-    
+        
+        
         start = 0 
         end = int(start + opt.no_real)
         
@@ -47,6 +51,13 @@ class recipe_2(object):
             jexosim_msg ("Monte Carlo selected", 1) 
                            
         opt = self.run_JexoSimA(opt)
+ 
+        # np.save('/Users/user1/Desktop/fp_signal.npy', opt.fp_signal[1::3,1::3].value)
+        # np.save('/Users/user1/Desktop/fp_wav.npy', opt.x_wav_osr[1::3].value)
+                    
+                    
+        # xxxx
+        
                                       
         if opt.observation_feasibility ==0:      
            jexosim_msg ("Observation not feasible...", opt.diagnostics) 
@@ -86,6 +97,8 @@ class recipe_2(object):
                jexosim_msg ("QE variations set", 1) 
                jexosim_msg ("Number of exposures %s"%(n_exp0), 1) 
                
+               print (opt.diagnostics)
+               
                
                
 # =============================================================================
@@ -103,8 +116,8 @@ class recipe_2(object):
                    idx = np.arange(0, n_ndr0, ndrs_per_round) # list of starting ndrs
                    
                    for i in range(len(idx)):
-                       jexosim_msg('=== Realisation %s Chunk %s / %s====='%(j, i+1, total_chunks), opt.diagnostics)
-                       
+                       jexosim_msg('=== Realisation %s Chunk %s / %s====='%(j, i+1, total_chunks), 1)
+                       jexosim_msg (opt.lab, 1) 
                        if idx[i] == idx[-1]:
                            opt.n_ndr = n_ndr0 - idx[i]
                            opt.lc_original = lc0[:,idx[i]:]
@@ -147,11 +160,14 @@ class recipe_2(object):
                        data = opt.pipeline_stage_1.opt.data_raw
                                                                   
                        if i ==0:
-                           data_stack = data
-                           binnedLC_stack = binnedLC    
+                           data_stack = data*1
+                           binnedLC_stack = binnedLC*1    
                        else:
                            data_stack = np.dstack((data_stack,data))
-                           binnedLC_stack = np.vstack((binnedLC_stack,binnedLC))                  
+                           binnedLC_stack = np.vstack((binnedLC_stack,binnedLC))  
+                           
+                       del data
+                       del binnedLC
 
                    aa = data_stack.sum(axis=0)
                    bb = aa.sum(axis=0)
@@ -217,24 +233,60 @@ class recipe_2(object):
                self.results_dict['bad_map'] = opt.bad_map
                self.results_dict['example_exposure_image'] = opt.exp_image
                self.results_dict['pixel wavelengths'] = opt.x_wav_osr[1::3].value
-                                 
+               self.results_dict['focal_plane_star_signal'] = opt.fp_signal[1::3,1::3].value
+                
+            
+         
+               # fq = '/Users/user1/Desktop/tempGit/JexoSim_A/output/Full_eclipse_MIRI_LRS_slitless_SLITLESSPRISM_FAST_HD_209458_b_2021_07_18_0852_28.pickle'
+
+
+               # with open(fq, 'rb') as handle:
+               #   rd = pickle.load(handle)             
+               # rd['focal_plane_star_signal'] = opt.fp_signal[1::3,1::3]
+               # rd['pixel wavelengths'] = opt.x_wav_osr[1::3].value
+               # with open(fq, 'wb') as handle:
+               #         pickle.dump(rd , handle, protocol=pickle.HIGHEST_PROTOCOL)   
+    
+    # run('Full_transit_NIRSpec_BOTS_G140M_F100LP_SUB2048_NRSRAPID_K2-18_b_2021_07_18_1402_38.pickle',0)
+    # run('Full_transit_NIRSpec_BOTS_G235M_F170LP_SUB2048_NRSRAPID_K2-18_b_2021_07_18_0709_24.pickle', 2)
+    # run('Full_transit_NIRSpec_BOTS_G395M_F290LP_SUB2048_NRSRAPID_K2-18_b_2021_07_17_2339_51.pickle',4)
+    
+    # run('Full_eclipse_NIRCam_TSGRISM_F444W_SUBGRISM64_4_output_RAPID_HD_209458_b_2021_07_19_0654_29.pickle',0)
+    # run('Full_eclipse_NIRCam_TSGRISM_F322W2_SUBGRISM64_4_output_RAPID_HD_209458_b_2021_07_19_0359_08.pickle',1)
+    # run('Full_eclipse_MIRI_LRS_slitless_SLITLESSPRISM_FAST_HD_209458_b_2021_07_18_0852_28.pickle', 2)
+ 
+     
+         
+                       
     
                if j != start:
-                   os.remove(filename)  # delete previous temp file
+                    os.remove(filename)  # delete previous temp file
      
-               filename = '%s/Full_transit_%s_TEMP.pickle'%(output_directory, opt.lab)
+               filename = '%s/Full_transit_%s_TEMP%s.pickle'%(output_directory, opt.lab, runtag)
+               if opt.observation.obs_type.val == 2:
+                    filename = '%s/Full_eclipse_%s_TEMP%s.pickle'%(output_directory, opt.lab, runtag)
+                       
                with open(filename, 'wb') as handle:
-                   pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    
+               del pipeline
+               del binnedLC_stack
+               gc.collect()
                    
                 
            os.remove(filename)  # delete previous temp file
-           # write final file
+            # write final file
            filename = '%s/Full_transit_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
+           if opt.observation.obs_type.val == 2:
+               filename = '%s/Full_eclipse_%s_%s.pickle'%(output_directory, opt.lab, time_tag)
+               
            with open(filename, 'wb') as handle:
                   pickle.dump(self.results_dict , handle, protocol=pickle.HIGHEST_PROTOCOL)
         
            jexosim_msg('Results in %s'%(filename), 1)
            self.filename = 'Full_transit_%s_%s.pickle'%(opt.lab, time_tag)
+           if opt.observation.obs_type.val == 2:
+               self.filename = 'Full_eclipse_%s_%s.pickle'%(opt.lab, time_tag)
                
            write_record(opt, output_directory, self.filename, opt.params_file_path)
             

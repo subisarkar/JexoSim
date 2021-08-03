@@ -79,6 +79,17 @@ def run(opt):
         opt.model_exosystem.J_mag.val = opt.input_params['user_defined_J_mag']
         opt.model_exosystem.K_mag.val = opt.input_params['user_defined_K_mag']
         
+        if 'user_defined_ra' in opt.input_params.keys():
+            opt.model_exosystem.ra.val = opt.input_params['ra']
+        else:
+            opt.model_exosystem.ra.val = 0
+         
+        if 'user_defined_dec' in opt.input_params.keys():
+            opt.model_exosystem.dec.val = opt.input_params['ra']
+        else:
+            opt.model_exosystem.dec.val = 0          
+         
+        
         if  opt.input_params['user_defined_logg'] == '':
             opt.model_exosystem.logg.val = jexosim_lib.calc_logg(opt.model_exosystem.M_s.val,opt.model_exosystem.R_s.val)[1]
 
@@ -91,19 +102,21 @@ def run(opt):
  
   opt.exosystem = model_exosystem(opt) # read in the xml file values
       
-  star = Star(opt)
+  opt.star = Star(opt)
   
-  jexosim_msg('exosystem check 1 %s'%(star.sed.sed.max()), opt.diagnostics)  
+  jexosim_msg('exosystem check 1 %s'%(opt.star.sed.sed.max()), opt.diagnostics)  
   
-  planet = Planet(opt, opt.exosystem)
-  planet.T14 = opt.model_exosystem.T14.val
+  opt.planet = Planet(opt, opt.exosystem)
+  opt.planet.T14 = opt.model_exosystem.T14.val
+  
+  # obtain the in-transit stellar spectrum at high resolution
+  # rebin star or planet sed to that of the lower resolution spec
 
              
-  jexosim_msg('T14 %s'%(planet.T14), 1)
+  jexosim_msg('T14 %s'%(opt.planet.T14), 1)
   # xxxxx
+   
+  opt  = exosystem_lib.get_it_spectrum(opt) 
   
- 
-  opt.star = star
-  opt.planet = planet
-  
-  return star, planet
+  return opt
+  # return star, planet

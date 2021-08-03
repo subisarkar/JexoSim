@@ -27,7 +27,8 @@ def run(opt):
           tr_ *=tr.sed            
       opt.channel_transmission = Sed(opt.x_wav_osr, tr_) 
       opt.total_transmission =   Sed(opt.channel_transmission.wl, opt.telescope_transmission.sed*opt.channel_transmission.sed )    
-      jexosim_lib.sed_propagation(opt.star.sed, opt.channel_transmission)   
+      jexosim_lib.sed_propagation(opt.star.sed, opt.channel_transmission) 
+      jexosim_lib.sed_propagation(opt.star.sed_it, opt.channel_transmission)  
       # apply QE and convert to electrons
       dtmp=np.loadtxt(opt.channel.detector_array.qe().replace('__path__', opt.__path__), delimiter=',')
       qe = Sed(dtmp[:,0]*u.um, dtmp[:,1]*u.dimensionless_unscaled)
@@ -41,6 +42,7 @@ def run(opt):
       opt.qe_spec = qe
       opt.Re = qe.sed * (qe.wl).to(u.m)/(const.c.value * const.h.value * u.m)
       opt.star.sed.sed *= opt.Re*u.electron/u.W/u.s
+      opt.star.sed_it.sed *= opt.Re*u.electron/u.W/u.s
       jexosim_plot('channel star sed check', opt.diagnostics, 
                    xdata = opt.x_wav_osr, ydata=opt.star.sed.sed, marker='-' )        
       jexosim_msg('check 1.3 - Star sed max:  %s'%(opt.star.sed.sed.max()), opt.diagnostics)    
@@ -57,15 +59,19 @@ def run(opt):
       jexosim_plot('D x wav osr check 2', opt.diagnostics, 
                    xdata = opt.x_wav_osr, ydata = opt.d_x_wav_osr, marker='o')        
       jexosim_msg ("check 1.4:  %s"%(opt.star.sed.sed.max()), opt.diagnostics)   
+       
       opt.planet_sed_original = copy.deepcopy(opt.planet.sed.sed)
-      opt.planet.sed.sed  *= opt.star.sed.sed
-      opt.planet.sed.sed  *= opt.d_x_wav_osr
+      # opt.planet.sed.sed  *= opt.star.sed.sed
+      # opt.planet.sed.sed  *= opt.d_x_wav_osr
+      
       jexosim_msg ("check 1.5:  %s"%(opt.star.sed.sed.max()), opt.diagnostics)                    
-      opt.star.sed.sed     *= opt.d_x_wav_osr       
+      opt.star.sed.sed     *= opt.d_x_wav_osr   
+      opt.star.sed_it.sed     *= opt.d_x_wav_osr   
       jexosim_msg ("check 2:  %s"%(opt.star.sed.sed.max()), opt.diagnostics)  
       jexosim_plot('star sed check 2.0', opt.diagnostics, 
                    xdata=opt.x_wav_osr, ydata=opt.star.sed.sed , marker='-')
 
+      
       return opt
       
     

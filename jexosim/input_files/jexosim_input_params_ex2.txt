@@ -1,6 +1,6 @@
 ######################### SIMULATION ################################################
 
-sim_diagnostics      1
+sim_diagnostics      0
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
 sim_mode             2
@@ -23,6 +23,7 @@ sim_noise_source	0
 # 10 Noiseless no backgrounds
 # 11 Noiseless with backgrounds
 # 12 Fano noise
+# 13 Sunshield noise
 
 sim_realisations	 50
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
@@ -75,7 +76,7 @@ obs_n_groups
 obs_n_reset_groups     default
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
-obs_inst_config NIRCam + TSGRISM_F322W2 + SUBGRISM64_4_output + RAPID
+obs_inst_config  MIRI + LRS_slitless + SLITLESSPRISM + FAST
 
 # available combinations: copy and paste a choice
 # instrument + configuration + subarray + readout_pattern
@@ -208,7 +209,8 @@ star_spectrum_file
 # Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
 
 star_spectrum_mag_norm     1
-# Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 0 to use radius and distance instead.
+# Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 2 to use radius and distance instead.
+Enter 0 to not apply any normalisation
 
 
 ############## Following only needed if planet_spectrum_model = complex #############
@@ -231,63 +233,63 @@ planet_spectrum_params_met
 
 ############## Following only needed if planet_use_database = 0 #####################
 
-user_defined_planet_name xxx	   
+user_defined_planet_name    
 # Enter name for planet   
 
-user_defined_R_p	0.1633	 
+user_defined_R_p	  
 # Enter planet radius in R_j units
 
-user_defined_M_p	0.01466	 
+user_defined_M_p	 
 # Enter planet mass in M_j units
 
-user_defined_P		8.24664 
+user_defined_P		 
 # Enter period in days
 
-user_defined_T_p	   1000
+user_defined_T_p	    
 # Enter planet temperature in K
 
-user_defined_a	       0.0652 
+user_defined_a	        
 # Enter semi-major axis in AU
 
-user_defined_i		89.65 
+user_defined_i		 
 # Enter inclination angle in deg
 
-user_defined_e		 0
+user_defined_e		  
 # Enter eccentricity 
  
-user_defined_albedo	  0
+user_defined_albedo	   
 # Enter albedo  
 
-user_defined_R_s	0.538	  
+user_defined_R_s	 	  
 # Enter star radius in R_sun units
 
-user_defined_M_s	 0.544
+user_defined_M_s	  
 # Enter star radius in M_sun units
 
-user_defined_T_s	 3709.0
+user_defined_T_s	  
 # Enter star radius K
 
-user_defined_d 		27.19 
+user_defined_d 		 
 # Enter distance in pc
 
 user_defined_logg	 	 
 # Enter logg
 
-user_defined_Z		 -0.2 
+user_defined_Z		  
 # Enter star metallicity Z index
 
-user_defined_T14	1.0 
+user_defined_T14	 
 # Enter transit duration in hrs
 
-user_defined_star_name 	  ccc
+user_defined_star_name 	  
 # Enter star name
 
-user_defined_ecliptic_lat     0
+user_defined_ecliptic_lat     
 # Enter ecliptic latitude in deg  
 
-user_defined_J_mag    	 0
+user_defined_J_mag    	 
 # Enter J magnitude
 
-user_defined_K_mag    	 0
+user_defined_K_mag    	  
 # Enter K magnitude
 

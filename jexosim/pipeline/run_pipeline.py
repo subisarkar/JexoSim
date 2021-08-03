@@ -44,7 +44,7 @@ class pipeline_stage_1():
                
             self.flatField()
             
-        if (opt.background.EnableZodi.val ==1 or opt.background.EnableEmission.val ==1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1: 
+        if (opt.background.EnableZodi.val ==1 or opt.background.EnableSunshield.val ==1 or opt.background.EnableEmission.val ==1 or opt.background.EnableAll.val == 1) and opt.background.DisableAll.val != 1: 
             if opt.diff==0:                  
                 self.subBackground()
         jexosim_plot('sample NDR image', opt.diagnostics,
@@ -339,11 +339,11 @@ class pipeline_stage_1():
         else:
             self.binnedLC_signal =  self.binnedLC 
             self.binnedWav_signal = self.binnedWav        
-
+ 
         if self.opt.timeline.apply_lc.val ==1 :
             self.extractSpec.binGamma()  
-            self.binnedGamma =  self.extractSpec.binnedGamma          
-         
+            self.binnedGamma =  self.extractSpec.binnedGamma  
+  
         self.nPix_2 =  self.extractSpec_nPix.binnedLC[0]
         
         jexosim_plot('n_pix per bin', self.opt.diagnostics,

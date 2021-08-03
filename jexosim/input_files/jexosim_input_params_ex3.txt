@@ -23,6 +23,7 @@ sim_noise_source	0
 # 10 Noiseless no backgrounds
 # 11 Noiseless with backgrounds
 # 12 Fano noise
+# 13 Sunshield noise
 
 sim_realisations	50
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
@@ -69,13 +70,13 @@ obs_use_sat 	 1
 obs_fw_percent    80
 # Enter percentage of detector full well capacity before a pixel is considered saturated
 
-obs_n_groups     
+obs_n_groups      
 # Enter number of groups per integration (only applied if use_sat = 0). JexoSim currently assumes 1 frame per group.  
  
 obs_n_reset_groups     default
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
-obs_inst_config  NIRSpec + BOTS_G140M_F100LP + SUB2048 +  NRSRAPID
+obs_inst_config  NIRSpec + BOTS_G395M_F290LP + SUB2048 +  NRSRAPID
 
 # available combinations: copy and paste a choice
 # instrument + configuration + subarray + readout_pattern
@@ -196,7 +197,7 @@ planet_spectrum_model	file
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
 
-planet_spectrum_file	 /Users/user1/Desktop/tempGit/JexoSim_A/jexosim/data/planet_spectra/K2-18b.txt 
+planet_spectrum_file	 K2-18b.txt 
 # Give complete path to specific planet spectrum file. Only needed if planet_spectrum_mode = file.
 
 star_spectrum_model	complex
@@ -208,8 +209,8 @@ star_spectrum_file
 # Give complete path to specific star spectrum file. Only needed if star_spectrum_mode = file.
 
 star_spectrum_mag_norm     1
-# Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 0 to use radius and distance instead.
-
+# Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 2 to use radius and distance instead.
+Enter 0 to not apply any normalisation
 
 ############## Following only needed if planet_spectrum_model = complex #############
 

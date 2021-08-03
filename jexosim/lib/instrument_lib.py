@@ -13,7 +13,7 @@ from jexosim.classes.sed import Sed
 import scipy
 import matplotlib.pyplot as plt
 import sys, os
-from scipy import interpolate
+from scipy import interpolate, signal
 import copy
 
 def useInterp(opt):    
@@ -128,15 +128,30 @@ def sanity_check(opt):
         plt.ylabel('e/bin'); plt.xlabel('Wavelength (microns)')     
 
 def user_subarray(opt):    
-    s = (opt.observation.obs_inst_config.val).replace(" ", "")
-    start = 0
-    idx=[]
-    for i in range(3):
-         idx0 = s.find('+', start)
-         idx.append(idx0)
-         start =idx0+1
-    opt.subarray = s[idx[1]+1:idx[2]]
-    opt.pattern = s[idx[2]+1:]
+    # s = (opt.observation.obs_inst_config.val).replace(" ", "")
+    # start = 0
+    # idx=[]
+    # for i in range(3):
+    #      idx0 = s.find('+', start)
+    #      idx.append(idx0)
+    #      start =idx0+1
+    # opt.subarray = s[idx[1]+1:idx[2]]
+    # opt.pattern = s[idx[2]+1:]
+    
+   
+    aa = opt.observation.obs_inst_config.val.split('+') 
+    for i in range(len(aa)):
+        aa[i] = aa[i].strip()
+    opt.subarray =  aa[2]   
+    opt.pattern = aa[3]
+    if opt.channel.instrument.val =='NIRCam':
+        bb = opt.subarray.split('_')
+        opt.subarray_name = bb[0]
+        opt.subarray_output_number = bb[1]
+    else:
+        opt.subarray_name = opt.subarray
+   
+    
 ################
     idx1 = np.argwhere(np.array(opt.channel.detector_array.subarray_list.val) == opt.subarray)[0].item()
     idx2 = np.argwhere(np.array(opt.channel.detector_readout.pattern_list.val) == opt.pattern)[0].item()
@@ -237,7 +252,18 @@ def crop_to_subarray(opt):
                   ycrop = 360; ycrop0= -120 
                   xcrop =0
                   xcrop0 = None                
-        # if ycrop > 0 or ycrop0 >0: 
+        # if ycrop > 0 or ycrop0 >0:
+            
+            
+        print ('xcrop', 'xcrop0', xcrop, xcrop0)
+        if xcrop is not None:
+            if xcrop%3 != 0:
+                print ('error: xcrop must be multiple of 3')
+                xxx
+        if xcrop0 is not None:
+            if xcrop0%3 != 0:
+                print ('error: xcrop0 must be multiple of 3')
+                xxx
         opt.fp = opt.fp[ycrop:ycrop0]
         opt.fp = opt.fp[:,xcrop:xcrop0]      
         opt.fp_signal = opt.fp_signal[ycrop:ycrop0]
@@ -246,21 +272,29 @@ def crop_to_subarray(opt):
         opt.d_x_wav_osr = opt.d_x_wav_osr[xcrop:xcrop0]
         opt.x_pix_osr = opt.x_pix_osr[xcrop:xcrop0]
         opt.zodi.sed = opt.zodi.sed[xcrop:xcrop0]
+        opt.sunshield.sed = opt.sunshield.sed[xcrop:xcrop0]
         opt.emission.sed = opt.emission.sed[xcrop:xcrop0]
         opt.zodi.wl = opt.x_wav_osr
+        opt.sunshield.wl = opt.x_wav_osr
         opt.emission.wl = opt.x_wav_osr
-        opt.planet.sed.sed =opt.planet.sed.sed[xcrop:xcrop0]                  
-        opt.planet.sed.wl = opt.x_wav_osr
+        if xcrop0 is None:
+            opt.planet.sed.sed =opt.planet.sed.sed[int(xcrop/3):]                  
+            opt.planet.sed.wl = opt.planet.sed.wl[int(xcrop/3):] 
+        else: 
+            opt.planet.sed.sed =opt.planet.sed.sed[int(xcrop/3):int(xcrop0/3)]                  
+            opt.planet.sed.wl = opt.planet.sed.wl[int(xcrop/3):int(xcrop0/3)]
+        if len(opt.planet.sed.wl) != len(opt.x_wav_osr)/3:
+            print ('error: size of planet spectrum not matching array width')
+            xxx
+                
         opt.R.sed = opt.R.sed[xcrop:xcrop0] 
         opt.R.wl = opt.x_wav_osr
         opt.quantum_yield.sed = opt.quantum_yield.sed[xcrop:xcrop0] 
         opt.quantum_yield.wl = opt.x_wav_osr 
         opt.qy_zodi = opt.qy_zodi[xcrop:xcrop0] 
+        opt.qy_sunshield = opt.qy_sunshield[xcrop:xcrop0] 
         opt.qy_emission = opt.qy_emission[xcrop:xcrop0] 
-        
-        print (opt.qy_zodi.shape)
-         
-     
+ 
         
         opt.PCE = opt.PCE[xcrop:xcrop0]     
         opt.TotTrans = opt.TotTrans[xcrop:xcrop0]        
@@ -313,8 +347,8 @@ def get_focal_plane(opt):
       i0+=1         
       # variable y position (applies only to NIRISS)
       if opt.y_pos_osr != []:
-          opt.y_pos_osr = np.where(opt.y_pos_osr<0,0, opt.y_pos_osr).astype(np.int) +opt.fp.shape[0]/2 -opt.psf.shape[0]/2 + opt.offs 
-          i0 = (opt.y_pos_osr).astype(np.int) 
+          y_pos_osr0 = np.where(opt.y_pos_osr<0,0, opt.y_pos_osr).astype(np.int) +opt.fp.shape[0]/2 -opt.psf.shape[0]/2 + opt.offs 
+          i0 = (y_pos_osr0).astype(np.int) 
       i1 = i0 + opt.psf.shape[0]  
       # SPECIAL CASE: fix if airy psfs used     
       if opt.channel.name == 'NIRISS_SOSS_GR700XD':
@@ -336,79 +370,125 @@ def get_focal_plane(opt):
               if i1.max() > original_fp.shape[0]: 
                   diff = i1.max()- original_fp.shape[0]         
                   opt.fp = opt.fp[diff:]    
-                  opt.fp_signal = opt.fp_signal[diff:]                   
+                  opt.fp_signal = opt.fp_signal[diff:]  
+ 
       return opt.fp, opt.fp_signal
-      
-def get_planet_spectrum(opt):
-      j0 = np.arange(opt.fp.shape[1]) - int(opt.psf.shape[1]/2)
+    
+    
+def get_focal_plane_it(opt):  
+      # Populate focal plane with monochromatic PSFs
+      j0 = np.arange(opt.fp_it.shape[1]) - int(opt.psf.shape[1]/2)
       j1 = j0 + opt.psf.shape[1]
-      idx = np.where((j0>=0) & (j1 < opt.fp.shape[1]))[0]
-      i0 = np.array([opt.fp.shape[0]/2 - opt.psf.shape[0]/2 + opt.offs]*len(j1)).astype(np.int)     
-      i0+=1           
+      idx = np.where((j0>=0) & (j1 < opt.fp_it.shape[1]))[0]
+      i0 = np.array([opt.fp_it.shape[0]/2 - opt.psf.shape[0]/2 + opt.offs]*len(j1)).astype(np.int)     
+      i0+=1         
       # variable y position (applies only to NIRISS)
       if opt.y_pos_osr != []:
-          i0 = (opt.y_pos_osr).astype(np.int)          
-      i1 = i0 + opt.psf.shape[0]      
-      if opt.channel.name == 'NIRISS_SOSS_GR700XD':  # Niriss curved spectrum means code below will not work
-          opt.planet.sed =  Sed(opt.x_wav_osr, opt.planet_sed_original)
-      else:              
-          i0p = np.unravel_index(np.argmax(opt.psf.sum(axis=2)), opt.psf[...,0].shape)[0]
-          planet_response = np.zeros((opt.fp.shape[1]))         
-          for k in idx: 
-              planet_response[j0[k]:j1[k]] += opt.psf[i0p,:,k] * opt.planet.sed.sed[k].value          
-          pl_sed = np.zeros((opt.fp.shape[1]))
-          for i in range (len(planet_response)): 
-               pl_sed[i] = planet_response[i]/(1e-30+ opt.fp[:,i][(i0[i]+i1[i])//2])                   
-          opt.planet.sed =  Sed(opt.x_wav_osr, pl_sed*u.dimensionless_unscaled)         
-      jexosim_plot('planet sed 1', opt.diagnostics, 
-                   xdata=opt.planet.sed.wl, ydata = opt.planet.sed.sed, 
-                   ylim=[0,1])
-      return opt.planet.sed
-# alternate code that does not rely on multiplying by the star.sed first- not sure if this works correctly yet.    
-#          planet_fp = copy.deepcopy(opt.fp)*0
-#          i0 = np.array([opt.fp.shape[0]/2 - psf.shape[0]/2 + opt.offs]*len(j1))
-#          i1 = i0 + psf.shape[0]
-#          
-#          for k in idx: 
-#              planet_fp[i0[k]:i1[k], j0[k]:j1[k]] += psf[...,k] * opt.planet_sed_original[k] 
-#
-#  
-#          planet_response = planet_fp.sum(axis=0)
-#          plt.figure('planet sed 111')
-#          plt.plot(opt.planet.sed.wl, planet_response)
-#          
-#          plt.figure('test')
-#          plt.imshow(planet_fp)
+          y_pos_osr0 = np.where(opt.y_pos_osr<0,0, opt.y_pos_osr).astype(np.int) +opt.fp_it.shape[0]/2 -opt.psf.shape[0]/2 + opt.offs 
+          i0 = (y_pos_osr0).astype(np.int) 
+      i1 = i0 + opt.psf.shape[0]  
+      # SPECIAL CASE: fix if airy psfs used     
+      if opt.channel.name == 'NIRISS_SOSS_GR700XD':
+          # fix if airy psfs used
+          if opt.psf_type == 'airy':
+              original_fp_it = copy.deepcopy(opt.fp_it)
+              if i1.max() > opt.fp_it.shape[0]: #psfs will fall outside fp_it area due to curve
+                  original_fp_it = copy.deepcopy(opt.fp_it)
+                  opt.fp_it = np.zeros((i1.max(), opt.fp_it.shape[1] ))  # temp increase in fp_it size  
+                  opt.fp_signal_it = np.zeros((i1.max(), opt.fp_signal_it.shape[1] ))  # temp increase in fp_it size           
+      if opt.background.EnableSource.val == 1 or opt.background.EnableAll.val == 1:     
+          for k in idx: # actual signal 
+              opt.fp_it[i0[k]:i1[k], j0[k]:j1[k]] += opt.psf[...,k] * opt.star.sed_it.sed[k].value              
+      for k in idx: # used for getting sat time, and sizing
+          opt.fp_signal_it[i0[k]:i1[k], j0[k]:j1[k]] += opt.psf[...,k] * opt.star.sed_it.sed[k].value                        
+      # SPECIAL CASE: fix if airy psfs used      
+      if opt.channel.name == 'NIRISS_SOSS_GR700XD': 
+          if opt.psf_type == 'airy':  # now return fp_it to original size
+              if i1.max() > original_fp_it.shape[0]: 
+                  diff = i1.max()- original_fp_it.shape[0]         
+                  opt.fp_it = opt.fp_it[diff:]    
+                  opt.fp_signal_it = opt.fp_signal_it[diff:]                   
+      return opt.fp_it, opt.fp_signal_it
 
-def convolve_prf(opt):
+
+def get_planet_spectrum(opt): 
+    fp_signal_it = opt.fp_signal_it[1::3, 1::3]
+    fp_signal = opt.fp_signal[1::3, 1::3]
     
-      kernel, kernel_delta = jexosim_lib.PixelResponseFunction(opt, 
-        opt.psf.shape[0:2],
-        7*opt.channel.simulation_factors.osf(),   
-        opt.channel.detector_pixel.pixel_size(),
-        lx = opt.channel.detector_pixel.pixel_diffusion_length())
-      jexosim_msg ("kernel sum %s"%(kernel.sum()), opt.diagnostics) 
-      jexosim_msg ("check 3.9 - unconvolved FP max %s"%(opt.fp.max()) , opt.diagnostics)      
-      jexosim_plot('test3', opt.diagnostics, xdata=opt.x_wav_osr, ydata = opt.fp.sum(axis=0), marker='bo')
-      jexosim_plot('test4', opt.diagnostics, xdata=opt.x_pix_osr, ydata = opt.x_wav_osr, marker='bo')                  
-      jexosim_plot('test5', opt.diagnostics, xdata=opt.x_pix_osr, ydata = opt.fp.sum(axis=0), marker='bo')
-      jexosim_plot('test6', opt.diagnostics, xdata=opt.x_wav_osr, ydata = opt.star.sed.sed, marker='bo') 
-      opt.fp = jexosim_lib.fast_convolution(opt.fp, opt.fp_delta, kernel, kernel_delta)
-      opt.fp_signal = jexosim_lib.fast_convolution(opt.fp_signal, opt.fp_delta, kernel, kernel_delta)
-      jexosim_msg ("check 4 - convolved FP max %s"%(opt.fp.max()), opt.diagnostics)    
-      opt.kernel = kernel
-      opt.kernel_delta = kernel_delta     
-      # Fix units
-      opt.fp = opt.fp*opt.star.sed.sed.unit 
-      opt.fp_signal = opt.fp_signal*opt.star.sed.sed.unit  
-      return opt.fp, opt.fp_signal
+    rat = (1- (fp_signal_it/fp_signal))
+    rat[np.isnan(rat)] = 0
+    cr_average = np.zeros(fp_signal.shape[1])
+    for i in range(fp_signal.shape[1]):
+        slice = rat[:,i]
+        idx = np.argwhere(slice>0)
+        slice = slice[idx]
+        # wt = 1/slice
+        # this is important to remove outliers
+        idx = np.argwhere(abs(slice-np.median(slice)) > 0.01*np.median(slice)).T[0]
+        # sd = np.std(slice)
+        # idx = np.argwhere(abs(slice-np.mean(slice) > sd))    
+        slice = np.delete(slice, idx)
+        # wt = 1/slice
+        # if i == 200:
+        #     print (idx, 0.1*np.median(slice))
+        #     plt.plot(slice, 'ro-')  
+        # # if i == 1760:
+        #     print (idx, 0.1*np.median(slice))
+        #     plt.plot(slice, 'bo-')
+        cr_average[i] = np.mean(slice)
+        # cr_average[i] = np.sum(slice*wt)/ np.sum(wt)
+
+    opt.planet.sed =  Sed(opt.x_wav_osr[1::3], cr_average*u.dimensionless_unscaled)
+
+    # remove values outside of the wavelength range of the channel
+    idx = np.argwhere(opt.planet.sed.wl.value < opt.channel.pipeline_params.wavrange_lo.val-0.5).T[0]
+    opt.planet.sed.sed[idx] = 0*u.dimensionless_unscaled
+    idx = np.argwhere(opt.planet.sed.wl.value > opt.channel.pipeline_params.wavrange_hi.val+0.5).T[0]
+    opt.planet.sed.sed[idx] = 0*u.dimensionless_unscaled
+    idx = np.argwhere(opt.planet.sed.wl.value ==0).T[0]
+    opt.planet.sed.sed[idx] = 0*u.dimensionless_unscaled
+ 
+    return opt.planet.sed
+ 
+     
+
+def convolve_prf(opt, fp , fp_signal):
+     if opt.channel.detector_pixel.pixel_diffusion_length.val.value < 0.01:
+         box = np.ones((3,3))
+         fp =  signal.fftconvolve(fp, box, 'same') 
+         fp_signal =  signal.fftconvolve(fp_signal, box, 'same') 
+         jexosim_msg('Convolving with top-hat PRF', opt.diagnostics)
+     
+     else:
+          kernel, kernel_delta = jexosim_lib.PixelResponseFunction(opt, 
+            opt.psf.shape[0:2],
+            7*opt.channel.simulation_factors.osf(),   
+            opt.channel.detector_pixel.pixel_size(),
+            lx = opt.channel.detector_pixel.pixel_diffusion_length())
+          # jexosim_msg ("kernel sum %s"%(kernel.sum()), opt.diagnostics) 
+          # jexosim_msg ("check 3.9 - unconvolved FP max %s"%(fp.max()) , opt.diagnostics)      
+          # jexosim_plot('test3', opt.diagnostics, xdata=opt.x_wav_osr, ydata = fp.sum(axis=0), marker='bo')
+          # jexosim_plot('test4', opt.diagnostics, xdata=opt.x_pix_osr, ydata = opt.x_wav_osr, marker='bo')                  
+          # jexosim_plot('test5', opt.diagnostics, xdata=opt.x_pix_osr, ydata = fp.sum(axis=0), marker='bo')
+          # jexosim_plot('test6', opt.diagnostics, xdata=opt.x_wav_osr, ydata = opt.star.sed.sed, marker='bo') 
+          fp = jexosim_lib.fast_convolution(fp, opt.fp_delta, kernel, kernel_delta)
+          fp_signal = jexosim_lib.fast_convolution(fp_signal, opt.fp_delta, kernel, kernel_delta)
+          jexosim_msg ("check 4 - convolved FP max %s"%(fp.max()), opt.diagnostics)  
+          jexosim_msg ("check 4 - convolved FP signal max %s"%(fp_signal.max()), opt.diagnostics)    
+    
+          opt.kernel = kernel
+          opt.kernel_delta = kernel_delta     
+          # Fix units
+     fp = fp*opt.star.sed.sed.unit 
+     fp_signal = fp_signal*opt.star.sed.sed.unit  
+     return fp, fp_signal
   
 def exposure_timing(opt):    
     
     ## Find count rate with diffuse radiation
       fp_copy = copy.deepcopy(opt.fp_signal)
       fp_count_no_bkg = 1*fp_copy[1::3,1::3] * opt.quantum_yield.sed[1::3]
-      fp_count = opt.zodi.sed[1::3]*opt.qy_zodi[1::3]  + opt.emission.sed[1::3]*opt.qy_emission[1::3] + fp_copy[1::3,1::3] * opt.quantum_yield.sed[1::3]      
+      fp_count = opt.zodi.sed[1::3]*opt.qy_zodi[1::3] + opt.sunshield.sed[1::3]*opt.qy_sunshield[1::3]  + opt.emission.sed[1::3]*opt.qy_emission[1::3] + fp_copy[1::3,1::3] * opt.quantum_yield.sed[1::3]      
       fp_count += opt.channel.detector_pixel.Idc.val 
       
       jexosim_msg ("check 4a - %s"%(fp_count.max()), opt.diagnostics)

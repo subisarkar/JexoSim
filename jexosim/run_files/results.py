@@ -34,22 +34,22 @@ def run(results_file):
         
     no_list = np.array([ 'All noise','All photon noise','Source photon noise','Dark current noise',
                         'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise'])  
-    color = ['0.5','r', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c']
-              
+                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise', 'Sunshield noise'])  
+    color = ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c', 'brown']
+     
     ch =res_dict['ch']
     
     sim_text = '%s.txt'%(results_file)
     
-    with open(sim_text) as f:
-        content = f.readlines()
-        content = [x.strip() for x in content]        
-        for i in range(len(content)):       
-            if content[i] != '' and content[i][0] != '#':
-                aa = content[i].split()
-                if aa[0] == 'Wavelength:':
-                    wavlim=[np.float(aa[1]), np.float(aa[2])]
-
+    # with open(sim_text) as f:
+    #     content = f.readlines()
+    #     content = [x.strip() for x in content]        
+    #     for i in range(len(content)):       
+    #         if content[i] != '' and content[i][0] != '#':
+    #             aa = content[i].split()
+    #             if aa[0] == 'Wavelength:':
+    #                 wavlim=[np.float(aa[1]), np.float(aa[2])]
+    wavlim = [5, 12]
         
     if res_dict['simulation_mode'] == 2:
         
@@ -182,6 +182,8 @@ def run(results_file):
             noise_type = key
             wl = no_dict[key]['wl'][idx]
             
+            print (wl/np.gradient(wl))
+            
             if res_dict['simulation_realisations'] == 1:          
                 sig_stack = no_dict[key]['signal_mean_stack'][idx]
                 no_stack = no_dict[key]['signal_std_stack'][idx]
@@ -266,6 +268,13 @@ def run(results_file):
                 
                 plt.plot(wl, y, '-', color='r', linewidth=2) 
                 plt.grid(True)
+                
+                # print (wl/np.gradient(wl))
+                # aa = np.vstack((wl, y, fracNoT14_mean*np.sqrt(2))).T
+                # np.savetxt('/Users/user1/Desktop/Case1_unbinned.txt', aa)
+                # print (aa)
+                # xxx
+                
                          
                 cr = res_dict['input_spec']
                 cr_wl = res_dict['input_spec_wl']
@@ -385,7 +394,7 @@ def run(results_file):
                 plt.ylabel('Fractional noise at T14 (ppm)')
                 plt.xlabel('Wavelength ($\mu m$)')
                 plt.grid(True)
-        
+      
 
             if key == 'All noise':
                 plt.figure('bad pixels %s'%(res_dict['time_tag']))          
@@ -418,6 +427,11 @@ if __name__ == "__main__":
     # run('Full_transit_NIRCam_TSGRISM_F322W2_SUBGRISM64_4_output_RAPID_K2-18_b_2021_02_05_1008_14.pickle')
     # run('Full_transit_NIRSpec_BOTS_G140M_F100LP_SUB2048_NRSRAPID_K2-18_b_2021_02_05_2248_21.pickle')
     
-    run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_02_07_1010_08.pickle')
+    # run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_02_07_1010_08.pickle')
     
     # run('OOT_SNR_NIRISS_SOSS_GR700XD_SUBSTRIP96_NISRAPID_K2-18_b_2021_02_03_1146_44.pickle')
+    
+    
+    # run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_05_22_1333_24.pickle')
+    
+    run('OOT_SNR_MIRI_LRS_slitless_SLITLESSPRISM_FAST_xxx_2021_07_23_1400_07.pickle')

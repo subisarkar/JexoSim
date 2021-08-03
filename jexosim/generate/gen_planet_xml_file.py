@@ -108,7 +108,7 @@ def make_planet_xml_file(opt, pl):
                     # print (i, pl)
                     idx_list.append(i)        
                     
-            params = 14
+            params = 16
             param_array = np.zeros(( len(idx_list), params))
             nan_list =[]
             ct = -1
@@ -128,7 +128,9 @@ def make_planet_xml_file(opt, pl):
                 d = data['sy_dist'][idx]
                 Z = data['st_met'][idx]
                 T14 = data['pl_trandur'][idx]
-                param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z, T14])
+                ra = data['ra'][idx]
+                dec = data['dec'][idx]
+                param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z, T14, ra, dec])
                 param_array[ct] = param_list
                 nan_list.append(len(np.argwhere(np.isnan(param_list))))
              
@@ -177,14 +179,17 @@ def make_planet_xml_file(opt, pl):
             d = data['sy_dist'][idx]
             Z = data['st_met'][idx]
             T14 = data['pl_trandur'][idx]
-            param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z, T14])
+            ra = data['ra'][idx]
+            dec = data['dec'][idx]
+            param_list = np.array([ecliptic_lat, R_p, M_p, T_p, i, e, a, P, R_s, M_s, T_s, d, Z, T14, ra, dec])
             
             dic = {'elat': ecliptic_lat,
                    'pl_radj': R_p,'pl_bmassj': M_p, 'pl_eqt':T_p,  'pl_orbincl': i, 'pl_orbeccen': e, 'pl_orbsmax': a,
-                   'pl_orbper': P ,'st_rad': R_s,'st_mass': M_s,'st_teff': T_s,'sy_dist': d,'st_met': Z, 'pl_trandur': T14 }
+                   'pl_orbper': P ,'st_rad': R_s,'st_mass': M_s,'st_teff': T_s,'sy_dist': d,'st_met': Z, 'pl_trandur': T14,
+                   'ra': ra, 'dec': dec}
             
             params = ['elat', 'pl_radj','pl_bmassj', 'pl_eqt', 'pl_orbincl','pl_orbeccen','pl_orbsmax',
-                        'pl_orbper','st_rad','st_mass','st_teff','sy_dist','st_met', 'pl_trandur']
+                        'pl_orbper','st_rad','st_mass','st_teff','sy_dist','st_met', 'pl_trandur', 'ra', 'dec']
              
             
             print (param_list)
@@ -314,7 +319,8 @@ def make_planet_xml_file(opt, pl):
                   child.find('planet_name').set('val', '%s'%(pl))  
                   child.find('J_mag').set('val', '%s'%(dic['sy_jmag'])) 
                   child.find('K_mag').set('val', '%s'%(dic['sy_kmag'])) 
-                  
+                  child.find('ra').set('val', '%s'%(dic['ra'])) 
+                  child.find('dec').set('val', '%s'%(dic['dec'])) 
                
               newXmlFileName = '%s/%s.xml'%(target_folder, pl)
               f = open(newXmlFileName, 'wb')

@@ -97,8 +97,7 @@ class processLC():
             if ( i >= nWLs-1 ):
                     sys.stdout.write('|     done  \n'); sys.stdout.flush(); 
 
-            self.dataLC = self.LC[:,i]
-            
+            self.dataLC = self.LC[:,i]            
             #fit light curve
             self.final_fit = self.light_curve_fit(i)
             
@@ -493,6 +492,7 @@ class extractSpec():
         # same mid position in all images
         
         wl = self.opt.cr_wl.value
+        print (len(wl))
         F = self.opt.channel.camera.wfno_x.val  # use F_x to set width, since NIRISS F_y is just estimate used to gen PSF if no WebbPSF used
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
         ApFactor = self.ApFactor
@@ -512,10 +512,10 @@ class extractSpec():
          
         Cen = self.opt.aa.shape[0] /2.
 
-        y_pos = 23+ self.opt.y_pos_osr[1::3]/3.0 # factor 23 is empiric to match the centre of spectrum
+        y_pos = 127 + self.opt.y_pos_osr[1::3]/3.0 #   empiric to match the centre of spectrum
         # Fix for NIRISS substrip96 again found empirically
         if self.data[...,0].shape[0] == 96 :
-             y_pos = -97 + self.opt.y_pos_osr[1::3]/3.0
+             y_pos = +7 + self.opt.y_pos_osr[1::3]/3.0
 
         mid_dist = pixSize/2.  + y_pos*pixSize 
 
@@ -526,13 +526,9 @@ class extractSpec():
                          image_data = self.data.sum(axis=2), aspect='auto', interpolation = None)
             jexosim_plot('y position of mask centre (pixels) vs x pixel', self.opt.diagnostics,
                          ydata = y_pos, marker='yo')
-         
 
-   
         mid_dist00 = np.array([pixSize/2.  + Cen*pixSize]*len(wl))
-        
 
-        
         w_list =[]
         for  i in range(len(wl)):
             if ApShape =='wav':                  
@@ -1068,7 +1064,7 @@ class extractSpec():
                 spec  = self.gamma[jj]
                 spec_flux  = np.sum(self.opt.fp_signal[1::3,1::3].value, axis=0) #used as weights for each coeff per pixel col.
                 
-
+                spec_flux = np.where(spec_flux<=0, 1e-30, spec_flux) # fix for if spec_f;ux = zero > leads to binning error
 #================ new code ==============================================================
 # This deals with bins which are < 1 pixel
 #=============          
@@ -1158,7 +1154,7 @@ class extractSpec():
                                         
                                         S_list.append(SRight*SRight_flux) #S*weight
                                         flux_list.append(SRight_flux)
-                                        weighted_av = np.sum(S_list)/np.sum(flux_list)                     
+                                        weighted_av = np.sum(S_list)/np.sum(flux_list)  
                                         count.append(weighted_av)
                                         ct=ct+1
                                         break
@@ -1174,13 +1170,10 @@ class extractSpec():
                 jexosim_plot('binned Gamma', self.opt.diagnostics,
                              xdata=self.binnedWav, ydata=count, marker ='bo-')         
     
-  
-           
                 if jj ==0:
                     count_array = count
                 else:
                     count_array = np.vstack((count_array, count))
-   
             self.binnedGamma = count_array
             
          
@@ -1214,8 +1207,7 @@ class extractSpec():
         x_pix_osr = self.opt.x_pix_osr
         pixSize = (self.opt.channel.detector_pixel.pixel_size.val).to(u.um).value
         bin_size = self.opt.pipeline.pipeline_bin_size.val        
-        
-        
+                
         if self.opt.pipeline.pipeline_binning.val == 'R-bin':
             for i in range (len(wl)):
                 if wl[i]>0:
@@ -1372,7 +1364,7 @@ class processOOT():
         if self.opt.pipeline.useAllen.val ==1:
             for i in [0]:
                 self.obtainAllen()
-                                
+                             
                 time_target = self.opt.T14.value
 #                time_target = 3600               
                 # idx = 0

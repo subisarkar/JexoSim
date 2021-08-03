@@ -8,7 +8,11 @@ Exosystem and related library
 import numpy as np
 from jexosim.lib import jexosim_lib
 from jexosim.lib.jexosim_lib import jexosim_msg, jexosim_plot
+from jexosim.classes.sed import Sed
 from pytransit import QuadraticModel 
+import copy
+
+import matplotlib.pyplot as plt
 
 def get_light_curve(opt, planet_sed, wavelength, obs_type):
       
@@ -19,8 +23,13 @@ def get_light_curve(opt, planet_sed, wavelength, obs_type):
     ars = opt.z_params[3]
     inc = opt.z_params[4]
     ecc = opt.z_params[5]
-    omega = opt.z_params[6]       
+    omega = opt.z_params[6]
+    
+    if opt.observation.obs_type.val == 2:
+        opt.timeline.useLDC.val = 0
+        
     if opt.timeline.useLDC.val == 0:   # linear ldc
+        jexosim_msg('LDCs set to zero', 1)
         u0 = np.zeros(len(wavelength)); u1 = np.zeros(len(wavelength))
         ldc = np.vstack((wavelength,u0,u1))
     elif opt.timeline.useLDC.val == 1:   # use to get ldc from filed values
@@ -41,13 +50,19 @@ def get_light_curve(opt, planet_sed, wavelength, obs_type):
         for i in range(len(planet_sed)):   
               k = np.sqrt(planet_sed[i]).value      
               lc[i, ...]= tm.evaluate(k=k, ldc=gamma[i, ...], t0=t0, p=per, a=ars, i=inc, e=ecc, w=omega)                 
-              jexosim_plot('light curve check', opt.diagnostics, ydata = lc[i, ...] )              
+              jexosim_plot('light curve check', opt.diagnostics, ydata = lc[i, ...] )    
     elif obs_type == 2: # secondary eclipse
         for i in range(len(planet_sed)):
               k = np.sqrt(planet_sed[i])  # planet star radius ratio 
-              lc_base = tm.evaluate(k=k, ldc=[0,0], t0=t0, p=per, a=ars, i=inc, e=ecc, w=omega)                      
-              f_e = (planet_sed[i] + (   lc_base  -1.0))/planet_sed[i]
-              lc[i, ...]  = 1.0 + f_e*(planet_sed[i])  
+              lc_base = tm.evaluate(k=k, ldc=[0,0], t0=t0, p=per, a=ars, i=inc, e=ecc, w=omega)
+              jexosim_plot('light curve check', opt.diagnostics, ydata = lc_base )                      
+              # f_e = (planet_sed[i] + (   lc_base  -1.0))/planet_sed[i]
+              # lc[i, ...]  = 1.0 + f_e*(planet_sed[i])  
+   
+              lc[i,...] =  lc_base + planet_sed[i]
+              jexosim_plot('light curve check', opt.diagnostics, ydata = lc[i, ...] )
+ 
+    
     return lc, ldc
  
      
@@ -154,3 +169,28 @@ def calc_T14(inc, a, per, Rp, Rs):
     rat = Rp/Rs
     t14 = per/np.pi* Rs/a * np.sqrt((1+rat)**2 - b**2)
     return t14
+
+
+def get_it_spectrum(opt):
+    
+    wl_lo = opt.channel.pipeline_params.wavrange_lo.val
+    wl_hi = opt.channel.pipeline_params.wavrange_hi.val
+    wl = opt.star.sed.wl
+    planet_wl = opt.planet.sed.wl
+
+    R = wl/np.gradient((wl))
+    R_planet = planet_wl/np.gradient((planet_wl))
+    # select onyl wavelengths in range for channel
+    idx = np.argwhere((wl.value>= wl_lo) & (wl.value<= wl_hi)).T[0]
+    idx2 = np.argwhere((planet_wl.value>= wl_lo) & (planet_wl.value<= wl_hi)).T[0]
+    # rebin to lower resolution spectrum
+    if  R_planet[idx2].min() < R[idx].min():
+        opt.star.sed.rebin(planet_wl)
+    else:
+        opt.planet.sed.rebin(wl)
+    # now make in-transit stellar spectrum
+    star_sed_it = opt.star.sed.sed*(1-opt.planet.sed.sed)
+    opt.star.sed_it = Sed(opt.star.sed.wl, star_sed_it)
+ 
+    return opt
+

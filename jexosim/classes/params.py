@@ -92,11 +92,13 @@ class Params():
                         # print (key0)
                         attr_dict2 = vars(attr_dict[key0])
                         # print (attr_dict2['val'],attr_dict2['attrib']['val']) 
-                        if self.params[key] !='': # if blank keeps default
-                            attr_dict2['val'] = self.params[key]
-                            attr_dict2['attrib']['val'] = self.params[key]
-                        # print (attr_dict2['val'],attr_dict2['attrib']['val'])
-                        # print ('x')
+                        if self.params[key] !='' and self.params[key] !='default': # if blank keeps default
+                            if hasattr(attr_dict2['val'], 'unit'):
+                                attr_dict2['val'] = self.params[key]*attr_dict2['val'].unit
+                                attr_dict2['attrib']['val'] = self.params[key] 
+                            else:
+                                attr_dict2['val'] = self.params[key] 
+                                attr_dict2['attrib']['val'] = self.params[key]
         s = ((self.opt.observation.obs_inst_config.val).replace(" ", ""))
         start = 0
         idx=[]
@@ -112,28 +114,22 @@ class Params():
         
         attr_dict_list = [vars(self.opt.channel.detector_readout) , vars(self.opt.channel.pipeline_params) ]
         
+        attr_dict_list = [vars(self.opt.timeline), vars(self.opt.channel) , vars(self.opt.channel.detector_pixel), vars(self.opt.channel.pipeline_params)]
         for attr_dict in attr_dict_list:
             for key in self.params.keys():
                 # if 'database' in key:
                 testkey = key
                 if testkey == 'obs_n_reset_groups':
                     testkey = 'nRST'
-                # testkey = (key.replace('database_', ''))
-                # print (testkey)
-                for key0 in attr_dict.keys():
-                    # print (key0, testkey)
-                    if key0 == testkey:
-                        if self.params[key] !='': # if blank keeps default  
-                            cond = 1
-                            if key0 == 'nRST':
-                                if self.params[key] == 'default' or self.params[key] =='':
-                                    cond =0
-                            if cond ==1:
-                                attr_dict2 = vars(attr_dict[key0])
-                                # print (attr_dict2['val'],attr_dict2['attrib']['val']) 
-                                attr_dict2['val'] = self.params[key]
+                for key0 in attr_dict.keys():                   
+                    if key0 == testkey:                      
+                        attr_dict2 = vars(attr_dict[key0])                      
+                        if self.params[key] !='' and self.params[key] !='default': # if blank keeps default
+                            if hasattr(attr_dict2['val'], 'unit'):
+                                attr_dict2['val'] = self.params[key]*attr_dict2['val'].unit
+                                attr_dict2['attrib']['val'] = self.params[key] 
+                            else:
+                                attr_dict2['val'] = self.params[key] 
                                 attr_dict2['attrib']['val'] = self.params[key]
-                                # print (attr_dict2['val'],attr_dict2['attrib']['val'])
-                                # print ('x')
-           
+                                
   

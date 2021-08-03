@@ -140,24 +140,38 @@ def rebin(x, xp, fp):
   if np.diff(xp).min() < np.diff(x).min():
    
     # Binning!
-    c = cumtrapz(fp, x=xp)
-    xpc = xp[1:]
-        
-    delta = np.gradient(x)
-    new_c_1 = np.interp(x-0.5*delta, xpc, c, 
-                        left=0.0, right=0.0)
-    new_c_2 = np.interp(x+0.5*delta, xpc, c, 
-                        left=0.0, right=0.0)
-    new_f = (new_c_2 - new_c_1)/delta
     
-
- 
+    # old method
+    # c = cumtrapz(fp, x=xp)
+    # xpc = xp[1:]    
+    # delta = np.gradient(x)
+    # new_c_1 = np.interp(x-0.5*delta, xpc, c, 
+    #                     left=0.0, right=0.0)
+    # new_c_2 = np.interp(x+0.5*delta, xpc, c, 
+    #                     left=0.0, right=0.0)
+    # new_f = (new_c_2 - new_c_1)/delta
+    
+    # I think this is a bit more correct - not much difference in reality
+    c = cumtrapz(fp, x=xp)
+    xpc = xp[1:].value
+    x = x.value
+    diff = np.diff(x)
+    diff_pos = np.array((diff/2).tolist() +[diff[-1]/2]) # edge bins fix
+    diff_neg = np.array([diff[0]/2] +(diff/2).tolist()) # edge bins fix
+    delta = diff_pos+diff_neg
+    new_c_1 = np.interp(x-diff_neg, xpc, c, 
+                        left=0.0, right=0.0)
+    new_c_2 = np.interp(x+diff_pos, xpc, c, 
+                        left=0.0, right=0.0)
+    new_f = ((new_c_2 - new_c_1)/delta)*fp.unit
+    x = x*xp.unit
+        
   else:
     # Interpolate !
     new_f = np.interp(x, xp, fp, left=0.0, right=0.0)
     
   new_f = (new_f.value)*fp.unit
-  
+ 
 #    func = interpolate.interp1d(xp, fp, kind='quadratic', bounds_error=None, fill_value=0.0)
 #    new_f  = func(x)*fp.unit
   '''
@@ -368,8 +382,10 @@ def PixelResponseFunction(opt, psf_shape, osf, delta, lx = 1.7*u.um, ipd = 0.0*u
   '''
   if type(osf) != int: osf = np.int(osf)
     
-#  lx = 0*u.um # top hat 
-  lx += 1e-8*u.um # to avoid problems if user pass lx=0
+#  lx = 0*u.um # top hat
+  if lx == 0*u.um:
+      lx = 1e-30*u.um # to avoid problems if user pass lx=0
+      
 #==============================================================================
 #  lx = 3.7*u.um # approximates Hardy et al
 #==============================================================================

@@ -27,7 +27,7 @@ class recipe_1a(object):
         self.noise_dict ={}  
 
         opt.pipeline.useSignal.val=1
-        opt.pipeline.use_fast.val =1
+        opt.simulation.sim_use_fast.val =1
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
 

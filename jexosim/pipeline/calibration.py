@@ -106,7 +106,7 @@ def flatField(opt):
 def subBackground(opt) : 
     jexosim_msg ("subtracting background...", opt.diagnostics)
     
-    if opt.pipeline.use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
+    if opt.simulation.sim_use_fast.val ==1 and opt.channel.instrument.val!='NIRISS' and \
         opt.data.shape[0]>20:
             aa = opt.bkg_signal.sum(axis=0)/opt.bkg_signal.shape[0] #mean value per column
             if opt.channel.instrument.val !='NIRSpec':  # overall mean - okay if no slit since no wav-dep on zodi and emission

@@ -31,7 +31,7 @@ class recipe_2b(object):
         self.results_dict['ch'] =  opt.observation.obs_channel.val 
 
         opt.pipeline.useSignal.val=0
-        opt.pipeline.use_fast.val =1
+        opt.simulation.sim_use_fast.val =1
         opt.pipeline.split  = 0
         opt.noise.ApplyRandomPRNU.val=1
 

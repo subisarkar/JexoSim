@@ -23,6 +23,7 @@
       <sim_use_ipc val="1" comment="if MIRI chosen this will become 0" />
       <sim_use_systematic_model val="1" comment="" />
       <sim_systematic_model_path val="__path__" comment="" />
+      <sim_use_fast val="1" comment="uses cropped arrays that reduce simulation and pipeline time"/>" />
   </simulation>
   
   <observation>
@@ -48,13 +49,13 @@
       <jitterMethod val="pointing-interp" comment=""/>
       <fit_gamma val="0" units="" comment=""/>
       <useSignal val="1" units="" comment=""/>
-      <use_fast val="0" units="" comment="uses cropped arrays that reduce simulation and pipeline time"/>
       <pipeline_auto_ap val="1" units="" comment=""/>
       <pipeline_bad_corr val="1" units="" comment=""/>
   </pipeline>
 
  <exosystem_params>
-    <star_spectrum_model val = "complex" comment="If 'simple', use a Planck function for the stellar sed. If 'model': use Phoenix"/>
+    <star_spectrum_model val = "complex" comment="If 'simple', uses a Planck function for the stellar sed. If 'model': use Phoenix.  If 'file' uses external file"/>
+    <star_spectrum_file val="__path__" comment="star spectrum file path if provided externally"/>
     <planet_name val = 'GJ 1214 b' />
     <planet_use_database val = "1" />
     <planet_spectrum_model val = "simple" comment="" />
@@ -85,6 +86,7 @@
   <background>
       <EnableSource val="1" units=""/>
       <EnableZodi val="0" units=""/>
+      <EnableSunshield val="0" units=""/>
       <EnableEmission val="0" units=""/>
       <EnableDC val="0" units=""/>
       <EnableAll val="0" units="" comment="enables all target and background sources and DC"/>

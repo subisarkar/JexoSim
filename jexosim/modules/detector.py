@@ -15,16 +15,34 @@ def run(opt):
     
       opt.observation_feasibility = 1  # this variable is currently not changed to zero under any circumstances
       opt.psf, opt.psf_type  = instrument_lib.get_psf(opt)
-      opt.fp, opt.fp_signal = instrument_lib.get_focal_plane(opt)
-      # test_fp = instrument_lib.psf_fp_check(opt)  # this can be commented out : checks that PSFs contribute no additional signal 
-      opt.planet.sed = instrument_lib.get_planet_spectrum(opt)
-      opt.fp, opt.fp_signal = instrument_lib.convolve_prf(opt) #this step can gen some small negative values on fp
+      opt.fp, opt.fp_signal  = instrument_lib.get_focal_plane(opt)
+      opt.fp_it, opt.fp_signal_it  = instrument_lib.get_focal_plane_it(opt)
+            
+      mask_fp = np.where(opt.fp>0, 1, 0)
+      mask_fp_it = np.where(opt.fp_it>0, 1,  0)
+      mask_fp_signal = np.where(opt.fp_signal>0, 1, 0)
+      mask_fp_signal_it = np.where(opt.fp_signal_it>0, 1,  0)
+       
+      opt.fp, opt.fp_signal = instrument_lib.convolve_prf(opt, opt.fp, opt.fp_signal) #this step can gen some small negative values on fp
       opt.fp = np.where(opt.fp<0,0, opt.fp)
       opt.fp_signal = np.where(opt.fp_signal<0,0, opt.fp_signal)
-    
+        
+      opt.fp_it, opt.fp_signal_it = instrument_lib.convolve_prf(opt, opt.fp_it, opt.fp_signal_it ) #this step can gen some small negative values on fp
+      opt.fp_it = np.where(opt.fp_it<0,0, opt.fp_it)
+      opt.fp_signal_it = np.where(opt.fp_signal_it<0,0, opt.fp_signal_it) 
+        
+      # mask out small values arising from the PRF convolution where there was originally zero signal
+      opt.fp *=mask_fp
+      opt.fp_it *=mask_fp_it    
+      opt.fp_signal *=mask_fp_signal
+      opt.fp_signal_it *=mask_fp_signal_it
+           
+      opt.planet.sed = instrument_lib.get_planet_spectrum(opt)
+ 
       opt = instrument_lib.user_subarray(opt) 
       opt = instrument_lib.crop_to_subarray(opt)
       opt = instrument_lib.exposure_timing(opt)
+    
 
       jexosim_msg ("Integration time - zeroth read %s"%(opt.t_int), opt.diagnostics)  
       jexosim_msg ("Estimated integration time incl. zeroth read %s"%(opt.t_int  + opt.zero_time), opt.diagnostics)
@@ -53,10 +71,13 @@ def run(opt):
       opt.x_pix_osr_original = copy.deepcopy(opt.x_pix_osr) 
       opt.quantum_yield_original = copy.deepcopy(opt.quantum_yield)
       opt.qy_zodi_original = copy.deepcopy(opt.qy_zodi)
+      opt.qy_sunshield_original = copy.deepcopy(opt.qy_sunshield)
       opt.qy_emission_original = copy.deepcopy(opt.qy_emission)
 
       opt.zodi_sed_original = copy.deepcopy(opt.zodi.sed) # needed here due to possible cropping above for subarrays
-      opt.emission_sed_original = copy.deepcopy(opt.emission.sed)    
+      opt.sunshield_sed_original = copy.deepcopy(opt.sunshield.sed)
+      opt.emission_sed_original = copy.deepcopy(opt.emission.sed) 
+      
       if opt.channel.instrument.val =='NIRSpec':
          opt.channel.pipeline_params.wavrange_hi.val = opt.gap[3]
          opt.channel.pipeline_params.wavrange_lo.val = opt.gap[2]
@@ -92,13 +113,8 @@ def run(opt):
           plt.plot(wl, opt.TotTrans, '--')        
           plt.figure('R power')
           plt.plot(wl, opt.R.sed, '-') 
-          # xxxx
-           # np.save('/Users/user1/Desktop/PCE_%s_%s.npy'%(opt.channel.name, opt.subarray), opt.PCE.value)
-           # np.save('/Users/user1/Desktop/TotTrans_%s_%s.npy'%(opt.channel.name, opt.subarray), opt.TotTrans.value)
-           # np.save('/Users/user1/Desktop/xwavosr_%s_%s.npy'%(opt.channel.name, opt.subarray), opt.x_wav_osr.value)
-           # np.save('/Users/user1/Desktop/R_%s_%s.npy'%(opt.channel.name, opt.subarray), opt.R.sed.value)
 
       instrument_lib.sanity_check(opt)
       
-   
+     
       return opt
