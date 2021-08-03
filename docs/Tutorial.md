@@ -9,7 +9,7 @@
 
 # JexoSim 2.0 tutorial
  
- Four example files are provided corresponding to the case studies given in Sarkar & Madhusudhan (2021) JexoSim 2.0: Enhanced JWST Simulator for Exoplanet Spectroscopy - Implementation and Case Studies (submitted).
+ Four example files are provided corresponding to the case studies given in Sarkar & Madhusudhan (2021) JexoSim 2.0: End-to-end JWST Simulator for Exoplanet Spectroscopy - Implementation and Case Studies (submitted).
 
 Example 1 : OOT simulation with Allan deviation analysis (NIRISS)
 ------
