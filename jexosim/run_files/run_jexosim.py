@@ -5,6 +5,18 @@ Run file
 v1.0
 
 '''
+import os, sys
+import jexosim
+
+aa = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+f = '%s/%s'%(aa, '__init__.py' )
+jexosim.__path__= [aa]
+jexosim.__file__= f
+jexosim.__spec__.name='jexosim'
+jexosim.__spec__.origin= f
+jexosim.__spec__.submodule_search_locations=[f]
+
+
 from jexosim.classes.options import Options
 from jexosim.classes.params import Params
 from jexosim.run_files.recipe_1 import recipe_1
