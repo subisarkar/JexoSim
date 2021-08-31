@@ -29,7 +29,7 @@ This example will run an out-of-transit simulation, followed by Allan deviation 
 
 where  `xxxx.pickle`  is the output file name in the output directory.  The results will show the signal, noise, fractional noise at T14, and the predicted noise on the transit depth.
 
-The example file is set up to run NIRISS with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image, example spectrum (1 transit), precision on transit depth vs wavelength, fractional noise at T14 vs wavelength, noise (standard deviation of signal), noiseless signal.
+The example file is set up to run NIRISS with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image, noiseless signal,  noise (standard deviation of signal), fractional noise at T14 vs wavelength,  precision on transit depth vs wavelength,  example spectrum (1 transit), example spectrum (10 transits), example spectrum (100 transits).
 
 <div align="center">
 <img src="example_1/NIRISS_1.png" width="400px">
@@ -38,6 +38,8 @@ The example file is set up to run NIRISS with K2-18 b as the target.  You should
 <img src="example_1/NIRISS_4.png" width="400px">
 <img src="example_1/NIRISS_5.png" width="400px">
 <img src="example_1/NIRISS_6.png" width="400px">
+<img src="example_1/NIRISS_7.png" width="400px">
+<img src="example_1/NIRISS_8.png" width="400px">
 </img>
 <br/>
 </div>
