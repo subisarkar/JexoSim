@@ -122,7 +122,7 @@ def write_record_no_pipeline(opt, path, lab, input_text_file):
     f1.close()
 
 
-def write_to_fits_old(opt):   
+def write_to_fits(opt):   
     
     jexosim_msg('Save to fits file ...', 1)
     output_directory  = opt.common.output_directory.val
@@ -228,7 +228,7 @@ def write_to_fits_intermediate(opt):
 
 
 
-def write_to_fits(opt):   
+def write_to_fits_dev(opt):   
     
     jexosim_msg('Save to fits file ...', 1)
     output_directory  = opt.common.output_directory.val

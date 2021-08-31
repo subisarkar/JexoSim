@@ -211,9 +211,9 @@ def run(params_file):
 if __name__ == "__main__":      
   
 
-    # run('jexosim_input_params_ex5 copy.txt')  
+    run('jexosim_input_params_ex1.txt')  
 
-    run('jexosim_input_params_ex_miri_test.txt')
+    # run('jexosim_input_params_ex_miri_test.txt')
     # run('jexosim_input_params_ex_nirspec_test.txt')
     # run('jexosim_input_params_ex_nircam_test.txt')
     # run('jexosim_input_params_ex_niriss_test.txt')
