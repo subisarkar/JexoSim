@@ -64,14 +64,15 @@ This example will run a Monte Carlo full transit simulation with 50 realizations
 
 where  `xxxx.pickle`  is the output file name in the output directory.  The results will show the the predicted noise on the transit depth and spectra with error bars.
 
-The example file is set up to run NIRCam F322W2 with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image, example spectrum (1 transit), precision on transit depth vs wavelength, mean transit depth and distribution from the Monte Carlo.  
+The example file is set up to run NIRCam F322W2 with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image, mean transit depth and distribution from the Monte Carlo, precision on transit depth vs wavelength, example spectrum (1 transit), example spectrum (1 transits), example spectrum (100 transits).
  
  <div align="center">
- <img src="example_2/NIRCam_1.png" width="400px">
- <img src="example_2/NIRCam_2.png" width="400px">
- <img src="example_2/NIRCam_3.png" width="400px">
- <img src="example_2/NIRCam_4.png" width="400px">
-
+ <img src="example_2/case2_1.png" width="400px">
+ <img src="example_2/case2_2.png" width="400px">
+ <img src="example_2/case2_3.png" width="400px">
+ <img src="example_2/case2_4.png" width="400px">
+ <img src="example_2/case2_5.png" width="400px">
+ <img src="example_2/case2_6.png" width="400px">
  </img>
  <br/>
  </div>
@@ -99,14 +100,48 @@ This example will run a Monte Carlo full transit simulation with 50 realizations
 
 where  `xxxx.pickle`  is the output file name in the output directory.  The results will show the the predicted noise on the transit depth and spectra with error bars.
 
-The example file is set up to run NIRSpec G140M F100LP with the SUB2048 subarray, with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image, example spectrum (1 transit), precision on transit depth vs wavelength, mean transit depth and distribution from the Monte Carlo.  
+The example file is set up to run NIRSpec G395M F290LP with the SUB2048 subarray, with K2-18 b as the target.  You should get results similar to those shown below. In order (left to right): example integration image, mean transit depth and distribution from the Monte Carlo, precision on transit depth vs wavelength, example spectrum (1 transit), example spectrum (1 transits), example spectrum (100 transits).
 
 <div align="center">
-<img src="example_3/NIRSpec_1.png" width="400px">
-<img src="example_3/NIRSpec_2.png" width="400px">
-<img src="example_3/NIRSpec_3.png" width="400px">
-<img src="example_3/NIRSpec_4.png" width="400px">
+<img src="example_3/case3_1.png" width="400px">
+<img src="example_3/case3_2.png" width="400px">
+<img src="example_3/case3_3.png" width="400px">
+<img src="example_3/case3_4.png" width="400px">
+<img src="example_3/case3_5.png" width="400px">
+<img src="example_3/case3_6.png" width="400px">
+</img>
+<br/>
+</div>
+<br/><br/>
 
+You can change the `obs_inst_config` factor in the input parameters to other NIRSpec configurations using medium or high resolution gratings, different subarray modes, or prism mode.   The target can be changed to HD 209458 b by changing the `planet_name` in the input parameters file from `K2-18 b` to `HD 209458 b`.
+
+
+Example 4 : Full eclipse simulation with Monte Carlo method (MIRI)
+------
+Navigate to inside the `JexoSim` folder. 
+
+      cd JexoSim
+
+Enter the following.
+
+      python run_jexosim.py jexosim_input_params_ex4.txt
+
+Alternately if using an IDE (e.g. Spyder), you can open the file `JexoSim/jexosim/run_files/run_jexosim.py` and run from within the environment using the parameter file name (e.g. `jexosim_input_params_ex4.txt`) as the argument for the function `run`.  
+
+This example will run a Monte Carlo secondary eclipse simulation with 50 realizations.  It will automatically run  `results.py` to display the final results.  The results can also be displayed by entering the following:
+
+    python results.py xxxx.pickle
+
+where  `xxxx.pickle`  is the output file name in the output directory.  The results will show the the predicted noise on the eclipse depth and spectra with error bars.
+
+The example file is set up to run MIRI LRS slitless mode with HD 209458 b as the target.  You should get results similar to those shown below. In order (left to right): example integration image, mean eclipse depth and distribution from the Monte Carlo, precision on eclipse depth vs wavelength, example spectrum (1 eclipse).
+
+<div align="center">
+<img src="example_4/case4_1.png" width="400px">
+<img src="example_4/case4_2.png" width="400px">
+<img src="example_4/case4_3.png" width="400px">
+<img src="example_4/case4_4.png" width="400px">
 </img>
 <br/>
 </div>
@@ -116,7 +151,7 @@ You can change the `obs_inst_config` factor in the input parameters to other NIR
 
 
 
-Example 4 : Noise budget analysis (MIRI)
+Example 5 : Noise budget analysis (MIRI)
 ------
 Navigate to inside the `JexoSim` folder. 
 
@@ -124,7 +159,7 @@ Navigate to inside the `JexoSim` folder.
 
 Enter the following.
 
-    python run_jexosim.py jexosim_input_params_ex4.txt
+    python run_jexosim.py jexosim_input_params_ex5.txt
 
 Alternately if using an IDE (e.g. Spyder), you can open the file `JexoSim/jexosim/run_files/run_jexosim.py` and run from within the environment using the parameter file name (e.g. `jexosim_input_params_ex3.txt`) as the argument for the function `run`.  
 
@@ -134,13 +169,13 @@ python results.py xxxx.pickle
 
 where  `xxxx.pickle`  is the output file name in the output directory.  The results will show the the signal and noise per spectral bin, per noise source.
 
-The example file is set up to run MIRI LRS  with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image,  fractional noise at T14 vs wavelength, noise (standard deviation of signal), noiseless signal.
-
+The example file is set up to run MIRI LRS with K2-18 b as the target.  You should get results similar to those shown below.  In order (left to right): example integration image, noiseless signal,  noise (standard deviation of signal), 
+fractional noise at T14 vs wavelength.
 <div align="center">
-<img src="example_4/MIRI_4.png" width="400px">
-<img src="example_4/MIRI_1.png" width="400px">
-<img src="example_4/MIRI_2.png" width="400px">
-<img src="example_4/MIRI_3.png" width="400px">
+<img src="example_5/case5_1.png" width="400px">
+<img src="example_5/case5_2.png" width="400px">
+<img src="example_5/case5_3.png" width="400px">
+<img src="example_5/case5_4.png" width="400px">
 
 </img>
 <br/>
