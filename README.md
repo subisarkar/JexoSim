@@ -46,7 +46,7 @@ These are the stellar spectrum models.  Unzip the folder to give the folder labe
 
 [ATMO foward model grid (local)](https://drive.google.com/file/d/1Kvfi7FTBqM1MfnkTnHsJJqI7EFwnuaIG/view?usp=sharing) (Goyal, J. et al., 2018, MNRAS, 482, 4503)    
 [ATMO foward model grid (rainout)](https://drive.google.com/file/d/1LnpL_kpbZGPEN0G6QhHrL4DcD4hwvaia/view?usp=sharing) (Goyal, J. et al., 2018, MNRAS, 482, 4503)  
-These are used to obtain model planet spectra.  Unzip both these folders and move them into the `JexoSim/archive/`.  The final paths will be  `path_to_JexoSim/JexoSim/archive/transfiles_local` and  `path_to_JexoSim/JexoSim/archive/transfiles_rainout`.  
+These downloads are optional.  JexoSim will still be able to function without these files, but to use the ATMO grid to obtain an input planet spectrum, you must download these folders.  Unzip both these folders and move them into the `JexoSim/archive/`.  The final paths will be  `path_to_JexoSim/JexoSim/archive/transfiles_local` and  `path_to_JexoSim/JexoSim/archive/transfiles_rainout`.  
 
 [PSF](https://drive.google.com/file/d/1YFbB02IR9U-9J6UDw8SsdBo5aKh0V-_6/view?usp=sharing)  
 [LDC](https://drive.google.com/file/d/1lWRdqW_wI3y31ugqq2HfyyekGyOSteL_/view?usp=sharing)  
@@ -112,7 +112,7 @@ You can allow JexoSim to process the raw data through stage 1 of its pipeline, p
 
 Examples
 ------
-Four example input parameter files are provided.  These can be duplicated and edited as required by the user.  For further information on running these example go to :  [Tutorial](docs/Tutorial.md)
+5 example input parameter files are provided.  These can be duplicated and edited as required by the user.  For further information on running these example go to :  [Tutorial](docs/Tutorial.md)
 
 
 Use of code
