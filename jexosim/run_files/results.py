@@ -14,6 +14,94 @@ from jexosim.classes.options import Options
 from scipy import interpolate
 import os
 
+def get_binned_spectrum(res_dict, binning):
+    cr_file = res_dict['input_spec']
+    wl_file = res_dict['input_spec_wl'].value
+    if 'noise_dic' in res_dict:
+        no_dict =  res_dict['noise_dic']  
+        keys =[]
+        for key in no_dict.keys():
+            keys.append(key)
+        wl = no_dict[keys[0]]['pixel wavelengths']
+        fp_signal = no_dict[keys[0]]['focal_plane_star_signal'].sum(axis=0) 
+    else:
+        wl = res_dict['pixel wavelengths']
+        fp_signal = res_dict['focal_plane_star_signal'].sum(axis=0)  
+ 
+      
+    # plt.figure('fp')    
+    # plt.plot(wl,fp_signal, 'o')  
+    if len(wl) != len(wl_file):
+        print ('error')
+        xxxx
+
+    if binning['binning']== 'R-bin':   
+        idx = np.argwhere(wl_file>0)
+        wl_file = wl_file[idx].T[0]
+        cr_file = cr_file[idx].T[0]
+        fp_signal = fp_signal[idx].T[0]     
+        wl_file0 = np.arange(wl_file.min(), wl_file.max(), np.diff(wl_file)[0]/10)  
+        cr_file0 = np.interp(wl_file0, wl_file, cr_file)
+        fp_signal0 = np.interp(wl_file0, wl_file, fp_signal)
+        wl_file = wl_file0
+        cr_file = cr_file0
+        star_signal  =fp_signal0
+        
+        R = binning['div']
+        w0 =  wl_file[0]
+        dw = w0/(R-0.5)       
+        bin_sizes=[dw] 
+        for i in range(1000):
+            dw2 = (1+1/(R-0.5))*dw
+            bin_sizes.append(dw2)
+            dw = dw2
+            if np.sum(bin_sizes) > wl_file.max():
+                break
+        bin_sizes = np.array(bin_sizes)            
+        wavcen = w0+np.cumsum(bin_sizes)  
+        wavedge1 = wavcen-bin_sizes/2.
+        wavedge2 =  wavcen+bin_sizes/2.
+        wavedge = np.hstack((wavedge1[0],((wavedge1[1:]+wavedge2[:-1])/2.), wavedge1[-1]))
+        idx =[]
+        CT = 0
+        for i in range(len(wl_file)):
+            if wl_file[i] >= wavedge[CT]:
+                CT=CT+1
+                idx.append(i)
+        bin_size = np.diff(idx)
+        cr0 = np.add.reduceat(cr_file,idx)[:-1]/bin_size
+        wl0 = np.add.reduceat(wl_file,idx)[:-1]/bin_size 
+        cr_weighted =  cr_file*star_signal
+        binned_star_signal = np.add.reduceat(star_signal,idx)[:-1]/bin_size
+        binned_cr_weighted =  np.add.reduceat(cr_weighted,idx)[:-1]/bin_size
+        binned_cr_weighted /= binned_star_signal
+        
+        # print ('R-power of binned spectrum') wl0/np.gradient(wl0))
+        
+        # plt.figure('cr')
+        # plt.plot(wl0, binned_cr_weighted, 'r-')
+        wl_file = wl0
+        cr_file = binned_cr_weighted
+    else:
+        bin_size= binning['div']
+        wl_file = wl_file 
+        cr_file = cr_file
+        star_signal  = fp_signal
+        cr_weighted =  cr_file*star_signal
+        idx = np.arange(0, len(cr), )[::int(npix)]
+        binned_star_signal = np.add.reduceat(star_signal,idx)[:-1]/bin_size
+        binned_cr_weighted =  np.add.reduceat(cr_weighted,idx)[:-1]/bin_size
+        binned_cr_weighted /= binned_star_signal
+        wl0 = np.add.reduceat(wl_file,idx)[:-1]/bin_size 
+        wl_file = wl0
+        c = binned_cr_weighted
+    
+    return wl_file, cr_file
+    
+  
+
+
+
 def run(results_file):
     
     jexosim_path =  os.path.dirname((os.path.dirname(jexosim.__file__)))
@@ -32,27 +120,38 @@ def run(results_file):
     with open(results_file, 'rb') as handle:
        res_dict = pickle.load(handle)
         
-    no_list = np.array([ 'All noise','All photon noise','Source photon noise','Dark current noise',
-                        'Zodi noise','Emission noise','Read noise','Spatial jitter noise',
-                        'Spectral jitter noise','Combined jitter noise','No noise - no background','No noise - all background', 'Fano noise', 'Sunshield noise'])  
-    color = ['0.5','b', 'b','k','orange','pink', 'y','g','purple','r', '0.8','c', 'c', 'brown']
+            
+    no_list = np.array([ 'All noise','Source photon noise','Dark current noise',
+                        'Zodi noise','Emission noise','Sunshield noise', 'Read noise','Spatial jitter noise',
+                        'Spectral jitter noise','Combined jitter noise', 'Fano noise'])
+    color = ['0.5', 'b','k','orange','pink', 'brown', 'y','g','purple','r','c']
      
     ch =res_dict['ch']
     
     sim_text = '%s.txt'%(results_file)
     
-    # with open(sim_text) as f:
-    #     content = f.readlines()
-    #     content = [x.strip() for x in content]        
-    #     for i in range(len(content)):       
-    #         if content[i] != '' and content[i][0] != '#':
-    #             aa = content[i].split()
-    #             if aa[0] == 'Wavelength:':
-    #                 wavlim=[np.float(aa[1]), np.float(aa[2])]
-    wavlim = [5, 12]
+    binning = {}
+    with open(sim_text) as f:
+        content = f.readlines()
+        content = [x.strip() for x in content]        
+        for i in range(len(content)):       
+            if content[i] != '' and content[i][0] != '#':
+                aa = content[i].split()
+                if aa[0] == 'Wavelength:':
+                    wavlim=[np.float(aa[1]), np.float(aa[2])]
+                if aa[0] == 'Spectral':
+                    for label in aa:
+                        if label == 'R-bin' or label == 'fixed-bin':
+                            binning['binning'] = label
+                if aa[0] == 'Bin' or aa[0]== 'Binned':
+                     label = aa[-1]
+                     binning['div'] = np.float(label)
+ 
         
     if res_dict['simulation_mode'] == 2:
-        
+
+            wl_file, cr_file = get_binned_spectrum(res_dict, binning)
+
             wl = res_dict['wl']     
             idx = np.argwhere ((res_dict['wl']>=wavlim[0])&(res_dict['wl']<=wavlim[1])).T[0]
 
@@ -64,6 +163,11 @@ def run(results_file):
             p_mean = res_dict['p_mean'][idx]
             p_std = res_dict['p_std'][idx]
             
+            idx  = np.argwhere(np.isnan(p_mean))
+            p_mean = np.delete(p_mean,idx)
+            p_std = np.delete(p_std,idx)
+            p_stack = np.delete(p_stack, np.s_[idx], axis=1)  
+            wl = np.delete(wl, idx)
             
             cr = res_dict['input_spec']
             cr_wl = res_dict['input_spec_wl']
@@ -71,8 +175,7 @@ def run(results_file):
             idx0 = np.argwhere ((np.array(cr_wl)>=wavlim[0])&(np.array(cr_wl)<=wavlim[1])).T[0]   
             cr = cr[idx0]
             cr_wl = cr_wl[idx0]      
-            
-       
+                               
             plt.figure('spectrum %s'%(res_dict['time_tag']))
             if res_dict['simulation_realisations'] > 1:    
                 for i in range(p_stack.shape[0]):
@@ -80,7 +183,11 @@ def run(results_file):
         
             plt.plot(wl,p_mean, 'o-', color='b', label = 'mean recovered spectrum')
             plt.errorbar(wl,p_mean,p_std, ecolor='b')
-            plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+            # plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+            idx00 = np.argwhere ((np.array(wl_file)>=wavlim[0])&(np.array(wl_file)<=wavlim[1])).T[0]   
+     
+            plt.plot(wl_file[idx00],cr_file[idx00], '-', color='r', linewidth=2, label='input spectrum')
+  
             plt.legend(loc='best')
             plt.ylabel('Contrast ratio')
             plt.xlabel('Wavelength ($\mu m$)')
@@ -117,13 +224,13 @@ def run(results_file):
             
                 
             for ntransits in [1,10,100]:
-                f = interpolate.interp1d(cr_wl,cr, bounds_error=False)
+                f = interpolate.interp1d(wl_file, cr_file, bounds_error=False)
                 rand_spec = np.array(f(wl))
                 if ntransits == 1:
                     plt.figure('sample spectrum for %s transit %s'%(ntransits, res_dict['time_tag']))  
                 else:
                     plt.figure('sample spectrum for %s transits %s'%(ntransits, res_dict['time_tag']))  
-                plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+                plt.plot(wl_file[idx00],cr_file[idx00], '-', color='r', linewidth=2, label='input spectrum')
                 for i in range(len(wl)):
                     rand_spec[i] = np.random.normal(rand_spec[i], y[i]/1e6/np.sqrt(ntransits))
                 plt.plot(wl, rand_spec, 'o-', color='b', label = 'randomized spectrum')
@@ -170,6 +277,8 @@ def run(results_file):
      
                 
     elif res_dict['simulation_mode'] == 1:
+        
+        wl_file, cr_file = get_binned_spectrum(res_dict, binning)
         no_dict =  res_dict['noise_dic']  
   
         for key in no_dict.keys():
@@ -181,8 +290,6 @@ def run(results_file):
 
             noise_type = key
             wl = no_dict[key]['wl'][idx]
-            
-            print (wl/np.gradient(wl))
             
             if res_dict['simulation_realisations'] == 1:          
                 sig_stack = no_dict[key]['signal_mean_stack'][idx]
@@ -268,13 +375,6 @@ def run(results_file):
                 
                 plt.plot(wl, y, '-', color='r', linewidth=2) 
                 plt.grid(True)
-                
-                # print (wl/np.gradient(wl))
-                # aa = np.vstack((wl, y, fracNoT14_mean*np.sqrt(2))).T
-                # np.savetxt('/Users/user1/Desktop/Case1_unbinned.txt', aa)
-                # print (aa)
-                # xxx
-                
                          
                 cr = res_dict['input_spec']
                 cr_wl = res_dict['input_spec_wl']
@@ -283,12 +383,22 @@ def run(results_file):
                 cr = cr[idx0]
                 cr_wl = cr_wl[idx0]
   
-                f = interpolate.interp1d(cr_wl,cr, bounds_error=False)
+                # f = interpolate.interp1d(cr_wl,cr, bounds_error=False)
+                
+                idx00 = np.argwhere ((np.array(wl_file)>=wavlim[0])&(np.array(wl_file)<=wavlim[1])).T[0]   
+
                 
                 for ntransits in [1,10,100]:
+                    f = interpolate.interp1d(wl_file, cr_file, bounds_error=False)
                     rand_spec = np.array(f(wl))
-                    plt.figure('sample spectrum for %s transit %s'%(ntransits, res_dict['time_tag']))  
-                    plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+                    if ntransits ==1:
+                        plt.figure('sample spectrum for %s transit %s'%(ntransits, res_dict['time_tag']))  
+                    else:
+                        plt.figure('sample spectrum for %s transits %s'%(ntransits, res_dict['time_tag']))  
+
+                    # plt.plot(cr_wl,cr, '-', color='r', linewidth=2, label='input spectrum')
+                    plt.plot(wl_file[idx00],cr_file[idx00], '-', color='r', linewidth=2, label='input spectrum')
+
                     for i in range(len(wl)):
                         rand_spec[i] = np.random.normal(rand_spec[i], y[i]/1e6/np.sqrt(ntransits))
                     plt.plot(wl, rand_spec, 'o-', color='b', label = 'randomized spectrum')
@@ -322,10 +432,11 @@ def run(results_file):
     elif res_dict['simulation_mode'] == 3 or res_dict['simulation_mode'] == 4:
         no_dict =  res_dict['noise_dic']  
   
-        for key in no_dict.keys():
-            
+        for key in no_list:
             print (key)
-   
+         
+        # for key in no_dict.keys():
+ 
             idx = np.argwhere(no_list==key)[0].item()
             col = color[idx]
             
@@ -333,6 +444,11 @@ def run(results_file):
 
             noise_type = key
             wl = no_dict[key]['wl'][idx]
+            
+            if key == 'Emission noise':
+                label ='Optical surfaces noise'
+            else:
+                label = noise_type  
             
             if res_dict['simulation_realisations'] == 1:          
                 sig_stack = no_dict[key]['signal_mean_stack'][idx]
@@ -370,16 +486,6 @@ def run(results_file):
             plt.xlabel('Wavelength ($\mu m$)')
             plt.grid(True)
             
-            
-            # plt.figure('sigp')
-            # N = 2367
-            # sigp = np.sqrt(2)*(no_mean/sig_mean)/np.sqrt(N)
-            # plt.plot(wl, sigp*1e6)
-            
-            # xxx
-            
-            
-            
             if res_dict['simulation_realisations'] > 1:
                 for i in range(no_stack.shape[0]):
                     plt.plot(wl,no_stack[i], '.', color = col, alpha=0.5)                 
@@ -393,8 +499,7 @@ def run(results_file):
                 plt.legend(loc='best', ncol = 3, borderpad =0.3, fontsize=10)
                 plt.ylabel('Fractional noise at T14 (ppm)')
                 plt.xlabel('Wavelength ($\mu m$)')
-                plt.grid(True)
-      
+                plt.grid(True)   
 
             if key == 'All noise':
                 plt.figure('bad pixels %s'%(res_dict['time_tag']))          
@@ -419,5 +524,10 @@ def run(results_file):
     plt.show()
 
 if __name__ == "__main__":     
- 
-    run('OOT_SNR_MIRI_LRS_slitless_SLITLESSPRISM_FAST_xxx_2021_07_23_1400_07.pickle')
+
+    # run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_07_28_1228_28.pickle')
+    # run('OOT_SNR_NIRISS_SOSS_GR700XD_SUBSTRIP96_NISRAPID_K2-18_b_2021_07_18_1151_16.pickle')
+    run('Full_transit_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_07_17_1811_13.pickle')
+
+    # run('Full_transit_NIRSpec_BOTS_G395M_F290LP_SUB2048_NRSRAPID_K2-18_b_2021_07_17_2339_51.pickle')
+    # run('Full_eclipse_NIRCam_TSGRISM_F322W2_SUBGRISM64_4_output_RAPID_HD_209458_b_2021_07_19_0359_08.pickle')
