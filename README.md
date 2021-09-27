@@ -125,4 +125,4 @@ Citing
 
 If you use JexoSim in your research, please cite:
 
-Sarkar, S., Madhusudhan, N. Papageorgiou, A.  M (2020). JexoSim: A time domain simulator of exoplanet transit spectroscopy with JWST. Monthly Notices of the Royal Astronomical Society 491(1), pp. 378-397. (10.1093/mnras/stz2958)
+Sarkar, S., Madhusudhan, N. (2021).  JexoSim 2.0: end-to-end JWST simulator for exoplanet spectroscopy – implementation and case studies.  Monthly Notices of the Royal Astronomical Society, 508(1), 433–452.
