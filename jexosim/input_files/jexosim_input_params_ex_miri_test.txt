@@ -25,7 +25,7 @@ sim_noise_source		 2
 # 10 Noiseless no backgrounds
 # 11 Noiseless with backgrounds
 
-sim_realisations	1
+sim_realisations  	1
 # Set number of realisations used in simulation. Recommend set to 1 for most OOT and noise budget sims. Recommend set to >25 for Monte Carlo using full transit sims.
 
 sim_full_ramps	0

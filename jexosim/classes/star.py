@@ -31,7 +31,7 @@ class Star():
             sys.exit()
            
         stellar_sed_pre_norm =  self.stellar_sed*1 
-           
+        
         if self.opt.exosystem_params.star_spectrum_mag_norm.val == 1:
             self.stellar_sed  = self.useTelFlux(self.stellar_wl, self.stellar_sed)
         elif  self.opt.exosystem_params.star_spectrum_mag_norm.val == 2:        
@@ -43,14 +43,14 @@ class Star():
         self.sed = sed.Sed(self.stellar_wl, self.stellar_sed)    
         self.sed_pre_norm = sed.Sed(self.stellar_wl, stellar_sed_pre_norm)   
      
-        
-        
-        import matplotlib.pyplot as plt 
-        plt.figure('test star spectrum 1')
-        plt.plot(self.stellar_wl, self.stellar_sed)
-        plt.figure('test star spectrum pre-norm')
-        plt.plot(self.stellar_wl,  stellar_sed_pre_norm)
- 
+
+        if opt.diagnostics == 1:
+            import matplotlib.pyplot as plt 
+            plt.figure('test star spectrum 1')
+            plt.plot(self.stellar_wl, self.stellar_sed)
+            plt.figure('test star spectrum pre-norm')
+            plt.plot(self.stellar_wl,  stellar_sed_pre_norm)
+     
  
     
     def complex_model(self):
@@ -168,17 +168,21 @@ class Star():
               sed1 = sed*scale    
               sed_list.append(sed1)
               sed1 = sed1*u.W/u.m**2/u.um
-              import matplotlib.pyplot as plt
-              plt.figure('sed normalization')
-              plt.plot(wl, np.convolve(sed1,box2,'same')  , label = mag_band)
+              
+              if self.opt.diagnostics == 1:
+                  import matplotlib.pyplot as plt
+                  plt.figure('sed normalization')
+                  plt.plot(wl, np.convolve(sed1,box2,'same')  , label = mag_band)
               
         
           sed_final = (np.array(sed_list[0]) + np.array(sed_list[1])) /2.0
-          plt.plot(wl, np.convolve(sed_final,box2,'same'), label='average of J and K norm' )
-                    
-          plt.plot(wl, sed0*(self.opt.exosystem.star.R.to(u.m)/\
-                             self.opt.exosystem.star.d.to(u.m))**2, label='*(Rs/D)^2' )		      # [W/m^2/mu]., 'r-')
-          plt.legend()
+          
+          if self.opt.diagnostics == 1:
+              plt.figure('sed normalization')       
+              plt.plot(wl, np.convolve(sed_final,box2,'same'), label='average of J and K norm' )
+              plt.plot(wl, sed0*(self.opt.exosystem.star.R.to(u.m)/\
+                                 self.opt.exosystem.star.d.to(u.m))**2, label='*(Rs/D)^2' )		      # [W/m^2/mu]., 'r-')
+              plt.legend()
       
           sed_final = sed_final*u.W/u.m**2/u.um
           return sed_final

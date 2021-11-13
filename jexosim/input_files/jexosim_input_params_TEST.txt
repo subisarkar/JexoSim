@@ -1,6 +1,6 @@
 ######################### SIMULATION ################################################
 
-sim_diagnostics      0
+sim_diagnostics      1
 # 1 = see diagnostics. 0 = hide diagnostics.  Recommend 0.  
                                            
 sim_mode             2
@@ -9,7 +9,7 @@ sim_mode             2
 sim_output_type         1 
 # 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline processed results + intermediate data
 
-sim_noise_source	   0	 
+sim_noise_source	0	 
 # Pick a number from the list below. For most simulations recommend using 0 (All noise)
 # 0 All noise sources 
 # 2 Star (photon noise)
@@ -70,7 +70,7 @@ obs_use_sat 	 1
 obs_fw_percent    80
 # Enter percentage of detector full well capacity before a pixel is considered saturated
 
-obs_n_groups       
+obs_n_groups      
 # Enter number of groups per integration (only applied if use_sat = 0). JexoSim currently assumes 1 frame per group.  
  
 obs_n_reset_groups     default
@@ -186,18 +186,18 @@ pipeline_bad_corr	 1
 
 ######################### EXOSYSTEM #################################################
 
-planet_name		HD 209458 b
+planet_name		K2-18 b
 # Enter planet name in form used in NASA exoplanet archive. 
 
 planet_use_database	  1
 # Enter 1 to obtain all exosystem parameters from the database automatically. Enter 0 to use user-defined exosystem parameters(see below).
 
-planet_spectrum_model	file	 
+planet_spectrum_model	simple
 # Enter simple for flat transmission spectrum or blackbody based emission spectrum. 
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
 
-planet_spectrum_file	 hd209458b_secondary.txt
+planet_spectrum_file 	K2-18b.txt 
 # Give complete path to specific planet spectrum file. Exception: if the file is in the .../data/planet_spectra folder, only the file name need be given. Only needed if planet_spectrum_mode = file.
 
 star_spectrum_model	 complex
@@ -212,30 +212,31 @@ star_spectrum_mag_norm     1
 # Enter 1 to use J and/or K magnitude to normalize star spectrum. Enter 2 to use radius and distance instead.
 Enter 0 to not apply any normalisation
 
+
 ############## Following only needed if planet_spectrum_model = complex #############
 
-planet_spectrum_params_cond    
+planet_spectrum_params_cond    local
 # Enter local for local condensation. Enter rainout for rainout condensation
 
-planet_spectrum_params_co     
+planet_spectrum_params_co     0.56
 # Enter C/O ratio value between 0.35, 0.56, 0.7, 1.0
 
-planet_spectrum_params_haze   
+planet_spectrum_params_haze   10
 # Enter haze scattering parameter: choose between 1, 10, 100, 1100 x standard Rayleigh scattering
 
-planet_spectrum_params_cloud   
+planet_spectrum_params_cloud   1
 # Enter uniform cloud parameter: choose between 0, 0.06, 0.2, 1
 
-planet_spectrum_params_met   
+planet_spectrum_params_met   1.7
 # Enter log(atmospheric metallicity): choose between -1, 0, 1, 1.7, 2.0, 2.3 x solar
 
 
 ############## Following only needed if planet_use_database = 0 #####################
 
-user_defined_planet_name     
+user_defined_planet_name    
 # Enter name for planet   
 
-user_defined_R_p	 
+user_defined_R_p	  
 # Enter planet radius in R_j units
 
 user_defined_M_p	 
@@ -247,7 +248,7 @@ user_defined_P
 user_defined_T_p	    
 # Enter planet temperature in K
 
-user_defined_a	       
+user_defined_a	        
 # Enter semi-major axis in AU
 
 user_defined_i		 
@@ -256,7 +257,7 @@ user_defined_i
 user_defined_e		  
 # Enter eccentricity 
  
-user_defined_albedo	  
+user_defined_albedo	   
 # Enter albedo  
 
 user_defined_R_s	 	  
@@ -265,7 +266,7 @@ user_defined_R_s
 user_defined_M_s	  
 # Enter star radius in M_sun units
 
-user_defined_T_s	 
+user_defined_T_s	  
 # Enter star radius K
 
 user_defined_d 		 
@@ -283,12 +284,12 @@ user_defined_T14
 user_defined_star_name 	  
 # Enter star name
 
-user_defined_ecliptic_lat    
+user_defined_ecliptic_lat     
 # Enter ecliptic latitude in deg  
 
 user_defined_J_mag    	 
 # Enter J magnitude
 
-user_defined_K_mag    	 
+user_defined_K_mag    	  
 # Enter K magnitude
 

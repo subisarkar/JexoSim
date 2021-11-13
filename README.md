@@ -8,6 +8,12 @@
 
 JexoSim (JWST Exoplanet Observation Simulator) is a time-domain simulator for the James Webb Space Telescope, that simulates exoplanet transit observations using all four instruments.
 
+
+Updates
+------
+Please check for the latest release.  A new release may be published if we have made changes to the code to manage any issues or if new functionalities have been added.
+
+
 Installation
 ------
 We recommend setting up a virtual environment  for JexoSim to avoid package conflicts.  The environment should install Python=3.8.5, matplotlib=3.3.1-0, setuptools=49.6.0, numpy=1.19.1, numba=0.50.1.  Using conda the following command line instruction will do all this for you:.

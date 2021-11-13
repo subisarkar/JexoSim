@@ -153,6 +153,9 @@ def run(params_file):
     
     opt.no_real = opt.simulation.sim_realisations.val
     opt.diagnostics = opt.simulation.sim_diagnostics.val
+    
+    # opt.diagnostics = 1
+    
     opt.input_params = input_params
     opt.jexosim_path = jexosim_path
     opt.params_file_path = params_file 
@@ -196,7 +199,7 @@ def run(params_file):
             recipe  = recipe_1_intermediate(opt)          
           
     print ('time to complete', time.time() - aa)     
-          
+           
     if recipe.feasibility ==1:    
         if opt.simulation.sim_output_type.val == 1:
             results_file = recipe.filename
@@ -211,9 +214,9 @@ def run(params_file):
 if __name__ == "__main__":      
   
 
-    run('jexosim_input_params_ex1.txt')  
+    # run('jexosim_input_params_ex2.txt')  
 
-    # run('jexosim_input_params_ex_miri_test.txt')
+    run('jexosim_input_params_ex_miri_test.txt')
     # run('jexosim_input_params_ex_nirspec_test.txt')
     # run('jexosim_input_params_ex_nircam_test.txt')
     # run('jexosim_input_params_ex_niriss_test.txt')

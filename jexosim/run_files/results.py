@@ -4,15 +4,27 @@ JexoSim
 Read and display results
 """
 
+import os, sys
+import jexosim
+
+aa = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+f = '%s/%s'%(aa, '__init__.py' )
+jexosim.__path__= [aa]
+jexosim.__file__= f
+jexosim.__spec__.name='jexosim'
+jexosim.__spec__.origin= f
+jexosim.__spec__.submodule_search_locations=[f]
+
+
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use('classic')
-import jexosim
+
 from jexosim.classes.params import Params
 from jexosim.classes.options import Options
 from scipy import interpolate
-import os
+ 
 
 def get_binned_spectrum(res_dict, binning):
     cr_file = res_dict['input_spec']
@@ -431,11 +443,9 @@ def run(results_file):
 
     elif res_dict['simulation_mode'] == 3 or res_dict['simulation_mode'] == 4:
         no_dict =  res_dict['noise_dic']  
-  
-        for key in no_list:
-            print (key)
+
          
-        # for key in no_dict.keys():
+        for key in no_dict.keys():
  
             idx = np.argwhere(no_list==key)[0].item()
             col = color[idx]
@@ -524,10 +534,7 @@ def run(results_file):
     plt.show()
 
 if __name__ == "__main__":     
-
-    # run('Noise_budget_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_07_28_1228_28.pickle')
-    # run('OOT_SNR_NIRISS_SOSS_GR700XD_SUBSTRIP96_NISRAPID_K2-18_b_2021_07_18_1151_16.pickle')
-    run('Full_transit_MIRI_LRS_slitless_SLITLESSPRISM_FAST_K2-18_b_2021_07_17_1811_13.pickle')
-
-    # run('Full_transit_NIRSpec_BOTS_G395M_F290LP_SUB2048_NRSRAPID_K2-18_b_2021_07_17_2339_51.pickle')
-    # run('Full_eclipse_NIRCam_TSGRISM_F322W2_SUBGRISM64_4_output_RAPID_HD_209458_b_2021_07_19_0359_08.pickle')
+    
+    run('OOT_SNR_NIRISS_SOSS_GR700XD_SUBSTRIP96_NISRAPID_K2-18_b_2021_11_04_1013_53.pickle')
+ 
+    pass

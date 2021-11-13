@@ -47,8 +47,11 @@ def usePoly(opt): #this needs updating
           or opt.channel.name == 'NIRSpec_BOTS_G395H_F290LP':
           offset = 1024*opt.channel.detector_pixel.pixel_size.val #centre the designated central wavelength at the boundary between subarray1024A and 1024b on NRS1  
       dtmp=np.loadtxt(opt.channel.camera.dispersion.path.replace(
-	  '__path__', opt.__path__), delimiter=',')      
-      pos = (dtmp[...,2]*u.um  + offset.to(u.um)) + (opt.channel.camera.dispersion() ).to(u.um)
+	  '__path__', opt.__path__), delimiter=',')    
+
+      # pos = (dtmp[...,2]*u.um  + offset.to(u.um)) + (opt.channel.camera.dispersion() ).to(u.um)   
+      pos = (dtmp[...,2]*u.um  + offset.to(u.um))  
+      
       wav = dtmp[...,0]
       pos_y = dtmp[...,1] 
       r = 7 # degree 7 works well
@@ -61,19 +64,25 @@ def usePoly(opt): #this needs updating
       for i in range (0,r+1):
           x_wav_osr = x_wav_osr + z[i]*x_pix_osr.value**(r-i) 
       x_wav_osr =x_wav_osr*u.um           
-      idx = np.argwhere(x_wav_osr<wav.min())
+      idx = np.argwhere(x_wav_osr.value<wav.min())
       x_wav_osr[idx] = 0*u.um 
-      idx = np.argwhere(x_wav_osr>wav.max())
+      idx = np.argwhere(x_wav_osr.value>wav.max())
       x_wav_osr[idx] = 0*u.um               
-      idx = np.argwhere(x_pix_osr.value < pos.min())
+      idx = np.argwhere(x_pix_osr.value < pos.value.min())
       x_wav_osr[idx] = 0*u.um
-      idx = np.argwhere(x_pix_osr.value > pos.max())
+      idx = np.argwhere(x_pix_osr.value > pos.value.max())
       x_wav_osr[idx] = 0*u.um                   
       if pos_y[0] !=0:
-          y_pos_osr =0
-          for i in range (0,r_y+1):
-              y_pos_osr = y_pos_osr + z_y[i]*x_wav_osr.value**(r_y-i)        
-          y_pos_osr = (y_pos_osr/((opt.fp_delta).to(u.um))).value
+# =============================================================================
+#           This method does not work properly - thus use the interpolation method for y_pos_osr
+          # y_pos_osr =0
+          # for i in range (0,r_y+1):
+          #     y_pos_osr = y_pos_osr + z_y[i]*x_wav_osr.value**(r_y-i)        
+          # y_pos_osr = (y_pos_osr/((opt.fp_delta).to(u.um))).value
+# =============================================================================
+          y_pos_osr = scipy.interpolate.interp1d(dtmp[...,0],  dtmp[...,1], bounds_error=False, fill_value=0.0)(x_wav_osr)
+          # there must be a fill value as each x_wav_osr must have a corresponding y_pos_osr
+          y_pos_osr = (y_pos_osr/((opt.fp_delta).to(u.um))).value  
       else:
           y_pos_osr = []         
       return x_wav_osr, x_pix_osr, y_pos_osr
@@ -105,19 +114,29 @@ def sanity_check(opt):
     quantum_yield.rebin(wl)
     Rs = (opt.planet.planet.star.R).to(u.m)
     D = (opt.planet.planet.star.d).to(u.m)
+   
     n= quantum_yield.sed* trans.sed*del_wl*np.pi*planck(wl,T)*(Rs/D)**2*opt.Aeff*QE.sed/(const.h.value*const.c.value/(wl*1e-6))
     n2= quantum_yield.sed* trans.sed*del_wl*star_spec.sed*opt.Aeff*QE.sed/(const.h.value*const.c.value/(wl*1e-6))    
     jex_sig = quantum_yield.sed*opt.fp_signal[1::3,1::3].sum(axis=0)
+    
+    n = np.where(n<0,0,n)
+    n2 = np.where(n2<0,0,n2)
+    
     R = opt.pipeline.pipeline_R.val
     del_wav = wl/R
     opt.exp_sig  = opt.t_int*del_wav*jex_sig/del_wl
     if opt.diagnostics ==1:
         plt.figure('sanity check 1 - check focal plane signal')
-        plt.plot(wl,n, 'b^', label='BB check')
-        plt.plot(wl,n2, 'r+', label='Phoenix check')  # not convolved with PSF unlike JexoSim, so peak may be higher
+        if 'NIRISS' in opt.channel.name:
+            plt.plot(wl[:-10],n[:-10], 'b^', label='BB check')
+            plt.plot(wl[:-10],n2[:-10], 'r+', label='Phoenix check')  # not convolved with PSF unlike JexoSim, so peak may be higher
+        else:
+            plt.plot(wl,n, 'b^', label='BB check')
+            plt.plot(wl,n2, 'r+', label='Phoenix check')  # not convolved with PSF unlike JexoSim, so peak may be higher
         plt.plot(wl, jex_sig, 'gx', label='JexoSim')
         plt.ylabel('e/s/pixel col'); plt.xlabel('pixel col wavelength (microns)')
         plt.legend(loc='best')
+       
      ################      
         plt.figure('sanity check 2 - expected final star signal in R bin of %s'%((R)))
         plt.plot(wl, opt.exp_sig)

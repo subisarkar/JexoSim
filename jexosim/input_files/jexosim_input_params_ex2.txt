@@ -9,7 +9,7 @@ sim_mode             2
 sim_output_type         1 
 # 1 = deliver pipeline processed results. 2 = deliver image stack only in FITS format. 3 =  deliver pipeline processed results + intermediate data
 
-sim_noise_source	0	 
+sim_noise_source   	0	 
 # Pick a number from the list below. For most simulations recommend using 0 (All noise)
 # 0 All noise sources 
 # 2 Star (photon noise)
@@ -58,7 +58,7 @@ sim_systematic_model_path
 obs_type	  1
 # 1 = primary transit. 2 = secondary eclipse. 
 
-obs_frac_t14_pre_transit	0.5 
+obs_frac_t14_pre_transit 	0.5 
 # Enter fraction of transit duration to cover pre-transit. Recommend keep set to 0.5.  Only applied in full transit mode. 
 
 obs_frac_t14_post_transit  0.5
@@ -76,7 +76,7 @@ obs_n_groups
 obs_n_reset_groups     default
 # Enter default for default number of reset groups per integration cycle: 0 for MIRI, 1 for NIR instruments.  Override by placing an integer number to set the number of reset groups.
 
-obs_inst_config  MIRI + LRS_slitless + SLITLESSPRISM + FAST
+obs_inst_config  NIRCam + TSGRISM_F322W2 + SUBGRISM64_4_output + RAPID
 
 # available combinations: copy and paste a choice
 # instrument + configuration + subarray + readout_pattern
@@ -197,7 +197,7 @@ planet_spectrum_model	file
 # Enter complex to use a planet spectrum from the database
 # Enter file to use a planet spectrum from a specific file  
 
-planet_spectrum_file	K2-18b.txt 
+planet_spectrum_file	   K2-18b.txt 
 # Give complete path to specific planet spectrum file. Exception: if the file is in the .../data/planet_spectra folder, only the file name need be given. Only needed if planet_spectrum_mode = file.
 
 star_spectrum_model	complex

@@ -169,28 +169,41 @@ def calc_T14(inc, a, per, Rp, Rs):
     rat = Rp/Rs
     t14 = per/np.pi* Rs/a * np.sqrt((1+rat)**2 - b**2)
     return t14
-
-
+ 
+    
 def get_it_spectrum(opt):
     
     wl_lo = opt.channel.pipeline_params.wavrange_lo.val
     wl_hi = opt.channel.pipeline_params.wavrange_hi.val
     wl = opt.star.sed.wl
     planet_wl = opt.planet.sed.wl
+    
+    # CHANGE INTRODUCED
+    # If the star is downsampled here it can cause inconsistencies in the representation of the source spectrum
+    # Hence I err on the side of upsampling the planet spectrum to the star resolution, rather than downsampling
+    # the star spectrum to the planet spectrum resolution.
+    # The impact of this change on the final planet spectrum is minimal
 
-    R = wl/np.gradient((wl))
-    R_planet = planet_wl/np.gradient((planet_wl))
-    # select onyl wavelengths in range for channel
-    idx = np.argwhere((wl.value>= wl_lo) & (wl.value<= wl_hi)).T[0]
-    idx2 = np.argwhere((planet_wl.value>= wl_lo) & (planet_wl.value<= wl_hi)).T[0]
-    # rebin to lower resolution spectrum
-    if  R_planet[idx2].min() < R[idx].min():
-        opt.star.sed.rebin(planet_wl)
-    else:
-        opt.planet.sed.rebin(wl)
+    # R = wl/np.gradient((wl))
+    # R_planet = planet_wl/np.gradient((planet_wl))
+    # # select onyl wavelengths in range for channel
+    # idx = np.argwhere((wl.value>= wl_lo) & (wl.value<= wl_hi)).T[0]
+    # idx2 = np.argwhere((planet_wl.value>= wl_lo) & (planet_wl.value<= wl_hi)).T[0]
+    # # rebin to lower resolution spectrum
+    # if  R_planet[idx2].min() < R[idx].min():
+    #     opt.star.sed.rebin(planet_wl)
+    # else:
+    #     opt.planet.sed.rebin(wl)
+        
+    opt.planet.sed.rebin(wl)
+        
     # now make in-transit stellar spectrum
     star_sed_it = opt.star.sed.sed*(1-opt.planet.sed.sed)
     opt.star.sed_it = Sed(opt.star.sed.wl, star_sed_it)
+    
+    return opt
+    
+    
  
     return opt
 

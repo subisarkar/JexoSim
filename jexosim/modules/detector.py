@@ -38,7 +38,10 @@ def run(opt):
       opt.fp_signal_it *=mask_fp_signal_it
            
       opt.planet.sed = instrument_lib.get_planet_spectrum(opt)
- 
+      
+
+      jexosim_plot('planet sed', opt.diagnostics, xdata=opt.planet.sed.wl, ydata=opt.planet.sed.sed, )
+       
       opt = instrument_lib.user_subarray(opt) 
       opt = instrument_lib.crop_to_subarray(opt)
       opt = instrument_lib.exposure_timing(opt)
@@ -115,6 +118,5 @@ def run(opt):
           plt.plot(wl, opt.R.sed, '-') 
 
       instrument_lib.sanity_check(opt)
-      
-     
+
       return opt

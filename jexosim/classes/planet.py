@@ -59,7 +59,7 @@ class Planet(object):
          
         planet_flux = planet_flux_em + planet_flux_ref 
 
-        cr = planet_flux / star_flux
+        cr = planet_flux / (star_flux + planet_flux)
         self.sed = sed.Sed(wl,cr)   
  
         plt.figure ('fluxes')
@@ -94,7 +94,7 @@ class Planet(object):
           haze = self.opt.exosystem_params.planet_spectrum_params_haze.val
           cloud = self.opt.exosystem_params.planet_spectrum_params_cloud.val
           cond = self.opt.exosystem_params.planet_spectrum_params_cond.val
-          mmw = self.opt.exosystem_params.planet_spectrum_params_mmw.val
+          # mmw = self.opt.exosystem_params.planet_spectrum_params_mmw.val
           
           if cond == 'local':
               target_folder = 'local'
@@ -196,17 +196,18 @@ class Planet(object):
           wl=  aa[:,0]*u.um 
       cr = aa[:,1]*u.dimensionless_unscaled
       
-      import matplotlib.pyplot as plt
-      
-      plt.figure('test planet spectrum 1')
-      plt.plot(wl, cr)
-      
-      plt.figure('test planet spectrum 2')
-      plt.plot(wl, np.gradient(wl))  
-      
-      
-      plt.figure('test planet spectrum 3 - R power')
-      plt.plot(wl, wl/np.gradient(wl))  
+      if self.opt.diagnostics == 1:
+          import matplotlib.pyplot as plt
+          
+          plt.figure('test planet spectrum 1')
+          plt.plot(wl, cr)
+          
+          plt.figure('test planet spectrum 2')
+          plt.plot(wl, np.gradient(wl))  
+          
+          
+          plt.figure('test planet spectrum 3 - R power')
+          plt.plot(wl, wl/np.gradient(wl))  
       
        
       self.sed = sed.Sed(wl,cr)   

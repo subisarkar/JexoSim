@@ -109,7 +109,7 @@ def logbin(x, a,  R, xmin=None, xmax=None):
   bins = 0.5*(bins[:-1] + bins[1:])
   return bins[:-1], mean[:-1]
 
-def rebin(x, xp, fp):
+def rebin_old(x, xp, fp):
   ''' Resample a function fp(xp) over the new grid x, rebinning if necessary, 
     otherwise interpolates
     Parameters
@@ -136,11 +136,11 @@ def rebin(x, xp, fp):
   xp = xp[idx]
   fp = fp[idx]
   
+  print (abs(np.diff(xp)).min() ,  abs(np.diff(x)).min())
 
-  if np.diff(xp).min() < np.diff(x).min():
-   
-    # Binning!
-    
+  if abs(np.diff(xp)).min() < abs(np.diff(x)).min():
+
+    print ('**************  binning')    # Binning!
     # old method
     # c = cumtrapz(fp, x=xp)
     # xpc = xp[1:]    
@@ -167,7 +167,7 @@ def rebin(x, xp, fp):
     x = x*xp.unit
         
   else:
-    # Interpolate !
+    print ('**************  interpolating') # Interpolate !
     new_f = np.interp(x, xp, fp, left=0.0, right=0.0)
     
   new_f = (new_f.value)*fp.unit
@@ -186,6 +186,92 @@ def rebin(x, xp, fp):
   '''
   return x, new_f
   
+
+
+def rebin(x, xp, fp):
+  ''' Resample a function fp(xp) over the new grid x, rebinning if necessary, 
+    otherwise interpolates
+    Parameters
+    ----------
+    x	: 	array like
+	New coordinates
+    fp 	:	array like
+	y-coordinates to be resampled
+    xp 	:	array like
+	x-coordinates at which fp are sampled
+	
+    Returns
+    -------
+    out	: 	array like
+	new samples  
+  '''
+  
+  if (x.unit != xp.unit):
+    print (x.unit, xp.unit)
+    jexosim_error('Units mismatch')
+    
+    
+# ============================================================================
+  fp[np.isnan(fp)] = 0
+  # first select non-zero elements
+  idx_x = np.argwhere(x>0).T[0]
+  idx_xp = np.argwhere(xp>0).T[0]
+
+  x_ = x[idx_x]
+  xp_ = xp[idx_xp]
+  fp_ = fp[idx_xp]
+
+  # select elements in input grid within wl range of new grid
+  idx = np.where(np.logical_and(xp_ > 0.9*x_.min(), xp_ < 1.1*x_.max()))[0]
+  xp = xp_[idx]
+  fp = fp_[idx]
+
+  #To check that the binning or interp is applied correctly uncomment following
+  # print (abs(np.diff(xp_)).min() ,  abs(np.diff(x_)).min())
+
+  # compare the resolutions of the non-zero arrays and thus bin or interpolate
+  if abs(np.diff(xp_).min()) < abs(np.diff(x_).min()):
+      
+    # print ('**************  binning')    # Binning!
+  
+    c = cumtrapz(fp, x=xp)
+    xpc = xp[1:].value
+    x = x.value
+    diff = np.diff(x)
+    diff_pos = np.array((diff/2).tolist() +[diff[-1]/2]) # edge bins fix
+    diff_neg = np.array([diff[0]/2] +(diff/2).tolist()) # edge bins fix
+    delta = diff_pos+diff_neg
+    new_c_1 = np.interp(x-diff_neg, xpc, c, 
+                       left=0.0, right=0.0)
+    new_c_2 = np.interp(x+diff_pos, xpc, c, 
+                       left=0.0, right=0.0)
+    new_f = ((new_c_2 - new_c_1)/delta)*fp.unit
+    x = x*xp.unit
+       
+  else:
+    # Interpolate !
+    # print ('************** interpolating')
+
+    new_f = np.interp(x, xp, fp, left=0.0, right=0.0)
+
+  new_f[np.isnan(new_f)] = 0
+  new_f = (new_f.value)*fp.unit
+ 
+#    func = interpolate.interp1d(xp, fp, kind='quadratic', bounds_error=None, fill_value=0.0)
+#    new_f  = func(x)*fp.unit
+  '''
+  import matplotlib.pyplot as plt
+  plt.plot(xp, fp, '-')
+  plt.plot(x, new_f, '.-')
+  plt.show()
+  # check
+  print np.trapz(new_f, x)
+  idx = np.where(np.logical_and(xp>= x.min(), xp <= x.max()))
+  print np.trapz(fp[idx], xp[idx])
+  '''
+  return x, new_f
+
+
 def fast_convolution(im, delta_im, ker, delta_ker):
   """ fast_convolution.
     Convolve an image with a kernel. Image and kernel can be sampled on different
